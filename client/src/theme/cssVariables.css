@@ -1,0 +1,171 @@
+/* CSS Variables for Global Theme */
+:root {
+  /* Color Palette */
+  --color-primary: #1976d2;
+  --color-primary-light: #2196f3;
+  --color-primary-dark: #1565c0;
+  --color-primary-contrast: #ffffff;
+
+  --color-secondary: #7b1fa2;
+  --color-secondary-light: #9c27b0;
+  --color-secondary-dark: #6a1b9a;
+  --color-secondary-contrast: #ffffff;
+
+  --color-success: #2e7d32;
+  --color-success-light: #4caf50;
+  --color-success-dark: #1b5e20;
+  --color-success-contrast: #ffffff;
+
+  --color-warning: #ed6c02;
+  --color-warning-light: #ff9800;
+  --color-warning-dark: #e65100;
+  --color-warning-contrast: #ffffff;
+
+  --color-error: #d32f2f;
+  --color-error-light: #f44336;
+  --color-error-dark: #c62828;
+  --color-error-contrast: #ffffff;
+
+  --color-info: #1976d2;
+  --color-info-light: #42a5f5;
+  --color-info-dark: #1565c0;
+  --color-info-contrast: #ffffff;
+
+  /* Text Colors */
+  --color-text-primary: #212121;
+  --color-text-secondary: #666666;
+  --color-text-disabled: #bdbdbd;
+
+  /* Background Colors */
+  --color-bg-default: #f8f9fa;
+  --color-bg-paper: #ffffff;
+  --color-bg-glass: rgba(255, 255, 255, 0.75);
+  --color-bg-glass-dark: rgba(255, 255, 255, 0.8);
+  --color-bg-grey-light: #f5f5f5;
+
+  /* Chart Colors */
+  --color-chart-1: #1976d2;
+  --color-chart-2: #2e7d32;
+  --color-chart-3: #ed6c02;
+  --color-chart-4: #d32f2f;
+  --color-chart-5: #7b1fa2;
+
+  /* Spacing Scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-xxl: 24px;
+  --radius-round: 50px;
+
+  /* Shadows */
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+
+  /* Z-index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* Global utility classes */
+.theme-card {
+  background: var(--color-bg-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  transition: box-shadow var(--transition-normal);
+}
+
+.theme-card:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+.theme-glass {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.theme-gradient-primary {
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+}
+
+.theme-text-primary {
+  color: var(--color-primary);
+}
+
+.theme-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.theme-bg-default {
+  background-color: var(--color-bg-default);
+}
+
+.theme-bg-glass {
+  background-color: var(--color-bg-glass);
+}
+
+/* Status badge colors */
+.badge-status-open {
+  background-color: var(--color-error);
+  color: var(--color-error-contrast);
+}
+
+.badge-status-progress {
+  background-color: var(--color-warning);
+  color: var(--color-warning-contrast);
+}
+
+.badge-status-resolved {
+  background-color: var(--color-success);
+  color: var(--color-success-contrast);
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn var(--transition-slow) ease;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-slow) ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
