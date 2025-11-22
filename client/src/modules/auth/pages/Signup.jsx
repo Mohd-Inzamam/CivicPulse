@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { Typography, Alert, Divider, Button } from "@mui/material";
+import { Typography, Alert, Divider, Button, Avatar } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
@@ -57,6 +57,8 @@ export default function Signup() {
     city: "",
     ward: "",
   });
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -64,6 +66,14 @@ export default function Signup() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   const validateField = (name, value) => {
@@ -167,12 +177,24 @@ export default function Signup() {
               ssn: form.ssn,
             };
 
+      const formDataToSend = new FormData();
+      Object.keys(payload).forEach((key) => {
+        formDataToSend.append(key, payload[key]);
+      });
+      if (avatar) formDataToSend.append("avatar", avatar);
+
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        body: formDataToSend,
         credentials: "include",
-        body: JSON.stringify(payload),
       });
+
+      // const res = await fetch(endpoint, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   credentials: "include",
+      //   body: JSON.stringify(payload),
+      // });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -202,6 +224,31 @@ export default function Signup() {
             {/* Role toggle */}
             <div className="mb-3">
               <RoleToggle value={role} onChange={setRole} />
+
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mb-3 d-flex flex-column align-items-center">
+                <Avatar
+                  src={avatarPreview}
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    border: "3px solid #ccc",
+                    mb: 1,
+                  }}
+                />
+                <Button variant="contained" component="label" size="small">
+                  Choose Avatar
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                </Button>
+              </motion.div>
             </div>
 
             <AnimatePresence>
