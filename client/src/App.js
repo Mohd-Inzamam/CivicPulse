@@ -15,6 +15,7 @@ import AuthGuard from "./components/auth/AuthGuard";
 import SessionTimeout from "./components/auth/SessionTimeout";
 import Home from "./pages/Home";
 import UpdateProfile from "./modules/auth/pages/UpdateProfile";
+import UpdateIssue from "./modules/issues/pages/UpdateIssue";
 
 function App() {
   // ✅ Only keep filters state - issues are now managed by individual components
@@ -65,6 +66,16 @@ function App() {
             <AuthGuard requiredRole={"user"}>
               {/* ✅ IssueDetail will fetch its own data from backend */}
               <IssueDetail />
+            </AuthGuard>
+          }
+        />
+
+        <Route
+          path="/issues/:id"
+          element={
+            <AuthGuard requiredRole={"user"}>
+              {/* Update Issue */}
+              <UpdateIssue />
             </AuthGuard>
           }
         />

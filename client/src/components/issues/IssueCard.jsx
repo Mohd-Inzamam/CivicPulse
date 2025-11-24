@@ -11,9 +11,21 @@ import { motion } from "framer-motion";
 import StatusBadge from "../common/StatusBadge";
 import CategoryBadge from "../common/CategoryBadge";
 
-const IssueCard = ({ issue, onUpvote, hasVoted, animationDelay = 0 }) => {
+const IssueCard = ({
+  issue,
+  onUpvote,
+  hasVoted,
+  onEdit,
+  animationDelay = 0,
+}) => {
   const navigate = useNavigate();
 
+  // Determine if user can edit
+  const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+  console.log("currentUser", currentUser);
+  const canEdit =
+    currentUser.role === "user" || currentUser._id === issue.createdBy?._id;
+  console.log(canEdit);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,6 +84,7 @@ const IssueCard = ({ issue, onUpvote, hasVoted, animationDelay = 0 }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              gap: 8,
             }}>
             <Button
               variant="outlined"
@@ -87,20 +100,26 @@ const IssueCard = ({ issue, onUpvote, hasVoted, animationDelay = 0 }) => {
             </Typography>
           </div>
 
-          {issue._id && (
+          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
             <Button
               variant="contained"
               size="small"
               onClick={() => navigate(`/issues/${issue._id}`)}
-              sx={{
-                mt: 2,
-                width: "100%",
-                textTransform: "none",
-                borderRadius: 2,
-              }}>
+              sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
               View Details
             </Button>
-          )}
+
+            {canEdit && onEdit && (
+              <Button
+                variant="outlined"
+                size="small"
+                color="secondary"
+                onClick={() => onEdit(issue)}
+                sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
+                Edit
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
     </motion.div>

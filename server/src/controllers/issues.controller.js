@@ -2,6 +2,7 @@ import { apiError } from '../utils/apiError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { apiResponce } from '../utils/apiResponce.js'
 import { Issue } from '../models/issue.model.js'
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const getAllIssues = asyncHandler(async (req, res) => {
   const { search, category, status, location, page = 1, limit = 10 } = req.query
@@ -52,36 +53,12 @@ const getIssueById = asyncHandler(async (req, res) => {
   return res.status(200).json(new apiResponce(200, issue, 'Issue retrieved successfully'))
 })
 
-// const createIssue = asyncHandler(async (req, res) => {
-//   const { title, description, category, location, image } = req.body
-
-//   if (!(title && description && category && location)) {
-//     throw new apiError(400, 'All required fields must be provided')
-//   }
-
-//   const issueData = {
-//     title,
-//     description,
-//     category,
-//     location,
-//     status: 'Open',
-//     image: image || null,
-//     upvotes: 0,
-//     createdBy: req.user._id
-//   }
-
-//   const issue = await Issue.create(issueData)
-//   const createdIssue = await Issue.findById(issue._id).populate('createdBy', 'fullName email')
-
-//   return res.status(201).json(new apiResponce(201, createdIssue, 'Issue created successfully'))
-// })
-
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const createIssue = asyncHandler(async (req, res) => {
   try {
 
     const { title, description, category, location, priority, tags } = req.body;
+    console.log(title);
 
     if (!(title && description && category && location)) {
       throw new apiError(400, "All required fields must be provided");
@@ -134,9 +111,10 @@ const updateIssue = asyncHandler(async (req, res) => {
   }
 
   // Check if user is the creator or admin
-  if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+  if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'user') {
     throw new apiError(403, 'Not authorized to update this issue')
   }
+
 
   const updateData = {}
   if (title) updateData.title = title

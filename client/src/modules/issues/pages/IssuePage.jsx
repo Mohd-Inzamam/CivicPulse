@@ -22,7 +22,7 @@ function IssuePage({ filters }) {
         // Your backend probably returns: { data: { issues: [...] } }
         const fetchedIssues = response.data?.issues || response.issues || [];
 
-        setIssues(fetchedIssues);
+        setIssues(fetchedIssues.filter(Boolean));
       } catch (err) {
         console.error("Failed to load issues:", err);
         setError("Failed to load issues. Please try again.");
