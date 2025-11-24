@@ -11,6 +11,7 @@ function IssuePage({ filters }) {
   const [error, setError] = useState(null);
 
   // Fetch issues from backend on mount
+
   useEffect(() => {
     const fetchIssues = async () => {
       setLoading(true);
@@ -18,10 +19,7 @@ function IssuePage({ filters }) {
         const response = await issuesService.getAllIssues();
         console.log("Issues fetched from backend:", response);
 
-        // ✅ Adjust based on your backend response structure
-        // Your backend probably returns: { data: { issues: [...] } }
         const fetchedIssues = response.data?.issues || response.issues || [];
-
         setIssues(fetchedIssues.filter(Boolean));
       } catch (err) {
         console.error("Failed to load issues:", err);
@@ -30,25 +28,20 @@ function IssuePage({ filters }) {
         setLoading(false);
       }
     };
-
     fetchIssues();
-  }, []); // Only fetch once on mount
+  }, []);
 
   // Function to add a new issue
   const addIssue = async (newIssueData) => {
     try {
-      // ✅ Create issue in backend
       const response = await issuesService.createIssue(newIssueData);
       console.log("Issue created:", response);
 
-      // ✅ Extract the created issue from response
       const createdIssue = response.data?.issue || response.issue;
 
       if (createdIssue) {
-        // Add to local state immediately for instant feedback
         setIssues((prev) => [createdIssue, ...prev]);
       } else {
-        // If response doesn't include the issue, refetch all issues
         const refreshResponse = await issuesService.getAllIssues();
         const refreshedIssues =
           refreshResponse.data?.issues || refreshResponse.issues || [];
@@ -62,38 +55,32 @@ function IssuePage({ filters }) {
     }
   };
 
-  // Compute ranked issues based on filters
-  const rankedIssues = (issues || []).map((issue) => {
-    let score = 0;
+  // ADDED: Handle Upvote
+  const handleUpvote = async (issueId) => {
+    try {
+      const response = await issuesService.upvoteIssue(issueId);
 
-    if (
-      filters.search &&
-      (issue.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        issue.description
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        issue.category?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        issue.location?.toLowerCase().includes(filters.search.toLowerCase()))
-    ) {
-      score += 2;
+      const updatedUpvotes =
+        response?.data?.data?.upvotes ||
+        response?.data?.upvotes ||
+        response?.upvotes;
+
+      if (!updatedUpvotes && updatedUpvotes !== 0) {
+        console.error("Invalid upvote response:", response);
+        return;
+      }
+
+      setIssues((prev) =>
+        prev.map((issue) =>
+          issue._id === issueId ? { ...issue, upvotes: updatedUpvotes } : issue
+        )
+      );
+    } catch (err) {
+      console.error("Upvote failed:", err);
     }
+  };
 
-    if (filters.category && issue.category === filters.category) score += 1;
-    if (filters.status && issue.status === filters.status) score += 1;
-    if (
-      filters.location &&
-      issue.location?.toLowerCase().includes(filters.location.toLowerCase())
-    )
-      score += 1;
-
-    return { ...issue, score };
-  });
-
-  const sortedIssues = rankedIssues.sort(
-    (a, b) => b.score - a.score || (b.upvotes || 0) - (a.upvotes || 0)
-  );
-
-  const hasIssues = sortedIssues.length > 0;
+  const hasIssues = issues.length > 0;
 
   if (loading) {
     return (
@@ -166,7 +153,23 @@ function IssuePage({ filters }) {
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}>
-                <IssueList issues={sortedIssues} setIssues={setIssues} />
+                {/* ⬇️⬇️⬇️ Pass handleUpvote */}
+                <IssueList
+                  issues={issues}
+                  onUpvote={handleUpvote}
+                  onUpdateIssue={(updatedIssue) =>
+                    setIssues((prev) =>
+                      prev.map((issue) =>
+                        issue._id === updatedIssue._id ? updatedIssue : issue
+                      )
+                    )
+                  }
+                  onDeleteIssue={(deletedId) =>
+                    setIssues((prev) =>
+                      prev.filter((issue) => issue._id !== deletedId)
+                    )
+                  }
+                />
               </motion.div>
 
               <motion.div

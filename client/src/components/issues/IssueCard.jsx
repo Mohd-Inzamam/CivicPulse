@@ -16,16 +16,17 @@ const IssueCard = ({
   onUpvote,
   hasVoted,
   onEdit,
+  onDelete,
   animationDelay = 0,
 }) => {
   const navigate = useNavigate();
 
   // Determine if user can edit
   const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-  console.log("currentUser", currentUser);
+  // console.log("currentUser", currentUser);
   const canEdit =
     currentUser.role === "user" || currentUser._id === issue.createdBy?._id;
-  console.log(canEdit);
+  // console.log(canEdit);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -110,15 +111,30 @@ const IssueCard = ({
             </Button>
 
             {canEdit && onEdit && (
-              <Button
-                variant="outlined"
-                size="small"
-                color="secondary"
-                onClick={() => onEdit(issue)}
-                sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
-                Edit
-              </Button>
+              <>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="secondary"
+                  onClick={() => onEdit(issue)}
+                  sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
+                  Edit
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  onClick={() => onDelete(issue)}
+                  sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
+                  Delete
+                </Button>
+              </>
             )}
+
+            {/* {canEdit && (
+             
+            )} */}
           </div>
         </CardContent>
       </Card>

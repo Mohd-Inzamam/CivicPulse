@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Typography, Alert, Backdrop } from "@mui/material";
 import IssueCard from "../../../components/issues/IssueCard";
 import UpdateIssue from "./UpdateIssue";
+import DeleteIssue from "./DeleteIssue";
 
-function IssueList({ issues, setIssues }) {
+function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
   const [votedIssues, setVotedIssues] = useState([]);
-  const [editingIssue, setEditingIssue] = useState(null); // Track issue being edited
+  const [editingIssue, setEditingIssue] = useState(null);
+  const [deletingIssue, setDeletingIssue] = useState(null);
 
   // Load voted issues from localStorage on mount
   useEffect(() => {
@@ -13,18 +15,12 @@ function IssueList({ issues, setIssues }) {
     setVotedIssues(storedVotes);
   }, []);
 
-  // Handle upvote click
-  const handleUpvote = (id) => {
+  // Handle upvote click: CALL IssuePage handler, then update local votedIssues
+  const handleUpvoteClick = async (id) => {
     if (votedIssues.includes(id)) return;
 
-    // Update issues state
-    setIssues((prevIssues) =>
-      prevIssues.map((issue) =>
-        issue?._id === id ? { ...issue, upvotes: issue.upvotes + 1 } : issue
-      )
-    );
+    await onUpvote(id); // 🔥 The actual backend call is done in IssuePage.jsx
 
-    // Update votedIssues state + persist to localStorage
     const updatedVotes = [...votedIssues, id];
     setVotedIssues(updatedVotes);
     localStorage.setItem("votedIssues", JSON.stringify(updatedVotes));
@@ -32,12 +28,8 @@ function IssueList({ issues, setIssues }) {
 
   // Handle successful update
   const handleUpdate = (updatedIssue) => {
-    setIssues((prevIssues) =>
-      prevIssues.map((issue) =>
-        issue?._id === updatedIssue._id ? updatedIssue : issue
-      )
-    );
-    setEditingIssue(null); // Close modal
+    onUpdateIssue(updatedIssue);
+    setEditingIssue(null);
   };
 
   return (
@@ -68,10 +60,11 @@ function IssueList({ issues, setIssues }) {
             <IssueCard
               key={issue._id}
               issue={issue}
-              onUpvote={handleUpvote}
+              onUpvote={() => handleUpvoteClick(issue._id)} // ⬅️ Correct flow
               hasVoted={votedIssues.includes(issue._id)}
               animationDelay={index * 0.1}
-              onEdit={() => setEditingIssue(issue)} // Pass edit handler
+              onEdit={() => setEditingIssue(issue)}
+              onDelete={() => setDeletingIssue(issue)}
             />
           ))}
         </div>
@@ -89,79 +82,19 @@ function IssueList({ issues, setIssues }) {
           />
         </Backdrop>
       )}
+
+      {deletingIssue && (
+        <DeleteIssue
+          issue={deletingIssue}
+          onClose={() => setDeletingIssue(null)}
+          onDeleteSuccess={(deletedId) => {
+            onDeleteIssue(deletedId);
+            setDeletingIssue(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
 export default IssueList;
-
-// import { useEffect, useState } from "react";
-// import { Typography, Alert } from "@mui/material";
-// import IssueCard from "../../../components/issues/IssueCard";
-
-// function IssueList({ issues, setIssues }) {
-//   const [votedIssues, setVotedIssues] = useState([]);
-
-//   // Load voted issues from localStorage on mount
-//   useEffect(() => {
-//     const storedVotes = JSON.parse(localStorage.getItem("votedIssues")) || [];
-//     setVotedIssues(storedVotes);
-//   }, []);
-
-//   // Handle upvote click
-//   const handleUpvote = (id) => {
-//     if (votedIssues.includes(id)) return;
-
-//     // update issues state
-//     setIssues((prevIssues) =>
-//       prevIssues.map((issue) =>
-//         issue.id === id ? { ...issue, upvotes: issue.upvotes + 1 } : issue
-//       )
-//     );
-
-//     // update votedIssues state + persist to localStorage
-//     const updatedVotes = [...votedIssues, id];
-//     setVotedIssues(updatedVotes);
-//     localStorage.setItem("votedIssues", JSON.stringify(updatedVotes));
-//   };
-
-//   return (
-//     <div>
-//       <Typography
-//         variant="h4"
-//         sx={{ fontWeight: "bold", color: "primary.main", mb: 4 }}>
-//         Reported Issues
-//       </Typography>
-
-//       {issues.length === 0 ? (
-//         <Alert
-//           severity="info"
-//           sx={{
-//             borderRadius: 3,
-//             boxShadow: 1,
-//             "& .MuiAlert-message": {
-//               fontWeight: "bold",
-//             },
-//           }}>
-//           <strong>No issues match your filters.</strong>
-//           <br />
-//           Try adjusting search, category, or status filters.
-//         </Alert>
-//       ) : (
-//         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-//           {issues.map((issue, index) => (
-//             <IssueCard
-//               key={issue._id}
-//               issue={issue}
-//               onUpvote={handleUpvote}
-//               hasVoted={votedIssues.includes(issue.id)}
-//               animationDelay={index * 0.1}
-//             />
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default IssueList;

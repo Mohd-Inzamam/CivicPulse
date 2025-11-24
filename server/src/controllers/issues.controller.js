@@ -129,24 +129,67 @@ const updateIssue = asyncHandler(async (req, res) => {
   return res.status(200).json(new apiResponce(200, updatedIssue, 'Issue updated successfully'))
 })
 
-const deleteIssue = asyncHandler(async (req, res) => {
-  const { id } = req.params
+// const deleteIssue = asyncHandler(async (req, res) => {
+//   const { id } = req.params
 
-  const issue = await Issue.findById(id)
+//   const issue = await Issue.findById(id)
+
+//   if (!issue) {
+//     throw new apiError(404, 'Issue not found')
+//   }
+
+//   // Check if user is the creator or admin
+//   if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+//     throw new apiError(403, 'Not authorized to delete this issue')
+//   }
+
+//   await Issue.findByIdAndDelete(id)
+
+//   return res.status(200).json(new apiResponce(200, {}, 'Issue deleted successfully'))
+// })
+
+const deleteIssue = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const issue = await Issue.findById(id);
 
   if (!issue) {
-    throw new apiError(404, 'Issue not found')
+    throw new apiError(404, "Issue not found");
   }
 
-  // Check if user is the creator or admin
-  if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-    throw new apiError(403, 'Not authorized to delete this issue')
+  const isOwner = issue.createdBy.toString() === req.user._id.toString();
+  const isAdmin = req.user.role === "admin";
+
+  // 🛑 User is NOT creator or admin → deny
+  if (!isOwner && !isAdmin) {
+    throw new apiError(403, "Not authorized to delete this issue");
   }
 
-  await Issue.findByIdAndDelete(id)
+  // 🟦 Admin can delete ANY issue without restrictions
+  if (!isAdmin) {
+    // 🟩 Creator can only delete if issue is still fresh
+    if (issue.status !== "Open") {
+      throw new apiError(
+        400,
+        "Cannot delete issue that is already being processed or closed"
+      );
+    }
 
-  return res.status(200).json(new apiResponce(200, {}, 'Issue deleted successfully'))
-})
+    if (issue.upvotes > 0) {
+      throw new apiError(
+        400,
+        "Cannot delete issue that has public engagement (upvotes)"
+      );
+    }
+  }
+
+  await Issue.findByIdAndDelete(id);
+
+  return res
+    .status(200)
+    .json(new apiResponce(200, {}, "Issue deleted successfully"));
+});
+
 
 const upvoteIssue = asyncHandler(async (req, res) => {
   const { id } = req.params
