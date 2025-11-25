@@ -130,7 +130,7 @@ const Home = () => {
               variant="contained"
               size="large"
               sx={{ borderRadius: 3 }}
-              href="/report">
+              href="/issues">
               Report an Issue
             </Button>
           </Col>

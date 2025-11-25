@@ -1,16 +1,68 @@
 // src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
+import { API_ENDPOINTS } from "../config/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
+    // Verify authentication on mount
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        const verifyAuth = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const storedUser = localStorage.getItem("user");
+
+                if (!token) {
+                    setLoading(false);
+                    return;
+                }
+
+                // Parse stored user
+                let userData = null;
+                if (storedUser) {
+                    try {
+                        userData = JSON.parse(storedUser);
+                    } catch (e) {
+                        console.error("Failed to parse user data:", e);
+                    }
+                }
+
+                // Verify token with backend
+                const res = await fetch(API_ENDPOINTS.VERIFY_TOKEN, {
+                    method: "GET",
+                    headers: { Authorization: `Bearer ${token}` },
+                    credentials: "include",
+                });
+
+                if (!res.ok) {
+                    console.log("AuthContext: Token invalid — clearing storage");
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("userRole");
+                    setUser(null);
+                    setLoading(false);
+                    return;
+                }
+
+                const data = await res.json();
+                const verifiedUser = data.data?.user || data.user || userData;
+
+                setUser(verifiedUser);
+                setLoading(false);
+            } catch (error) {
+                console.error("AuthContext: Verification error:", error);
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("userRole");
+                setUser(null);
+                setLoading(false);
+            }
+        };
+
+        verifyAuth();
     }, []);
 
     const login = (userData) => {
@@ -26,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
@@ -36,65 +88,38 @@ export const useAuth = () => useContext(AuthContext);
 
 
 // // src/context/AuthContext.js
-// import { createContext, useContext, useEffect, useState } from "react";
-// import {
-//     getAuth,
-//     onAuthStateChanged,
-//     GoogleAuthProvider,
-//     signInWithRedirect,
-//     getRedirectResult,
-//     // setPersistence,
-//     // browserLocalPersistence,
-//     signOut,
-// } from "firebase/auth";
-// import { app } from "../lib/firebase"; // ⬅️ make sure this path is correct
+// import { createContext, useContext, useState, useEffect } from "react";
 
-// const AuthContext = createContext(null);
-// const auth = getAuth(app);
-// const provider = new GoogleAuthProvider();
-// provider.setCustomParameters({ prompt: "select_account" });
+// const AuthContext = createContext();
 
-// export function AuthProvider({ children }) {
+// export const AuthProvider = ({ children }) => {
 //     const [user, setUser] = useState(null);
-//     const [loading, setLoading] = useState(true);
 
 //     useEffect(() => {
-//         // Catch redirect result after login
-//         getRedirectResult(auth)
-//             .then((result) => {
-//                 if (result?.user) {
-//                     console.log("[Auth] getRedirectResult user:", result.user);
-//                     setUser(result.user);
-//                 } else {
-//                     console.log("[Auth] getRedirectResult: no user (not a redirect return)");
-//                 }
-//             })
-//             .catch((error) => {
-//                 console.error("[Auth] Redirect error:", error);
-//             });
-
-//         // Listen for auth state changes
-//         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-//             console.log("[Auth] onAuthStateChanged:", currentUser);
-//             setUser(currentUser);
-//             setLoading(false);
-//         });
-
-//         return () => unsubscribe();
+//         const storedUser = localStorage.getItem("user");
+//         if (storedUser) {
+//             setUser(JSON.parse(storedUser));
+//         }
 //     }, []);
 
-//     const loginWithGoogle = async () => {
-//         console.log("[Auth] signInWithRedirect…");
-//         await signInWithRedirect(auth, provider);
+//     const login = (userData) => {
+//         localStorage.setItem("user", JSON.stringify(userData));
+//         setUser(userData);
 //     };
 
-//     const logout = () => signOut(auth);
+//     const logout = () => {
+//         localStorage.removeItem("token");
+//         localStorage.removeItem("user");
+//         localStorage.removeItem("userRole");
+//         setUser(null);
+//     };
 
 //     return (
-//         <AuthContext.Provider value={{ user, loginWithGoogle, logout }}>
-//             {!loading && children}
+//         <AuthContext.Provider value={{ user, login, logout }}>
+//             {children}
 //         </AuthContext.Provider>
 //     );
-// }
+// };
 
 // export const useAuth = () => useContext(AuthContext);
+
