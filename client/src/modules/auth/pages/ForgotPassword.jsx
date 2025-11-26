@@ -75,7 +75,7 @@ export default function ForgotPassword() {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col xs={12} md={6} lg={5}>
-          <PageCard title="Reset Password">
+          <PageCard sx={{ maxWidth: 420 }} title="Reset Password">
             <Typography
               variant="body2"
               color="text.secondary"

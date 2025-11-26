@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Typography, Alert, Backdrop } from "@mui/material";
+import { Typography, Alert, Backdrop, Box } from "@mui/material";
 import IssueCard from "../../../components/issues/IssueCard";
 import UpdateIssue from "./UpdateIssue";
 import DeleteIssue from "./DeleteIssue";
@@ -9,24 +9,21 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
   const [editingIssue, setEditingIssue] = useState(null);
   const [deletingIssue, setDeletingIssue] = useState(null);
 
-  // Load voted issues from localStorage on mount
   useEffect(() => {
     const storedVotes = JSON.parse(localStorage.getItem("votedIssues")) || [];
     setVotedIssues(storedVotes);
   }, []);
 
-  // Handle upvote click: CALL IssuePage handler, then update local votedIssues
   const handleUpvoteClick = async (id) => {
     if (votedIssues.includes(id)) return;
 
-    await onUpvote(id); // 🔥 The actual backend call is done in IssuePage.jsx
+    await onUpvote(id);
 
-    const updatedVotes = [...votedIssues, id];
-    setVotedIssues(updatedVotes);
-    localStorage.setItem("votedIssues", JSON.stringify(updatedVotes));
+    const updated = [...votedIssues, id];
+    setVotedIssues(updated);
+    localStorage.setItem("votedIssues", JSON.stringify(updated));
   };
 
-  // Handle successful update
   const handleUpdate = (updatedIssue) => {
     onUpdateIssue(updatedIssue);
     setEditingIssue(null);
@@ -34,47 +31,47 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
 
   return (
     <div>
-      <Typography
+      {/* <Typography
         variant="h4"
-        sx={{ fontWeight: "bold", color: "primary.main", mb: 4 }}>
+        sx={{
+          fontWeight: "bold",
+          color: "#fff",
+          mb: 3,
+          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+        }}>
         Reported Issues
-      </Typography>
+      </Typography> */}
 
       {issues.length === 0 ? (
-        <Alert
-          severity="info"
-          sx={{
-            borderRadius: 3,
-            boxShadow: 1,
-            "& .MuiAlert-message": {
-              fontWeight: "bold",
-            },
-          }}>
-          <strong>No issues match your filters.</strong>
-          <br />
-          Try adjusting search, category, or status filters.
-        </Alert>
+        <Alert severity="info">No issues match your filters.</Alert>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "1fr 1fr",
+              md: "1fr 1fr 1fr",
+            },
+            gap: 3,
+          }}>
           {issues.map((issue, index) => (
             <IssueCard
               key={issue._id}
               issue={issue}
-              onUpvote={() => handleUpvoteClick(issue._id)} // ⬅️ Correct flow
               hasVoted={votedIssues.includes(issue._id)}
-              animationDelay={index * 0.1}
+              onUpvote={() => handleUpvoteClick(issue._id)}
               onEdit={() => setEditingIssue(issue)}
               onDelete={() => setDeletingIssue(issue)}
+              animationDelay={index * 0.08}
             />
           ))}
-        </div>
+        </Box>
       )}
 
-      {/* UpdateIssue Modal */}
+      {/* Modals */}
       {editingIssue && (
-        <Backdrop
-          open={true}
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Backdrop open sx={{ zIndex: 2000 }}>
           <UpdateIssue
             issue={editingIssue}
             onClose={() => setEditingIssue(null)}
@@ -87,8 +84,8 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
         <DeleteIssue
           issue={deletingIssue}
           onClose={() => setDeletingIssue(null)}
-          onDeleteSuccess={(deletedId) => {
-            onDeleteIssue(deletedId);
+          onDeleteSuccess={(id) => {
+            onDeleteIssue(id);
             setDeletingIssue(null);
           }}
         />

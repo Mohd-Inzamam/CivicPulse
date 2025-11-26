@@ -81,7 +81,7 @@ export const registerAdmin = asyncHandler(async (req, res) => {
 
     // SEND VERIFICATION EMAIL
     try {
-        const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+        const FRONTEND_URL = "http://localhost:5173";
 
         const verifyLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
 

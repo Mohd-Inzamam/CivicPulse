@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import SummaryCards from "../components/SummaryCards";
 import DashboardCharts from "../components/DashboardCharts";
 import IssuesTable from "../components/IssuesTable";
-import { issuesService } from "../../../services/issuesService";
+import { issuesService } from "../../../../services/issuesService";
 
 const Dashboard = () => {
   const [issues, setIssues] = useState([]);

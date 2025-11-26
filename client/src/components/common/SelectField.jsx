@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 import {
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   FormHelperText,
-} from '@mui/material';
-import { motion } from 'framer-motion';
+} from "@mui/material";
+import { motion } from "framer-motion";
 
 const SelectField = ({
   label,
@@ -17,26 +17,25 @@ const SelectField = ({
   helperText,
   options = [],
   fullWidth = true,
-  margin = 'normal',
+  margin = "normal",
   disabled = false,
   required = false,
-  placeholder = 'Select an option',
+  placeholder = "Select an option",
   animationDelay = 0,
   ...props
 }) => {
   return (
     <motion.div
+      style={{ width: "100%" }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: animationDelay }}
-    >
-      <FormControl 
-        fullWidth={fullWidth} 
-        margin={margin} 
+      transition={{ duration: 0.4, delay: animationDelay }}>
+      <FormControl
+        fullWidth={fullWidth}
+        margin={margin}
         error={Boolean(error)}
         disabled={disabled}
-        required={required}
-      >
+        required={required}>
         <InputLabel>{label}</InputLabel>
         <Select
           name={name}
@@ -46,8 +45,7 @@ const SelectField = ({
           sx={{
             borderRadius: 2,
           }}
-          {...props}
-        >
+          {...props}>
           <MenuItem value="" disabled>
             {placeholder}
           </MenuItem>

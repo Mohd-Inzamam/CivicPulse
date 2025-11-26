@@ -7,13 +7,15 @@ import {
   Avatar,
   Typography,
   CircularProgress,
+  Box,
 } from "@mui/material";
-import API_ENDPOINTS from "../../../config/api"; // adjust the path if needed
+import API_ENDPOINTS from "../../../config/api";
 import { useAuth } from "../../../context/AuthContext";
 
 const UpdateProfile = () => {
   const { login } = useAuth();
   const [user, setUser] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,12 +29,10 @@ const UpdateProfile = () => {
   const [updating, setUpdating] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  // Load profile on mount
   useEffect(() => {
     getProfile();
   }, []);
 
-  // Fetch logged-in user data
   const getProfile = async () => {
     setLoading(true);
 
@@ -61,12 +61,10 @@ const UpdateProfile = () => {
     }
   };
 
-  // Input handler
   const handleInput = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Avatar file selection
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -75,7 +73,6 @@ const UpdateProfile = () => {
     }
   };
 
-  // Save profile details (name, email, ssn)
   const submitProfileUpdate = async () => {
     setUpdating(true);
 
@@ -102,7 +99,6 @@ const UpdateProfile = () => {
     }
   };
 
-  // Upload avatar separately
   const uploadAvatar = async () => {
     if (!avatar) return alert("No avatar selected!");
 
@@ -115,7 +111,6 @@ const UpdateProfile = () => {
       const res = await fetch(API_ENDPOINTS.UPDATE_AVATAR, {
         method: "PATCH",
         credentials: "include",
-        // DO NOT set Content-Type — browser will set multipart boundary
         body: fd,
       });
 
@@ -135,22 +130,57 @@ const UpdateProfile = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <Card className="p-3 shadow-sm">
-        <CardContent>
-          <Typography variant="h5" className="mb-4 fw-bold">
+    <Box
+      sx={{
+        maxWidth: 650,
+        mx: "auto",
+        mt: 6,
+        px: 2,
+      }}>
+      <Card
+        sx={{
+          borderRadius: 5,
+          overflow: "hidden",
+          backdropFilter: "blur(16px)",
+          background: "rgba(255, 255, 255, 0.55)",
+          border: "1px solid rgba(255,255,255,0.3)",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+          p: 1,
+        }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              mb: 4,
+              fontWeight: 700,
+              letterSpacing: "-0.3px",
+            }}>
             Update Profile
           </Typography>
 
-          {/* Avatar Upload Section */}
-          <div className="d-flex align-items-center gap-3 mb-4">
+          {/* Avatar Section */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
             <Avatar
               src={avatarPreview}
-              sx={{ width: 90, height: 90, border: "3px solid #ccc" }}
+              sx={{
+                width: 90,
+                height: 90,
+                border: "3px solid rgba(255,255,255,0.5)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              }}
             />
 
-            <div className="d-flex flex-column gap-2">
-              <Button variant="contained" component="label">
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Button
+                variant="outlined"
+                component="label"
+                sx={{
+                  borderRadius: 3,
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(255,255,255,0.4)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  textTransform: "none",
+                }}>
                 Choose Avatar
                 <input
                   type="file"
@@ -162,9 +192,19 @@ const UpdateProfile = () => {
 
               {avatar && (
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   onClick={uploadAvatar}
-                  disabled={avatarUploading}>
+                  disabled={avatarUploading}
+                  sx={{
+                    borderRadius: 3,
+                    backdropFilter: "blur(10px)",
+                    background: "rgba(255,255,255,0.4)",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    textTransform: "none",
+                    "&:hover": {
+                      background: "rgba(255,255,255,0.6)",
+                    },
+                  }}>
                   {avatarUploading ? (
                     <CircularProgress size={22} />
                   ) : (
@@ -172,58 +212,66 @@ const UpdateProfile = () => {
                   )}
                 </Button>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          {/* Profile Form */}
+          {/* Form Fields */}
           {loading ? (
             <CircularProgress />
           ) : (
             <>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <TextField
-                    label="Full Name"
-                    name="name"
-                    fullWidth
-                    value={formData.name}
-                    onChange={handleInput}
-                  />
-                </div>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 3,
+                }}>
+                <TextField
+                  label="Full Name"
+                  name="name"
+                  fullWidth
+                  value={formData.name}
+                  onChange={handleInput}
+                />
 
-                <div className="col-md-6">
-                  <TextField
-                    label="Email"
-                    name="email"
-                    fullWidth
-                    value={formData.email}
-                    onChange={handleInput}
-                  />
-                </div>
+                <TextField
+                  label="Email"
+                  name="email"
+                  fullWidth
+                  value={formData.email}
+                  onChange={handleInput}
+                />
 
-                <div className="col-md-6">
-                  <TextField
-                    label="SSN"
-                    name="ssn"
-                    fullWidth
-                    value={formData.ssn}
-                    onChange={handleInput}
-                  />
-                </div>
-              </div>
+                <TextField
+                  label="SSN"
+                  name="ssn"
+                  fullWidth
+                  value={formData.ssn}
+                  onChange={handleInput}
+                />
+              </Box>
 
               <Button
-                variant="contained"
-                className="mt-4"
+                variant="outlined"
                 onClick={submitProfileUpdate}
-                disabled={updating}>
+                disabled={updating}
+                sx={{
+                  mt: 4,
+                  width: "100%",
+                  py: 1.5,
+                  borderRadius: 3,
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(255,255,255,0.4)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  textTransform: "none",
+                }}>
                 {updating ? <CircularProgress size={24} /> : "Save Changes"}
               </Button>
             </>
           )}
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 

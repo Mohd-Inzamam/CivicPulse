@@ -21,6 +21,7 @@ const RoleToggle = ({
         background: "#f5f5f5",
         borderRadius: "12px",
         padding: "4px",
+        marginBottom: "24px",
       }}>
       {options.map((option) => (
         <Button

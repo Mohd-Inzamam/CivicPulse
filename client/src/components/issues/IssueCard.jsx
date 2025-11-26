@@ -1,15 +1,16 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
+  Box,
+  useTheme,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import StatusBadge from "../common/StatusBadge";
 import CategoryBadge from "../common/CategoryBadge";
+// import { useTheme } from "../../context/ThemeContext";
 
 const IssueCard = ({
   issue,
@@ -20,175 +21,302 @@ const IssueCard = ({
   animationDelay = 0,
 }) => {
   const navigate = useNavigate();
-
-  // Determine if user can edit
+  const theme = useTheme();
   const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-  // console.log("currentUser", currentUser);
   const canEdit =
     currentUser.role === "user" || currentUser._id === issue.createdBy?._id;
-  // console.log(canEdit);
+
+  const glass = theme.palette.glass || {
+    background:
+      theme.palette.mode === "dark"
+        ? "rgba(0, 0, 0, 0.35)"
+        : "rgba(255, 255, 255, 0.25)",
+    border:
+      theme.palette.mode === "dark"
+        ? "1px solid rgba(255, 255, 255, 0.15)"
+        : "1px solid rgba(255, 255, 255, 0.35)",
+    blur: "18px",
+    shadow:
+      theme.palette.mode === "dark"
+        ? "0 4px 25px rgba(0, 0, 0, 0.3)"
+        : "0 4px 20px rgba(0, 0, 0, 0.1)",
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: animationDelay }}>
+      transition={{ duration: 0.45, delay: animationDelay }}>
       <Card
         sx={{
-          borderRadius: 3,
-          boxShadow: 2,
-          overflow: "hidden",
+          borderRadius: 4,
+          p: 2,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+
+          /* Use theme glass values */
+          background: theme.palette.background.glass,
+          backdropFilter: `blur(${glass.blur}) saturate(180%)`,
+          WebkitBackdropFilter: `blur(${glass.blur}) saturate(180%)`,
+          border: glass.border,
+          boxShadow: glass.shadow,
+
           transition: "all 0.3s ease",
           "&:hover": {
-            boxShadow: 4,
-            transform: "translateY(-2px)",
+            transform: "translateY(-4px)",
+            background: theme.palette.background.glassDark,
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "0 12px 40px rgba(0,0,0,0.5)"
+                : "0 12px 40px rgba(0,0,0,0.15)",
           },
         }}>
-        {issue.image && (
-          <CardMedia
-            component="img"
-            height="200"
-            image={issue.image}
-            alt={issue.title}
-            sx={{ objectFit: "cover" }}
-          />
-        )}
-
-        <CardContent>
+        <CardContent sx={{ flexGrow: 1, p: 1 }}>
           <Typography
             variant="h6"
-            component="h2"
-            gutterBottom
-            sx={{ fontWeight: "bold" }}>
+            sx={{
+              fontWeight: 600,
+              mb: 1,
+              color: theme.palette.text.primary,
+              textShadow:
+                theme.palette.mode === "dark"
+                  ? "0 2px 4px rgba(0,0,0,0.5)"
+                  : "0 1px 2px rgba(0,0,0,0.1)",
+            }}>
             {issue.title}
           </Typography>
 
-          <Typography variant="body2" color="text.secondary" paragraph>
-            {issue.description}
-          </Typography>
-
-          <div style={{ marginBottom: 16 }}>
-            <CategoryBadge category={issue.category} sx={{ mr: 1 }} />
-            <StatusBadge status={issue.status} />
-          </div>
-
-          <Typography variant="body2" paragraph sx={{ mb: 1 }}>
-            📍 <strong>Location:</strong> {issue.location}
-          </Typography>
-
-          <Typography variant="body2" paragraph sx={{ mb: 2 }}>
-            👤 <strong>Created By:</strong>{" "}
-            {issue.createdBy?.fullName || "Unknown"}
-          </Typography>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 8,
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 1.5,
+              color: theme.palette.text.secondary,
             }}>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={hasVoted}
-              onClick={() => onUpvote(issue._id)}
-              sx={{ textTransform: "none" }}>
-              👍 {hasVoted ? "Voted" : "Upvote"}
-            </Button>
+            {issue.description?.slice(0, 100)}...
+          </Typography>
 
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              {issue.upvotes || 0} votes
-            </Typography>
-          </div>
+          <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
+            <CategoryBadge category={issue.category} />
+            <StatusBadge status={issue.status} />
+          </Box>
 
-          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => navigate(`/issues/${issue._id}`)}
-              sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
-              View Details
-            </Button>
+          <Typography
+            variant="caption"
+            sx={{ color: theme.palette.text.secondary }}>
+            👤 {issue.createdBy?.fullName}
+          </Typography>
 
-            {canEdit && onEdit && (
-              <>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  color="secondary"
-                  onClick={() => onEdit(issue)}
-                  sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
-                  Edit
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="small"
-                  color="error"
-                  onClick={() => onDelete(issue)}
-                  sx={{ textTransform: "none", flex: 1, borderRadius: 2 }}>
-                  Delete
-                </Button>
-              </>
-            )}
-
-            {/* {canEdit && (
-             
-            )} */}
-          </div>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.text.secondary,
+              display: "block",
+              mt: 0.5,
+            }}>
+            📍 {issue.location}
+          </Typography>
         </CardContent>
+
+        {/* Bottom Buttons */}
+        <Box
+          sx={{
+            mt: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
+          <Button
+            size="small"
+            disabled={hasVoted}
+            onClick={() => onUpvote(issue._id)}
+            sx={{
+              textTransform: "none",
+              borderRadius: 3,
+              px: 2,
+              color: theme.palette.text.primary,
+              background:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.05)",
+              backdropFilter: "blur(12px)",
+              border:
+                theme.palette.mode === "dark"
+                  ? "1px solid rgba(255,255,255,0.12)"
+                  : "1px solid rgba(0,0,0,0.08)",
+              "&:hover": {
+                background:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.15)"
+                    : "rgba(0,0,0,0.08)",
+              },
+              "&:disabled": {
+                color: theme.palette.text.disabled,
+                background:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.02)",
+              },
+            }}>
+            👍 {hasVoted ? "Voted" : "Upvote"}
+          </Button>
+
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 700,
+              color: theme.palette.primary.main,
+            }}>
+            {issue.upvotes || 0} votes
+          </Typography>
+        </Box>
+
+        {/* Footer Buttons */}
+        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+          <Button
+            size="small"
+            onClick={() => navigate(`/issues/${issue._id}`)}
+            sx={{
+              textTransform: "none",
+              borderRadius: 3,
+              px: 2,
+              color: theme.palette.primary.contrastText,
+              background: theme.palette.primary.main,
+              "&:hover": {
+                background: theme.palette.primary.dark,
+              },
+            }}>
+            View
+          </Button>
+
+          {canEdit && (
+            <>
+              <Button
+                size="small"
+                onClick={() => onEdit(issue)}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 3,
+                  px: 2,
+                  background:
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.05)",
+                  border:
+                    theme.palette.mode === "dark"
+                      ? "1px solid rgba(255,255,255,0.12)"
+                      : "1px solid rgba(0,0,0,0.08)",
+                  color: theme.palette.text.primary,
+                  "&:hover": {
+                    background: theme.palette.secondary.main,
+                    color: theme.palette.secondary.contrastText,
+                  },
+                }}>
+                Edit
+              </Button>
+
+              <Button
+                size="small"
+                onClick={() => onDelete(issue)}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 3,
+                  px: 2,
+                  background:
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.05)",
+                  border:
+                    theme.palette.mode === "dark"
+                      ? "1px solid rgba(255,255,255,0.12)"
+                      : "1px solid rgba(0,0,0,0.08)",
+                  color: theme.palette.text.primary,
+                  "&:hover": {
+                    background: theme.palette.error.main,
+                    color: theme.palette.error.contrastText,
+                  },
+                }}>
+                Delete
+              </Button>
+            </>
+          )}
+        </Box>
       </Card>
     </motion.div>
   );
 };
 
 export default IssueCard;
-
-// import React from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
-// import { motion } from 'framer-motion';
-// import StatusBadge from '../common/StatusBadge';
-// import CategoryBadge from '../common/CategoryBadge';
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Card,
+//   CardContent,
+//   CardMedia,
+//   Typography,
+//   Button,
+//   Box,
+// } from "@mui/material";
+// import { motion } from "framer-motion";
+// import StatusBadge from "../common/StatusBadge";
+// import CategoryBadge from "../common/CategoryBadge";
 
 // const IssueCard = ({
 //   issue,
 //   onUpvote,
 //   hasVoted,
-//   animationDelay = 0
+//   onEdit,
+//   onDelete,
+//   animationDelay = 0,
 // }) => {
 //   const navigate = useNavigate();
 
+//   // Determine if user can edit
+//   const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+//   // console.log("currentUser", currentUser);
+//   const canEdit =
+//     currentUser.role === "user" || currentUser._id === issue.createdBy?._id;
+//   // console.log(canEdit);
 //   return (
 //     <motion.div
 //       initial={{ opacity: 0, y: 20 }}
 //       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.5, delay: animationDelay }}
-//     >
+//       transition={{ duration: 0.5, delay: animationDelay }}>
 //       <Card
 //         sx={{
-//           borderRadius: 3,
-//           boxShadow: 2,
-//           overflow: 'hidden',
-//           transition: 'all 0.3s ease',
-//           '&:hover': {
-//             boxShadow: 4,
-//             transform: 'translateY(-2px)',
-//           }
-//         }}
-//       >
-//         {issue.imageURL && (
+//           borderRadius: 5,
+//           overflow: "hidden",
+//           backdropFilter: "blur(12px)",
+//           background: "rgba(255, 255, 255, 0.6)",
+//           border: "1px solid rgba(255,255,255,0.3)",
+//           boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+//           transition: "all 0.35s ease",
+//           "&:hover": {
+//             transform: "translateY(-4px) scale(1.01)",
+//             boxShadow: "0 8px 28px rgba(0,0,0,0.15)",
+//             background: "rgba(255,255,255,0.75)",
+//             backdropFilter: "blur(16px)",
+//           },
+//         }}>
+//         {issue.image && (
 //           <CardMedia
 //             component="img"
 //             height="200"
-//             image={issue.imageURL}
+//             image={issue.image}
 //             alt={issue.title}
-//             sx={{ objectFit: 'cover' }}
+//             sx={{ objectFit: "cover" }}
 //           />
 //         )}
 
-//         <CardContent>
-//           <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
+//         <CardContent sx={{ p: 3 }}>
+//           <Typography
+//             variant="h6"
+//             component="h2"
+//             gutterBottom
+//             sx={{
+//               fontWeight: 600,
+//               letterSpacing: "-0.2px",
+//               color: "#1a1a1a",
+//             }}>
 //             {issue.title}
 //           </Typography>
 
@@ -196,50 +324,121 @@ export default IssueCard;
 //             {issue.description}
 //           </Typography>
 
-//           <div style={{ marginBottom: 16 }}>
+//           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
 //             <CategoryBadge category={issue.category} sx={{ mr: 1 }} />
 //             <StatusBadge status={issue.status} />
-//           </div>
+//           </Box>
 
 //           <Typography variant="body2" paragraph sx={{ mb: 1 }}>
 //             📍 <strong>Location:</strong> {issue.location}
 //           </Typography>
 
 //           <Typography variant="body2" paragraph sx={{ mb: 2 }}>
-//             👤 <strong>Created By:</strong> {issue.createdBy}
+//             👤 <strong>Created By:</strong>{" "}
+//             {issue.createdBy?.fullName || "Unknown"}
 //           </Typography>
 
-//           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+//           <Box
+//             sx={{
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "space-between",
+//               gap: 2,
+//               mt: 1,
+//             }}>
 //             <Button
 //               variant="outlined"
 //               size="small"
 //               disabled={hasVoted}
-//               onClick={() => onUpvote(issue.id)}
-//               sx={{ textTransform: 'none' }}
-//             >
-//               👍 {hasVoted ? 'Voted' : 'Upvote'}
+//               onClick={() => onUpvote(issue._id)}
+//               sx={{
+//                 textTransform: "none",
+//                 borderRadius: 3,
+//                 py: 1,
+//                 backdropFilter: "blur(10px)",
+//                 background: "rgba(255,255,255,0.4)",
+//                 border: "1px solid rgba(255,255,255,0.3)",
+//                 transition: "0.25s ease",
+//                 "&:hover": {
+//                   background: "rgba(255,255,255,0.7)",
+//                 },
+//               }}>
+//               👍 {hasVoted ? "Voted" : "Upvote"}
 //             </Button>
 
-//             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-//               {issue.upvotes} votes
+//             <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+//               {issue.upvotes || 0} votes
 //             </Typography>
-//           </div>
+//           </Box>
 
-//           {issue.id && (
+//           <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
 //             <Button
-//               variant="contained"
+//               variant="outlined"
 //               size="small"
-//               onClick={() => navigate(`/issues/${issue.id}`)}
+//               onClick={() => navigate(`/issues/${issue._id}`)}
 //               sx={{
-//                 mt: 2,
-//                 width: '100%',
-//                 textTransform: 'none',
-//                 borderRadius: 2
-//               }}
-//             >
+//                 textTransform: "none",
+//                 borderRadius: 3,
+//                 py: 1,
+//                 backdropFilter: "blur(10px)",
+//                 background: "rgba(255,255,255,0.4)",
+//                 border: "1px solid rgba(255,255,255,0.3)",
+//                 transition: "0.25s ease",
+//                 "&:hover": {
+//                   background: "rgba(255,255,255,0.7)",
+//                 },
+//               }}>
 //               View Details
 //             </Button>
-//           )}
+
+//             {canEdit && onEdit && (
+//               <>
+//                 <Button
+//                   variant="outlined"
+//                   size="small"
+//                   color="secondary"
+//                   onClick={() => onEdit(issue)}
+//                   sx={{
+//                     textTransform: "none",
+//                     borderRadius: 3,
+//                     py: 1,
+//                     backdropFilter: "blur(10px)",
+//                     background: "rgba(255,255,255,0.4)",
+//                     border: "1px solid rgba(255,255,255,0.3)",
+//                     transition: "0.25s ease",
+//                     "&:hover": {
+//                       background: "rgba(255,255,255,0.7)",
+//                     },
+//                   }}>
+//                   Edit
+//                 </Button>
+
+//                 <Button
+//                   variant="outlined"
+//                   size="small"
+//                   color="error"
+//                   onClick={() => onDelete(issue)}
+//                   sx={{
+//                     textTransform: "none",
+//                     borderRadius: 3,
+//                     py: 1,
+//                     backdropFilter: "blur(10px)",
+//                     background: "rgba(255,255,255,0.4)",
+//                     border: "1px solid rgba(255,255,255,0.3)",
+//                     transition: "0.25s ease",
+//                     "&:hover": {
+//                       background: "rgba(255,255,255,0.7)",
+//                     },
+//                   }}>
+//                   Delete
+//                 </Button>
+//               </>
+//             )}
+
+//             {/* {canEdit && (
+
+//             )} */}
+//           </Box>
 //         </CardContent>
 //       </Card>
 //     </motion.div>

@@ -8,23 +8,25 @@ import {
   Checkbox,
   FormControlLabel,
   Button,
+  useTheme,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-// Import reusable components
 import FormField from "../../../components/common/FormField";
 import PasswordField from "../../../components/common/PasswordField";
 import SubmitButton from "../../../components/common/SubmitButton";
 import RoleToggle from "../../../components/common/RoleToggle";
 import PageCard from "../../../components/common/PageCard";
 
-// Import API configuration
 import { API_ENDPOINTS } from "../../../config/api";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const { login } = useAuth();
+
   const [role, setRole] = useState("user");
   const [form, setForm] = useState({
     email: "",
@@ -37,10 +39,17 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { login } = useAuth();
+
+  const glass = theme.palette.glass || {
+    background: "rgba(255,255,255,0.25)",
+    border: "1px solid rgba(255,255,255,0.35)",
+    blur: "18px",
+    shadow: "0 4px 20px rgba(0,0,0,0.1)",
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setFieldErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
 
   const validateField = (name, value) => {
@@ -75,16 +84,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
     Object.keys(form).forEach((key) => {
       if (role === "user" && (key === "department" || key === "employeeId"))
         return;
-
       const msg = validateField(key, form[key]);
       if (msg) newErrors[key] = msg;
     });
-
     if (Object.keys(newErrors).length > 0) {
       setFieldErrors(newErrors);
       return;
@@ -97,7 +103,7 @@ export default function Login() {
       const res = await fetch(API_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Important for cookies
+        credentials: "include",
         body: JSON.stringify({ ...form, role, rememberMe }),
       });
 
@@ -112,54 +118,25 @@ export default function Login() {
       }
 
       const data = await res.json();
-      console.log("Login response:", data);
-
-      // ✅ Backend returns accessToken, not token
       const token = data.data?.accessToken || data.accessToken;
       const user = data.data?.user;
 
-      if (!token) {
-        throw new Error("No token received from server");
-      }
+      if (!token) throw new Error("No token received from server");
 
-      console.log("Storing auth data:", {
-        token: token.substring(0, 20) + "...",
-        user: user?.email,
-      });
-
-      // Clear any old data first
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("userRole");
-
-      // Store new data
       localStorage.setItem("token", token);
       localStorage.setItem("userRole", user?.role || role);
+      if (user) localStorage.setItem("user", JSON.stringify(user));
 
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
-      }
-
-      console.log("Auth data stored successfully");
-
-      // ✅ NEW: Update AuthContext so Navbar re-renders instantly
       login(user);
 
       setSuccess("Login successful! Redirecting...");
-
-      // Redirect based on role
       setTimeout(() => {
         const userRole = user?.role || role;
-        console.log("Login: Redirecting to dashboard, user role:", userRole);
-
-        if (userRole === "admin") {
+        if (userRole === "admin")
           navigate("/admin/dashboard", { replace: true });
-        } else {
-          navigate("/issues", { replace: true });
-        }
+        else navigate("/user-dashboard", { replace: true });
       }, 1500);
     } catch (err) {
-      console.error("Login error:", err);
       setError(err.message || "An error occurred during login");
     } finally {
       setLoading(false);
@@ -170,10 +147,29 @@ export default function Login() {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col xs={12} md={6} lg={5}>
-          <PageCard title="Login">
-            {/* Role toggle */}
+          <PageCard
+            title="Login"
+            sx={{
+              maxWidth: 420,
+              background: glass.background,
+              backdropFilter: `blur(${glass.blur}) saturate(180%)`,
+              border: glass.border,
+              boxShadow: glass.shadow,
+            }}>
             <div className="mb-3">
-              <RoleToggle value={role} onChange={setRole} />
+              <RoleToggle
+                value={role}
+                onChange={(val) => {
+                  setRole(val);
+                  setForm({
+                    email: "",
+                    password: "",
+                    department: "",
+                    employeeId: "",
+                  });
+                  setFieldErrors({});
+                }}
+              />
             </div>
 
             <AnimatePresence>
@@ -188,7 +184,6 @@ export default function Login() {
                   </Alert>
                 </motion.div>
               )}
-
               {success && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -215,21 +210,29 @@ export default function Login() {
                 onBlur={handleBlur}
                 error={fieldErrors.email}
                 animationDelay={0.1}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: theme.shape.borderRadius,
+                  },
+                }}
               />
-
               <PasswordField
                 value={form.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 error={fieldErrors.password}
                 animationDelay={0.2}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: theme.shape.borderRadius,
+                  },
+                }}
               />
 
-              {/* Conditional Admin Fields */}
               <AnimatePresence mode="wait">
-                {role === "admin" ? (
+                {role === "admin" && (
                   <motion.div
-                    key="admin-login-fields"
+                    key="admin-fields"
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -30 }}
@@ -241,11 +244,14 @@ export default function Login() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={fieldErrors.department}
-                      helperText="e.g., Public Works, Water Supply"
                       placeholder="Enter your department"
                       animationDelay={0.3}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: theme.shape.borderRadius,
+                        },
+                      }}
                     />
-
                     <FormField
                       label="Employee ID"
                       name="employeeId"
@@ -253,28 +259,25 @@ export default function Login() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={fieldErrors.employeeId}
-                      helperText="Official employee identification"
-                      placeholder="e.g., EMP-2024-001"
+                      placeholder="Enter your employee ID"
                       animationDelay={0.4}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: theme.shape.borderRadius,
+                        },
+                      }}
                     />
                   </motion.div>
-                ) : null}
+                )}
               </AnimatePresence>
 
-              {/* Remember me checkbox and forgot password */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.4,
-                  delay: role === "admin" ? 0.5 : 0.3,
-                }}
+              <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: "16px",
-                  marginBottom: "8px",
+                  marginTop: 16,
+                  marginBottom: 8,
                 }}>
                 <FormControlLabel
                   control={
@@ -284,27 +287,23 @@ export default function Login() {
                       sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
                     />
                   }
-                  label={
-                    <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
-                      Remember me
-                    </Typography>
-                  }
+                  label={<Typography variant="body2">Remember me</Typography>}
                 />
                 <Button
                   variant="text"
                   size="small"
+                  onClick={() => navigate("/forgot-password")}
                   sx={{
                     textTransform: "none",
                     fontSize: "0.875rem",
-                    color: "primary.main",
+                    color: theme.palette.primary.main,
                     "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.04)",
+                      backgroundColor: "rgba(25,118,210,0.04)",
                     },
-                  }}
-                  onClick={() => navigate("/forgot-password")}>
+                  }}>
                   Forgot Password?
                 </Button>
-              </motion.div>
+              </div>
 
               <SubmitButton
                 loading={loading}
@@ -323,24 +322,6 @@ export default function Login() {
                   Sign Up
                 </Button>
               </Typography>
-
-              {/* Quick Demo Login */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  duration: 0.4,
-                  delay: role === "admin" ? 0.8 : 0.6,
-                }}>
-                <Typography
-                  align="center"
-                  variant="caption"
-                  sx={{ mt: 2, color: "text.secondary" }}>
-                  {role === "admin"
-                    ? "Demo Admin: admin@demo.com | password123 | Dept: IT | ID: EMP-001"
-                    : "Demo User: user@demo.com | password123"}
-                </Typography>
-              </motion.div>
             </form>
           </PageCard>
         </Col>

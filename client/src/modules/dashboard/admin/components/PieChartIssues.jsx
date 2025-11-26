@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import { Card, CardContent, Typography, Box } from "@mui/material";
-import { themeValues } from "../../../theme/theme";
+import { themeValues } from "../../../../theme/theme";
 
 export default function PieChartIssues({ issues = [] }) {
   // Compute counts per category

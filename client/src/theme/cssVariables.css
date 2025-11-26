@@ -1,6 +1,7 @@
 /* CSS Variables for Global Theme */
+
 :root {
-  /* Color Palette */
+  /* Primitive Colors */
   --color-primary: #1976d2;
   --color-primary-light: #2196f3;
   --color-primary-dark: #1565c0;
@@ -11,80 +12,41 @@
   --color-secondary-dark: #6a1b9a;
   --color-secondary-contrast: #ffffff;
 
+  /* SUCCESS / WARNING / ERROR / INFO */
   --color-success: #2e7d32;
-  --color-success-light: #4caf50;
-  --color-success-dark: #1b5e20;
-  --color-success-contrast: #ffffff;
-
   --color-warning: #ed6c02;
-  --color-warning-light: #ff9800;
-  --color-warning-dark: #e65100;
-  --color-warning-contrast: #ffffff;
-
   --color-error: #d32f2f;
-  --color-error-light: #f44336;
-  --color-error-dark: #c62828;
-  --color-error-contrast: #ffffff;
-
   --color-info: #1976d2;
-  --color-info-light: #42a5f5;
-  --color-info-dark: #1565c0;
-  --color-info-contrast: #ffffff;
 
-  /* Text Colors */
-  --color-text-primary: #212121;
-  --color-text-secondary: #666666;
-  --color-text-disabled: #bdbdbd;
+  /* TEXT */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: rgba(0, 0, 0, 0.7);
 
-  /* Background Colors */
-  --color-bg-default: #f8f9fa;
-  --color-bg-paper: #ffffff;
-  --color-bg-glass: rgba(255, 255, 255, 0.75);
-  --color-bg-glass-dark: rgba(255, 255, 255, 0.8);
-  --color-bg-grey-light: #f5f5f5;
+  /* 🌟 GLASS-COMPATIBLE BACKGROUNDS */
+  --color-bg-default: transparent;
+  --color-bg-paper: transparent;
 
-  /* Chart Colors */
-  --color-chart-1: #1976d2;
-  --color-chart-2: #2e7d32;
-  --color-chart-3: #ed6c02;
-  --color-chart-4: #d32f2f;
-  --color-chart-5: #7b1fa2;
+  /* Light glass surface */
+  --glass-light-bg: rgba(255, 255, 255, 0.25);
+  --glass-light-border: rgba(255, 255, 255, 0.35);
+  --glass-light-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --glass-light-blur: 18px;
 
-  /* Spacing Scale */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
+  /* Dark glass surface */
+  --glass-dark-bg: rgba(0, 0, 0, 0.35);
+  --glass-dark-border: rgba(255, 255, 255, 0.15);
+  --glass-dark-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+  --glass-dark-blur: 18px;
 
-  /* Border Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
+  /* Spacing */
   --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-xxl: 24px;
-  --radius-round: 50px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
 
   /* Shadows */
-  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
 
-  /* Transitions */
-  --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s ease;
-
-  /* Z-index Scale */
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-fixed: 1030;
-  --z-modal-backdrop: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
 }
 
 /* Global utility classes */
@@ -148,6 +110,15 @@
 
 .animate-slide-up {
   animation: slideUp var(--transition-slow) ease;
+}
+
+.theme-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
 }
 
 @keyframes fadeIn {

@@ -127,7 +127,6 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
     Object.keys(form).forEach((key) => {
       if (role === "user" && key === "department") return;
@@ -145,8 +144,6 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      // ⭐ SELECT ENDPOINT BASED ON ROLE
-      console.log(role);
       const endpoint =
         role === "admin"
           ? API_ENDPOINTS.ADMIN_REGISTER
@@ -189,13 +186,6 @@ export default function Signup() {
         credentials: "include",
       });
 
-      // const res = await fetch(endpoint, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   credentials: "include",
-      //   body: JSON.stringify(payload),
-      // });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.message || "Failed to register");
@@ -204,7 +194,6 @@ export default function Signup() {
       setSuccess(
         "Signup successful! Please check your email to verify your account."
       );
-
       setTimeout(() => navigate("/verify-email"), 1800);
     } catch (err) {
       console.log("Signup error:", err);
@@ -220,36 +209,40 @@ export default function Signup() {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col xs={12} md={6} lg={5}>
-          <PageCard title="Sign Up">
-            {/* Role toggle */}
-            <div className="mb-3">
+          <PageCard title="Sign Up" sx={{ maxWidth: 450, margin: "0 auto" }}>
+            <div style={{ marginBottom: "20px" }}>
               <RoleToggle value={role} onChange={setRole} />
-
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mb-3 d-flex flex-column align-items-center">
-                <Avatar
-                  src={avatarPreview}
-                  sx={{
-                    width: 90,
-                    height: 90,
-                    border: "3px solid #ccc",
-                    mb: 1,
-                  }}
-                />
-                <Button variant="contained" component="label" size="small">
-                  Choose Avatar
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                  />
-                </Button>
-              </motion.div>
             </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginBottom: 24, // theme spacing equivalent
+              }}>
+              <Avatar
+                src={avatarPreview}
+                sx={{
+                  width: 90,
+                  height: 90,
+                  // border: `3px solid ${themeValues.lightColors.grey[200]}`,
+                  mb: 1.5, // spacing between avatar and button
+                }}
+              />
+              <Button variant="contained" component="label" size="small">
+                Choose Avatar
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                />
+              </Button>
+            </motion.div>
 
             <AnimatePresence>
               {error && (
@@ -309,7 +302,6 @@ export default function Signup() {
                 error={fieldErrors.password}
                 animationDelay={0.3}
               />
-
               <PasswordStrengthIndicator password={form.password} />
 
               <PasswordField
@@ -322,7 +314,6 @@ export default function Signup() {
                 animationDelay={0.4}
               />
 
-              {/* Conditional fields */}
               <AnimatePresence mode="wait">
                 {role === "user" ? (
                   <motion.div
@@ -351,7 +342,7 @@ export default function Signup() {
                     <FormField
                       label="Department No"
                       name="department"
-                      value={form.department}
+                      value={form.department || ""}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={fieldErrors.department}
@@ -380,7 +371,6 @@ export default function Signup() {
                       animationDelay={0.7}
                     />
 
-                    {/* Office Location Fields */}
                     {["state", "district", "city", "ward"].map((loc, index) => (
                       <FormField
                         key={loc}
@@ -415,7 +405,10 @@ export default function Signup() {
 
               <Typography align="center" variant="body2">
                 Already have an account?{" "}
-                <Button variant="text" onClick={() => navigate("/login")}>
+                <Button
+                  variant="text"
+                  onClick={() => navigate("/login")}
+                  sx={{ textTransform: "none" }}>
                   Login
                 </Button>
               </Typography>

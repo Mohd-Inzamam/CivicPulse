@@ -69,6 +69,12 @@ export default function Navbar({ setFilters }) {
             to: "/issues",
             icon: <ReportProblemRoundedIcon fontSize="small" />,
           },
+
+          {
+            label: "Activity",
+            to: "/user-dashboard",
+            icon: <ReportProblemRoundedIcon fontSize="small" />,
+          },
         ]
       : []),
 

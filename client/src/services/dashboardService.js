@@ -16,11 +16,11 @@ export const dashboardService = {
       method: 'GET',
       headers: getAuthHeaders(),
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch dashboard stats');
     }
-    
+
     return response.json();
   },
 
@@ -30,11 +30,11 @@ export const dashboardService = {
       method: 'GET',
       headers: getAuthHeaders(),
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch dashboard charts');
     }
-    
+
     return response.json();
   },
 };

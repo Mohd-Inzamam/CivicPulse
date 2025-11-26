@@ -1,29 +1,76 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Stack,
+  CircularProgress,
+  Typography,
+  useTheme,
+  Button,
+  Card,
+} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
-import ReportIssue from "./ReportIssue";
 import { issuesService } from "../../../services/issuesService";
 
+// Reusable Components
+import StatsOverviewCard from "../components/StatsOverviewCard";
+import CategoryStatsCard from "../components/CategoryStatsCard";
+import EngagementStatsCard from "../components/EngagementStatsCard";
+import NoIssuesCard from "../components/NoIssuesCard";
+
 function IssuePage({ filters }) {
+  const theme = useTheme();
+  const navigate = useNavigate();
+
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch issues from backend on mount
+  const glass = theme.palette.glass || {
+    background:
+      theme.palette.mode === "dark"
+        ? "rgba(0, 0, 0, 0.35)"
+        : "rgba(255, 255, 255, 0.25)",
+    border:
+      theme.palette.mode === "dark"
+        ? "1px solid rgba(255,255,255,0.15)"
+        : "1px solid rgba(255,255,255,0.35)",
+    blur: "18px",
+    shadow:
+      theme.palette.mode === "dark"
+        ? "0 4px 25px rgba(0,0,0,0.3)"
+        : "0 4px 20px rgba(0,0,0,0.1)",
+  };
+
+  // Compute statistics
+  const stats = {
+    total: issues.length,
+    open: issues.filter((i) => i.status?.toLowerCase() === "open").length,
+    inProgress: issues.filter((i) => i.status?.toLowerCase() === "in progress")
+      .length,
+    resolved: issues.filter((i) => i.status?.toLowerCase() === "resolved")
+      .length,
+    byCategory: issues.reduce((acc, i) => {
+      acc[i.category] = (acc[i.category] || 0) + 1;
+      return acc;
+    }, {}),
+    totalUpvotes: issues.reduce((sum, i) => sum + (i.upvotes || 0), 0),
+    mostUpvoted: [...issues].sort(
+      (a, b) => (b.upvotes || 0) - (a.upvotes || 0)
+    )[0],
+  };
 
   useEffect(() => {
     const fetchIssues = async () => {
       setLoading(true);
       try {
         const response = await issuesService.getAllIssues();
-        console.log("Issues fetched from backend:", response);
-
-        const fetchedIssues = response.data?.issues || response.issues || [];
-        setIssues(fetchedIssues.filter(Boolean));
+        setIssues(response.data?.issues || response.issues || []);
       } catch (err) {
-        console.error("Failed to load issues:", err);
-        setError("Failed to load issues. Please try again.");
+        setError("Failed to load issues");
       } finally {
         setLoading(false);
       }
@@ -31,160 +78,203 @@ function IssuePage({ filters }) {
     fetchIssues();
   }, []);
 
-  // Function to add a new issue
-  const addIssue = async (newIssueData) => {
-    try {
-      const response = await issuesService.createIssue(newIssueData);
-      console.log("Issue created:", response);
+  console.log("Issue response", issues);
 
-      const createdIssue = response.data?.issue || response.issue;
-
-      if (createdIssue) {
-        setIssues((prev) => [createdIssue, ...prev]);
-      } else {
-        const refreshResponse = await issuesService.getAllIssues();
-        const refreshedIssues =
-          refreshResponse.data?.issues || refreshResponse.issues || [];
-        setIssues(refreshedIssues);
-      }
-
-      return createdIssue;
-    } catch (err) {
-      console.error("Failed to create issue:", err);
-      throw err;
-    }
-  };
-
-  // ADDED: Handle Upvote
   const handleUpvote = async (issueId) => {
     try {
       const response = await issuesService.upvoteIssue(issueId);
-
       const updatedUpvotes =
         response?.data?.data?.upvotes ||
         response?.data?.upvotes ||
         response?.upvotes;
 
-      if (!updatedUpvotes && updatedUpvotes !== 0) {
-        console.error("Invalid upvote response:", response);
-        return;
-      }
-
       setIssues((prev) =>
-        prev.map((issue) =>
-          issue._id === issueId ? { ...issue, upvotes: updatedUpvotes } : issue
+        prev.map((i) =>
+          i._id === issueId ? { ...i, upvotes: updatedUpvotes } : i
         )
       );
-    } catch (err) {
-      console.error("Upvote failed:", err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
+  if (loading)
+    return (
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          sx={{ minHeight: "50vh" }}>
+          <CircularProgress size={60} />
+          <Typography mt={2}>Loading issues...</Typography>
+        </Stack>
+      </Container>
+    );
+
+  if (error)
+    return (
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Card sx={{ p: 4 }}>{error}</Card>
+      </Container>
+    );
+
   const hasIssues = issues.length > 0;
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        <Typography variant="h6" color="textSecondary">
-          Loading issues...
-        </Typography>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        <Typography variant="h6" color="error">
-          {error}
-        </Typography>
-      </div>
-    );
-  }
-
   return (
-    <div className="container my-5">
-      <AnimatePresence mode="wait">
-        {!hasIssues ? (
-          <motion.div
-            key="no-issues"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.5 }}>
-            <div className="row justify-content-center">
-              <div className="col-lg-8 col-md-10 col-sm-12">
-                <Card
-                  elevation={4}
-                  sx={{
-                    borderRadius: "16px",
-                    mb: 3,
-                    textAlign: "center",
-                    py: 4,
-                  }}>
-                  <CardContent>
-                    <Typography
-                      variant="h5"
-                      color="textSecondary"
-                      gutterBottom
-                      sx={{ fontWeight: "bold" }}>
-                      🚀 No issues found
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Be the first to raise a concern!
-                    </Typography>
-                  </CardContent>
-                </Card>
+    <Box sx={{ minHeight: "100vh", py: 4, bgcolor: "background.default" }}>
+      <Container maxWidth="xl">
+        <AnimatePresence mode="wait">
+          {!hasIssues ? (
+            <NoIssuesCard
+              glass={glass}
+              onReport={() => navigate("/report-issue")}
+            />
+          ) : (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Grid container spacing={4}>
+                {/* STATS — Top Horizontal */}
+                <Grid item xs={12}>
+                  <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={3}
+                    sx={{ width: "100%" }}>
+                    <StatsOverviewCard
+                      stats={stats}
+                      glass={glass}
+                      sx={{ flexGrow: 1 }}
+                    />
+                    <CategoryStatsCard
+                      stats={stats}
+                      glass={glass}
+                      sx={{ flexGrow: 1 }}
+                    />
+                    <EngagementStatsCard
+                      stats={stats}
+                      glass={glass}
+                      sx={{ flexGrow: 1 }}
+                    />
+                  </Stack>
 
-                <ReportIssue addIssue={addIssue} />
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="with-issues"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.5 }}>
-            <div className="row">
-              <motion.div
-                className="col-lg-7 col-md-12 mb-3"
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}>
-                {/* ⬇️⬇️⬇️ Pass handleUpvote */}
-                <IssueList
-                  issues={issues}
-                  onUpvote={handleUpvote}
-                  onUpdateIssue={(updatedIssue) =>
-                    setIssues((prev) =>
-                      prev.map((issue) =>
-                        issue._id === updatedIssue._id ? updatedIssue : issue
-                      )
-                    )
-                  }
-                  onDeleteIssue={(deletedId) =>
-                    setIssues((prev) =>
-                      prev.filter((issue) => issue._id !== deletedId)
-                    )
-                  }
-                />
-              </motion.div>
+                  <Box sx={{ mt: 1, opacity: 0.5 }}>
+                    <Typography variant="caption">
+                      Insights update when new issues are reported or actions
+                      performed.
+                    </Typography>
+                  </Box>
+                </Grid>
 
-              <motion.div
-                className="col-lg-5 col-md-12"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}>
-                <ReportIssue addIssue={addIssue} />
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                {/* ISSUES BELOW */}
+                <Grid item xs={12}>
+                  <Stack
+                    spacing={3}
+                    sx={{ mt: 2, height: "calc(100vh - 300px)" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}>
+                      <Typography variant="h4" fontWeight={700}>
+                        Reported Issues
+                      </Typography>
+
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate("/report-issue")}>
+                        + Report Issue
+                      </Button>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        overflowY: "auto",
+                        pr: 1,
+                        "&::-webkit-scrollbar": { width: "6px" },
+                        "&::-webkit-scrollbar-thumb": {
+                          background: theme.palette.divider,
+                          borderRadius: 2,
+                        },
+                      }}>
+                      <IssueList
+                        issues={issues}
+                        onUpvote={handleUpvote}
+                        onUpdateIssue={(u) =>
+                          setIssues((prev) =>
+                            prev.map((i) => (i._id === u._id ? u : i))
+                          )
+                        }
+                        onDeleteIssue={(id) =>
+                          setIssues((prev) => prev.filter((i) => i._id !== id))
+                        }
+                      />
+                    </Box>
+                  </Stack>
+                </Grid>
+              </Grid>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Container>
+    </Box>
   );
+
+  // return (
+  //   <Box sx={{ minHeight: "100vh", py: 4 }}>
+  //     <Container maxWidth="xl">
+  //       <AnimatePresence mode="wait">
+  //         {!hasIssues ? (
+  //           <NoIssuesCard
+  //             glass={glass}
+  //             onReport={() => navigate("/report-issue")}
+  //           />
+  //         ) : (
+  //           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+  //             <Grid container spacing={4}>
+  //               {/* Left */}
+  //               <Grid item xs={12} lg={8}>
+  //                 <Stack spacing={3}>
+  //                   <Box
+  //                     sx={{ display: "flex", justifyContent: "space-between" }}>
+  //                     <Typography variant="h4" fontWeight={700}>
+  //                       Reported Issues
+  //                     </Typography>
+  //                     <Button
+  //                       variant="contained"
+  //                       onClick={() => navigate("/report-issue")}>
+  //                       + Report Issue
+  //                     </Button>
+  //                   </Box>
+
+  //                   <IssueList
+  //                     issues={issues}
+  //                     onUpvote={handleUpvote}
+  //                     onUpdateIssue={(u) =>
+  //                       setIssues((prev) =>
+  //                         prev.map((i) => (i._id === u._id ? u : i))
+  //                       )
+  //                     }
+  //                     onDeleteIssue={(id) =>
+  //                       setIssues((prev) => prev.filter((i) => i._id !== id))
+  //                     }
+  //                   />
+  //                 </Stack>
+  //               </Grid>
+
+  //               {/* Right — Stats */}
+  //               <Grid item xs={12} lg={4}>
+  //                 <Stack spacing={3}>
+  //                   <StatsOverviewCard stats={stats} glass={glass} />
+  //                   <CategoryStatsCard stats={stats} glass={glass} />
+  //                   <EngagementStatsCard stats={stats} glass={glass} />
+  //                 </Stack>
+  //               </Grid>
+  //             </Grid>
+  //           </motion.div>
+  //         )}
+  //       </AnimatePresence>
+  //     </Container>
+  //   </Box>
+  // );
 }
 
 export default IssuePage;

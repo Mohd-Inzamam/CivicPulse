@@ -1,6 +1,6 @@
-import React from 'react';
-import { TextField } from '@mui/material';
-import { motion } from 'framer-motion';
+import React from "react";
+import { TextField } from "@mui/material";
+import { motion } from "framer-motion";
 
 const FormField = ({
   label,
@@ -10,9 +10,9 @@ const FormField = ({
   onBlur,
   error,
   helperText,
-  type = 'text',
+  type = "text",
   fullWidth = true,
-  margin = 'normal',
+  margin = "normal",
   multiline = false,
   rows = 1,
   placeholder,
@@ -24,10 +24,10 @@ const FormField = ({
 }) => {
   return (
     <motion.div
+      style={{ width: "100%" }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: animationDelay }}
-    >
+      transition={{ duration: 0.4, delay: animationDelay }}>
       <TextField
         label={label}
         name={name}
@@ -46,7 +46,7 @@ const FormField = ({
         error={Boolean(error)}
         helperText={error || helperText}
         sx={{
-          '& .MuiOutlinedInput-root': {
+          "& .MuiOutlinedInput-root": {
             borderRadius: 2,
           },
         }}
