@@ -9,8 +9,6 @@ import {
   Button,
   Divider,
 } from "@mui/material";
-
-import IssueList from "../../issues/pages/IssueList"; // adjust the path if needed
 import { issuesService } from "../../../services/issuesService";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -129,7 +127,13 @@ export default function UserDashboard() {
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35 }}>
-        <Card sx={{ ...glass, mt: 4, p: 3 }}>
+        <Card
+          sx={{
+            ...glass,
+            mt: 4,
+            p: 3,
+            // backgroundColor: "var(--color-bg-default)",
+          }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Recent Issues
           </Typography>
@@ -176,7 +180,13 @@ export default function UserDashboard() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}>
-        <Card sx={{ ...glass, mt: 4, p: 3 }}>
+        <Card
+          sx={{
+            ...glass,
+            mt: 4,
+            p: 3,
+            // backgroundColor: "var(--color-bg-default)",
+          }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
             Issues
           </Typography>

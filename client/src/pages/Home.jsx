@@ -78,7 +78,7 @@ export default function Home() {
             <Typography
               variant="body2"
               sx={{ mt: 1.5, cursor: "pointer" }}
-              onClick={() => navigate("/register")}>
+              onClick={() => navigate("/signup")}>
               Don’t have an account? <strong>Join CivicPulse</strong>
             </Typography>
           </MotionBox>
@@ -186,7 +186,7 @@ export default function Home() {
           variant="contained"
           size="large"
           sx={{ px: 6, py: 1.4, borderRadius: "12px" }}
-          onClick={() => navigate("/register")}>
+          onClick={() => navigate("/signup")}>
           Join CivicPulse →
         </Button>
       </Box>

@@ -1,6 +1,6 @@
 import { Card, Typography, Stack, Box } from "@mui/material";
 
-export default function CategoryStatsCard({ stats, glass }) {
+export default function CategoryStatsCard({ stats, glass, sx }) {
   return (
     <Card
       sx={{
@@ -10,6 +10,7 @@ export default function CategoryStatsCard({ stats, glass }) {
         backdropFilter: `blur(${glass.blur})`,
         border: glass.border,
         boxShadow: glass.shadow,
+        ...sx,
       }}>
       <Typography variant="h6" fontWeight={700} mb={2}>
         🏷️ By Category

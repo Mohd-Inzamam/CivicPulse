@@ -1,6 +1,6 @@
 import { Card, Typography, Stack, Divider, Chip, Box } from "@mui/material";
 
-export default function EngagementStatsCard({ stats, glass }) {
+export default function EngagementStatsCard({ stats, glass, sx }) {
   return (
     <Card
       sx={{
@@ -10,6 +10,7 @@ export default function EngagementStatsCard({ stats, glass }) {
         backdropFilter: `blur(${glass.blur})`,
         border: glass.border,
         boxShadow: glass.shadow,
+        ...sx,
       }}>
       <Typography variant="h6" fontWeight={700} mb={2}>
         👍 Engagement

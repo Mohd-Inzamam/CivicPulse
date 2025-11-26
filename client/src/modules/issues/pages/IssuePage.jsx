@@ -120,7 +120,7 @@ function IssuePage({ filters }) {
 
   const hasIssues = issues.length > 0;
   return (
-    <Box sx={{ minHeight: "100vh", py: 4, bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh", py: 4 }}>
       <Container maxWidth="xl">
         <AnimatePresence mode="wait">
           {!hasIssues ? (
@@ -136,21 +136,21 @@ function IssuePage({ filters }) {
                   <Stack
                     direction={{ xs: "column", md: "row" }}
                     spacing={3}
-                    sx={{ width: "100%" }}>
+                    sx={{ width: "100%", justifyContent: "flex-start" }}>
                     <StatsOverviewCard
                       stats={stats}
                       glass={glass}
-                      sx={{ flexGrow: 1 }}
+                      sx={{ minWidth: 300, maxWidth: 400 }}
                     />
                     <CategoryStatsCard
                       stats={stats}
                       glass={glass}
-                      sx={{ flexGrow: 1 }}
+                      sx={{ minWidth: 300, maxWidth: 400 }}
                     />
                     <EngagementStatsCard
                       stats={stats}
                       glass={glass}
-                      sx={{ flexGrow: 1 }}
+                      sx={{ minWidth: 300, maxWidth: 400 }}
                     />
                   </Stack>
 
@@ -161,7 +161,6 @@ function IssuePage({ filters }) {
                     </Typography>
                   </Box>
                 </Grid>
-
                 {/* ISSUES BELOW */}
                 <Grid item xs={12}>
                   <Stack
@@ -173,9 +172,9 @@ function IssuePage({ filters }) {
                         justifyContent: "space-between",
                         alignItems: "center",
                       }}>
-                      <Typography variant="h4" fontWeight={700}>
+                      {/* <Typography variant="h4" fontWeight={700}>
                         Reported Issues
-                      </Typography>
+                      </Typography> */}
 
                       <Button
                         variant="contained"
@@ -184,17 +183,7 @@ function IssuePage({ filters }) {
                       </Button>
                     </Box>
 
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        overflowY: "auto",
-                        pr: 1,
-                        "&::-webkit-scrollbar": { width: "6px" },
-                        "&::-webkit-scrollbar-thumb": {
-                          background: theme.palette.divider,
-                          borderRadius: 2,
-                        },
-                      }}>
+                    <Box flexGrow={1}>
                       <IssueList
                         issues={issues}
                         onUpvote={handleUpvote}
@@ -217,64 +206,6 @@ function IssuePage({ filters }) {
       </Container>
     </Box>
   );
-
-  // return (
-  //   <Box sx={{ minHeight: "100vh", py: 4 }}>
-  //     <Container maxWidth="xl">
-  //       <AnimatePresence mode="wait">
-  //         {!hasIssues ? (
-  //           <NoIssuesCard
-  //             glass={glass}
-  //             onReport={() => navigate("/report-issue")}
-  //           />
-  //         ) : (
-  //           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-  //             <Grid container spacing={4}>
-  //               {/* Left */}
-  //               <Grid item xs={12} lg={8}>
-  //                 <Stack spacing={3}>
-  //                   <Box
-  //                     sx={{ display: "flex", justifyContent: "space-between" }}>
-  //                     <Typography variant="h4" fontWeight={700}>
-  //                       Reported Issues
-  //                     </Typography>
-  //                     <Button
-  //                       variant="contained"
-  //                       onClick={() => navigate("/report-issue")}>
-  //                       + Report Issue
-  //                     </Button>
-  //                   </Box>
-
-  //                   <IssueList
-  //                     issues={issues}
-  //                     onUpvote={handleUpvote}
-  //                     onUpdateIssue={(u) =>
-  //                       setIssues((prev) =>
-  //                         prev.map((i) => (i._id === u._id ? u : i))
-  //                       )
-  //                     }
-  //                     onDeleteIssue={(id) =>
-  //                       setIssues((prev) => prev.filter((i) => i._id !== id))
-  //                     }
-  //                   />
-  //                 </Stack>
-  //               </Grid>
-
-  //               {/* Right — Stats */}
-  //               <Grid item xs={12} lg={4}>
-  //                 <Stack spacing={3}>
-  //                   <StatsOverviewCard stats={stats} glass={glass} />
-  //                   <CategoryStatsCard stats={stats} glass={glass} />
-  //                   <EngagementStatsCard stats={stats} glass={glass} />
-  //                 </Stack>
-  //               </Grid>
-  //             </Grid>
-  //           </motion.div>
-  //         )}
-  //       </AnimatePresence>
-  //     </Container>
-  //   </Box>
-  // );
 }
 
 export default IssuePage;

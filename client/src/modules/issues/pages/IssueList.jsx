@@ -31,16 +31,16 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
 
   return (
     <div>
-      {/* <Typography
+      <Typography
         variant="h4"
         sx={{
           fontWeight: "bold",
-          color: "#fff",
+          // color: "#fff",
           mb: 3,
           textShadow: "0 2px 4px rgba(0,0,0,0.3)",
         }}>
         Reported Issues
-      </Typography> */}
+      </Typography>
 
       {issues.length === 0 ? (
         <Alert severity="info">No issues match your filters.</Alert>

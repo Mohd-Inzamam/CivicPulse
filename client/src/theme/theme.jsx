@@ -218,9 +218,19 @@ const createAppTheme = (mode = "light") => {
       MuiCssBaseline: {
         styleOverrides: {
           body: {
+            // background: `
+            //   radial-gradient(circle at top left, #dfe9f3 0%, #ffffff 40%),
+            //   linear-gradient(135deg, #c3d0f8 0%, #e8ecf7 100%)
+            // `,
+            // darker version in case we need it
+            //             background: `
+            //              radial-gradient(circle at top left, #b4c6dd 0%, #dce3ed 40%),
+            //              linear-gradient(135deg, #8fa4d6 0%, #c0cde4 100%)
+            //              `,
+
             background: `
-              radial-gradient(circle at top left, #dfe9f3 0%, #ffffff 40%),
-              linear-gradient(135deg, #c3d0f8 0%, #e8ecf7 100%)
+            radial-gradient(circle at top left, #c7d4e5 0%, #e3e8f0 40%),
+            linear-gradient(135deg, #9eb3e0 0%, #ccd6ea 100%)
             `,
             backgroundAttachment: "fixed",
             minHeight: "100vh",

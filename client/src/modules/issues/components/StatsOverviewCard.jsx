@@ -1,6 +1,6 @@
 import { Card, Typography, Stack, Box, Chip, Divider } from "@mui/material";
 
-export default function StatsOverviewCard({ stats, glass }) {
+export default function StatsOverviewCard({ stats, glass, sx }) {
   return (
     <Card
       sx={{
@@ -10,6 +10,7 @@ export default function StatsOverviewCard({ stats, glass }) {
         backdropFilter: `blur(${glass.blur})`,
         border: glass.border,
         boxShadow: glass.shadow,
+        ...sx,
       }}>
       <Typography variant="h6" fontWeight={700} mb={2}>
         📊 Overview

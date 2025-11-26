@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link as RouterLink } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -12,18 +12,25 @@ import {
   Menu,
   MenuItem,
   useScrollTrigger,
+  useTheme,
+  Typography,
+  Tooltip,
 } from "@mui/material";
+
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
-import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
+import BugReportRoundedIcon from "@mui/icons-material/BugReportRounded";
+import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import FormatListBulletedRoundedIcon from "@mui/icons-material/FormatListBulletedRounded";
+import ManageAccountsRounded from "@mui/icons-material/ManageAccountsRounded";
+
 import { motion } from "framer-motion";
-import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// Import navbar components
+// Navbar components
 import Brand from "./navbar/Brand";
 import NavButton from "./navbar/NavButton";
 import SearchBar from "./navbar/SearchBar";
@@ -42,59 +49,64 @@ const authLinks = [
 function ElevationScroll(props) {
   const { children } = props;
   const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
+
   return (
     <Box component={motion.div} animate={{ y: 0 }} initial={{ y: -24 }}>
-      {children({ elevation: trigger ? 6 : 0 })}
+      {children({ elevation: trigger ? 4 : 0 })}
     </Box>
   );
 }
 
 export default function Navbar({ setFilters }) {
+  const theme = useTheme();
   const { pathname } = useLocation();
+  const { user, logout, isAuthenticated } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+
   const openMenu = Boolean(anchorEl);
 
-  const { user, logout } = useAuth();
+  // Show search only on pages supporting it
+  const showSearch = ["/issues", "/dashboard", "/user-dashboard"].includes(
+    pathname
+  );
 
   const links = [
     { label: "Home", to: "/", icon: <HomeRoundedIcon fontSize="small" /> },
 
-    // USER-only: show Report/Issues
     ...(user?.role === "user"
       ? [
           {
-            label: "Report",
+            label: "Report Issue",
             to: "/issues",
-            icon: <ReportProblemRoundedIcon fontSize="small" />,
+            icon: <BugReportRoundedIcon fontSize="small" />,
           },
-
           {
-            label: "Activity",
+            label: "My Issues",
             to: "/user-dashboard",
-            icon: <ReportProblemRoundedIcon fontSize="small" />,
+            icon: <FormatListBulletedRoundedIcon fontSize="small" />,
           },
         ]
       : []),
 
-    // ADMIN-only: show Dashboard
     ...(user?.role === "admin"
       ? [
           {
-            label: "Dashboard",
+            label: "Admin Panel",
             to: "/dashboard",
-            icon: <DashboardRoundedIcon fontSize="small" />,
+            icon: <SpaceDashboardRoundedIcon fontSize="small" />,
           },
         ]
       : []),
   ];
-  console.log(user);
 
-  // Shared search logic
   const handleSearch = (value) => {
     setSearchValue(value);
-    setFilters((prev) => ({ ...prev, search: value }));
+    if (setFilters) {
+      setFilters((prev) => ({ ...prev, search: value }));
+    }
   };
 
   return (
@@ -102,43 +114,44 @@ export default function Navbar({ setFilters }) {
       {({ elevation }) => (
         <AppBar
           position="sticky"
-          color="inherit"
           elevation={elevation}
           sx={{
-            backdropFilter: "blur(16px) saturate(180%)",
-            bgcolor: "rgba(255,255,255,0.75)",
-            borderBottom: "1px solid rgba(255,255,255,0.3)",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            bgcolor: theme.palette.background.glass,
+            backdropFilter: "blur(14px)",
+            transition: "background-color 0.3s ease",
+            borderBottom: `1px solid ${theme.palette.divider}`,
           }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters sx={{ py: 0.5 }}>
-              {/* Left: Brand */}
+              {/* Left: Logo */}
               <Brand />
 
-              {/* Desktop Links */}
+              {/* Desktop Nav */}
               <Stack
                 direction="row"
                 spacing={1.5}
-                sx={{ ml: 4, display: { xs: "none", md: "flex" } }}>
-                {links.map((l) => (
-                  <NavButton key={l.to} {...l} />
+                sx={{ display: { xs: "none", md: "flex" }, ml: 4 }}>
+                {links.map((item) => (
+                  <NavButton key={item.to} {...item} />
                 ))}
               </Stack>
 
               {/* Spacer */}
               <Box sx={{ flexGrow: 1 }} />
 
-              {/* Search (desktop) */}
-              <Box sx={{ display: { xs: "none", md: "block" }, mr: 2 }}>
-                <SearchBar value={searchValue} onChange={handleSearch} />
-              </Box>
+              {/* Search (Desktop only if applicable) */}
+              {showSearch && (
+                <Box sx={{ display: { xs: "none", md: "block" }, mr: 2 }}>
+                  <SearchBar value={searchValue} onChange={handleSearch} />
+                </Box>
+              )}
 
-              {/* Theme Toggle */}
+              {/* Dark / Light Toggle */}
               <Box sx={{ display: { xs: "none", md: "block" }, mr: 1 }}>
                 <ThemeToggle />
               </Box>
 
-              {/* Right: Auth */}
+              {/* Right: Auth Buttons */}
               <Stack
                 direction="row"
                 spacing={1}
@@ -147,19 +160,17 @@ export default function Navbar({ setFilters }) {
                   alignItems: "center",
                 }}>
                 {!user ? (
-                  <>
-                    {authLinks.map((l) => (
-                      <Button
-                        key={l.label}
-                        component={RouterLink}
-                        to={l.to}
-                        startIcon={l.icon}
-                        variant={l.label === "Register" ? "contained" : "text"}
-                        sx={{ textTransform: "none" }}>
-                        {l.label}
-                      </Button>
-                    ))}
-                  </>
+                  authLinks.map((item) => (
+                    <Button
+                      key={item.to}
+                      component={RouterLink}
+                      to={item.to}
+                      startIcon={item.icon}
+                      variant={item.label === "Register" ? "contained" : "text"}
+                      sx={{ textTransform: "none" }}>
+                      {item.label}
+                    </Button>
+                  ))
                 ) : (
                   <>
                     <Avatar
@@ -177,16 +188,18 @@ export default function Navbar({ setFilters }) {
                         sx: {
                           borderRadius: 3,
                           mt: 1,
-                          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                          backdropFilter: "blur(10px)",
+                          boxShadow: theme.shadows[6],
                         },
                       }}>
-                      {/* <MenuItem onClick={() => setAnchorEl(null)}>
-                        Profile
-                      </MenuItem> */}
                       <MenuItem
                         component={RouterLink}
                         to="/profile"
                         onClick={() => setAnchorEl(null)}>
+                        <ManageAccountsRounded
+                          fontSize="small"
+                          style={{ marginRight: 8 }}
+                        />
                         Profile
                       </MenuItem>
 
@@ -194,7 +207,12 @@ export default function Navbar({ setFilters }) {
                         onClick={() => {
                           logout();
                           setAnchorEl(null);
-                        }}>
+                        }}
+                        sx={{ color: "error.main" }}>
+                        <LogoutRoundedIcon
+                          fontSize="small"
+                          style={{ marginRight: 8 }}
+                        />
                         Logout
                       </MenuItem>
                     </Menu>
@@ -202,10 +220,10 @@ export default function Navbar({ setFilters }) {
                 )}
               </Stack>
 
-              {/* Mobile: Menu Button */}
+              {/* Mobile menu icon */}
               <IconButton
                 edge="end"
-                sx={{ ml: 1, display: { xs: "inline-flex", md: "none" } }}
+                sx={{ display: { xs: "inline-flex", md: "none" }, ml: 1 }}
                 onClick={() => setOpen(true)}>
                 <MenuRoundedIcon />
               </IconButton>
