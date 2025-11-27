@@ -1,6 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Typography, Button, Card, Box } from "@mui/material";
+import {
+  Typography,
+  Button,
+  Card,
+  Box,
+  Chip,
+  useTheme,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
 
 // Components
@@ -18,18 +27,40 @@ const categoryOptions = [
   { value: "Other", label: "Other" },
 ];
 
+const priorityOptions = [
+  { label: "Low", color: "success" },
+  { label: "Medium", color: "warning" },
+  { label: "High", color: "error" },
+  { label: "Critical", color: "secondary" },
+];
+
 function ReportIssue() {
+  const theme = useTheme();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     location: "",
+    priority: "Medium",
   });
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [errors, setError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  // Cleanup preview URL
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,11 +75,12 @@ function ReportIssue() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let newErrors = {};
+  const handlePriorityChange = (priority) => {
+    setFormData((prev) => ({ ...prev, priority }));
+  };
 
-    // Validation
+  const validate = () => {
+    const newErrors = {};
     if (!formData.title || formData.title.length < 5)
       newErrors.title = "Title must be at least 5 characters!";
     if (!formData.description || formData.description.length < 15)
@@ -57,41 +89,58 @@ function ReportIssue() {
     if (!formData.location || formData.location.length < 3)
       newErrors.location = "Location must be at least 3 characters long";
     if (!imageFile) newErrors.image = "Please upload an image";
-
+    if (!formData.priority) newErrors.priority = "Please select urgency level";
     setError(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
 
     try {
       setLoading(true);
 
-      // Prepare FormData
       const dataToSend = new FormData();
       dataToSend.append("title", formData.title);
       dataToSend.append("description", formData.description);
       dataToSend.append("category", formData.category);
       dataToSend.append("location", formData.location);
+      dataToSend.append("priority", formData.priority);
       dataToSend.append("image", imageFile);
 
-      // Call backend
       await issuesService.createIssue(dataToSend);
 
-      // Reset form
-      setFormData({ title: "", description: "", category: "", location: "" });
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        location: "",
+        priority: "Medium",
+      });
       setImageFile(null);
       setPreview(null);
       setError({});
 
-      alert("Issue reported successfully!");
+      setSnackbar({
+        open: true,
+        message: "Issue reported successfully!",
+        severity: "success",
+      });
 
-      // Redirect to IssuePage to show all issues including the new one
-      navigate("/issues");
+      setTimeout(() => navigate("/issues"), 1200);
     } catch (err) {
-      console.error("Error creating issue:", err);
+      console.error(err);
       setError({
         general:
           err.response?.data?.message ||
           err.message ||
           "Failed to create issue",
+      });
+      setSnackbar({
+        open: true,
+        message: "Failed to create issue",
+        severity: "error",
       });
     } finally {
       setLoading(false);
@@ -99,7 +148,7 @@ function ReportIssue() {
   };
 
   return (
-    <PageCard sx={{ maxWidth: 450 }} title="Report an Issue">
+    <PageCard sx={{ maxWidth: 500 }} title="Report an Issue">
       {errors.general && (
         <Typography color="error" sx={{ mb: 2 }}>
           {errors.general}
@@ -113,6 +162,7 @@ function ReportIssue() {
           value={formData.title}
           onChange={handleChange}
           error={errors.title}
+          helperText="Provide a descriptive title for quick resolution"
           margin="normal"
         />
 
@@ -147,6 +197,35 @@ function ReportIssue() {
           margin="normal"
         />
 
+        {/* Priority / Urgency */}
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Urgency
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            {priorityOptions.map((option) => (
+              <Chip
+                key={option.label}
+                label={option.label}
+                color={option.color}
+                variant={
+                  formData.priority === option.label ? "filled" : "outlined"
+                }
+                onClick={() => handlePriorityChange(option.label)}
+                sx={{ cursor: "pointer", fontWeight: 600 }}
+              />
+            ))}
+          </Box>
+          {errors.priority && (
+            <Typography
+              variant="caption"
+              color="error"
+              sx={{ mt: 1, display: "block" }}>
+              {errors.priority}
+            </Typography>
+          )}
+        </Box>
+
         {/* Image Upload */}
         <Box sx={{ mt: 2 }}>
           <Button
@@ -179,7 +258,6 @@ function ReportIssue() {
           )}
         </Box>
 
-        {/* Preview */}
         {preview && (
           <Box sx={{ mt: 2 }}>
             <Card sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2 }}>
@@ -200,6 +278,14 @@ function ReportIssue() {
           </SubmitButton>
         </Box>
       </form>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </PageCard>
   );
 }
