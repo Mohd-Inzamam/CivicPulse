@@ -46,21 +46,11 @@ const authLinks = [
   },
 ];
 
-function ElevationScroll(props) {
-  const { children } = props;
-  const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
-
-  return (
-    <Box component={motion.div} animate={{ y: 0 }} initial={{ y: -24 }}>
-      {children({ elevation: trigger ? 4 : 0 })}
-    </Box>
-  );
-}
-
 export default function Navbar({ setFilters }) {
   const theme = useTheme();
   const { pathname } = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
+  const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
 
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -84,7 +74,7 @@ export default function Navbar({ setFilters }) {
             icon: <BugReportRoundedIcon fontSize="small" />,
           },
           {
-            label: "My Issues",
+            label: "Issues",
             to: "/user-dashboard",
             icon: <FormatListBulletedRoundedIcon fontSize="small" />,
           },
@@ -110,137 +100,160 @@ export default function Navbar({ setFilters }) {
   };
 
   return (
-    <ElevationScroll>
-      {({ elevation }) => (
-        <AppBar
-          position="sticky"
-          elevation={elevation}
-          sx={{
-            bgcolor: theme.palette.background.glass,
-            backdropFilter: "blur(14px)",
-            transition: "background-color 0.3s ease",
-            borderBottom: `1px solid ${theme.palette.divider}`,
-          }}>
-          <Container maxWidth="lg">
-            <Toolbar disableGutters sx={{ py: 0.5 }}>
-              {/* Left: Logo */}
-              <Brand />
+    <AppBar
+      position="sticky"
+      elevation={trigger ? 8 : 0}
+      sx={{
+        top: 0,
+        zIndex: 1200,
+        bgcolor: trigger
+          ? "rgba(255, 255, 255, 0.8)"
+          : "rgba(255, 255, 255, 0.35)",
+        backdropFilter: "blur(20px) saturate(140%)",
+        WebkitBackdropFilter: "blur(20px) saturate(140%)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.25)",
+        transition: "all 0.3s ease",
+      }}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ py: 0.5 }}>
+          {/* Left: Logo */}
+          <Brand />
 
-              {/* Desktop Nav */}
-              <Stack
-                direction="row"
-                spacing={1.5}
-                sx={{ display: { xs: "none", md: "flex" }, ml: 4 }}>
-                {links.map((item) => (
-                  <NavButton key={item.to} {...item} />
-                ))}
-              </Stack>
+          {/* Desktop Nav */}
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{ display: { xs: "none", md: "flex" }, ml: 4 }}>
+            {links.map((item) => (
+              <NavButton key={item.to} {...item} />
+            ))}
+          </Stack>
 
-              {/* Spacer */}
-              <Box sx={{ flexGrow: 1 }} />
+          {/* Spacer */}
+          <Box sx={{ flexGrow: 1 }} />
 
-              {/* Search (Desktop only if applicable) */}
-              {showSearch && (
-                <Box sx={{ display: { xs: "none", md: "block" }, mr: 2 }}>
-                  <SearchBar value={searchValue} onChange={handleSearch} />
+          {/* Search (Desktop only if applicable) */}
+          {showSearch && (
+            <Box sx={{ display: { xs: "none", md: "block" }, mr: 2 }}>
+              <SearchBar value={searchValue} onChange={handleSearch} />
+            </Box>
+          )}
+
+          {/* Dark / Light Toggle */}
+          <Box sx={{ display: { xs: "none", md: "block" }, mr: 1 }}>
+            <ThemeToggle />
+          </Box>
+
+          {/* Right: Auth Buttons */}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+            }}>
+            {!user ? (
+              authLinks.map((item) => (
+                <Button
+                  key={item.to}
+                  component={RouterLink}
+                  to={item.to}
+                  startIcon={item.icon}
+                  variant={item.label === "Register" ? "contained" : "text"}
+                  sx={{ textTransform: "none" }}>
+                  {item.label}
+                </Button>
+              ))
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => setAnchorEl(e.currentTarget)}>
+                  <Avatar
+                    src={user?.avatar}
+                    alt={user?.fullName}
+                    sx={{ width: 36, height: 36 }}
+                  />
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color:
+                        user?.role === "admin"
+                          ? "error.main" // admin styling
+                          : "success.main", // citizen styling
+                      textTransform: "capitalize",
+                      userSelect: "none",
+                    }}>
+                    {user?.role === "admin" ? "Admin" : "Citizen"}
+                  </Typography>
                 </Box>
-              )}
 
-              {/* Dark / Light Toggle */}
-              <Box sx={{ display: { xs: "none", md: "block" }, mr: 1 }}>
-                <ThemeToggle />
-              </Box>
-
-              {/* Right: Auth Buttons */}
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                  display: { xs: "none", md: "flex" },
-                  alignItems: "center",
-                }}>
-                {!user ? (
-                  authLinks.map((item) => (
-                    <Button
-                      key={item.to}
-                      component={RouterLink}
-                      to={item.to}
-                      startIcon={item.icon}
-                      variant={item.label === "Register" ? "contained" : "text"}
-                      sx={{ textTransform: "none" }}>
-                      {item.label}
-                    </Button>
-                  ))
-                ) : (
-                  <>
-                    <Avatar
-                      src={user.avatar}
-                      alt={user.fullName}
-                      sx={{ width: 36, height: 36, cursor: "pointer" }}
-                      onClick={(e) => setAnchorEl(e.currentTarget)}
+                <Menu
+                  anchorEl={anchorEl}
+                  open={openMenu}
+                  onClose={() => setAnchorEl(null)}
+                  PaperProps={{
+                    sx: {
+                      borderRadius: 3,
+                      mt: 1,
+                      backdropFilter: "blur(10px)",
+                      boxShadow: theme.shadows[6],
+                    },
+                  }}>
+                  <MenuItem
+                    component={RouterLink}
+                    to="/profile"
+                    onClick={() => setAnchorEl(null)}>
+                    <ManageAccountsRounded
+                      fontSize="small"
+                      style={{ marginRight: 8 }}
                     />
+                    Profile
+                  </MenuItem>
 
-                    <Menu
-                      anchorEl={anchorEl}
-                      open={openMenu}
-                      onClose={() => setAnchorEl(null)}
-                      PaperProps={{
-                        sx: {
-                          borderRadius: 3,
-                          mt: 1,
-                          backdropFilter: "blur(10px)",
-                          boxShadow: theme.shadows[6],
-                        },
-                      }}>
-                      <MenuItem
-                        component={RouterLink}
-                        to="/profile"
-                        onClick={() => setAnchorEl(null)}>
-                        <ManageAccountsRounded
-                          fontSize="small"
-                          style={{ marginRight: 8 }}
-                        />
-                        Profile
-                      </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      logout();
+                      setAnchorEl(null);
+                    }}
+                    sx={{ color: "error.main" }}>
+                    <LogoutRoundedIcon
+                      fontSize="small"
+                      style={{ marginRight: 8 }}
+                    />
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </Stack>
 
-                      <MenuItem
-                        onClick={() => {
-                          logout();
-                          setAnchorEl(null);
-                        }}
-                        sx={{ color: "error.main" }}>
-                        <LogoutRoundedIcon
-                          fontSize="small"
-                          style={{ marginRight: 8 }}
-                        />
-                        Logout
-                      </MenuItem>
-                    </Menu>
-                  </>
-                )}
-              </Stack>
+          {/* Mobile menu icon */}
+          <IconButton
+            edge="end"
+            sx={{ display: { xs: "inline-flex", md: "none" }, ml: 1 }}
+            onClick={() => setOpen(true)}>
+            <MenuRoundedIcon />
+          </IconButton>
+        </Toolbar>
+      </Container>
 
-              {/* Mobile menu icon */}
-              <IconButton
-                edge="end"
-                sx={{ display: { xs: "inline-flex", md: "none" }, ml: 1 }}
-                onClick={() => setOpen(true)}>
-                <MenuRoundedIcon />
-              </IconButton>
-            </Toolbar>
-          </Container>
-
-          {/* Mobile Drawer */}
-          <MobileDrawer
-            open={open}
-            onClose={() => setOpen(false)}
-            links={links}
-            authLinks={authLinks}
-            searchValue={searchValue}
-            onSearchChange={handleSearch}
-          />
-        </AppBar>
-      )}
-    </ElevationScroll>
+      {/* Mobile Drawer */}
+      <MobileDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        links={links}
+        authLinks={authLinks}
+        searchValue={searchValue}
+        onSearchChange={handleSearch}
+      />
+    </AppBar>
   );
 }

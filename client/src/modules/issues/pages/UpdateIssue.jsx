@@ -7,6 +7,8 @@ import {
   Typography,
   CircularProgress,
   Avatar,
+  Box,
+  Stack,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { issuesService } from "../../../services/issuesService";
@@ -26,6 +28,7 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Populate initial form data
   useEffect(() => {
     if (issue) {
       setFormData({
@@ -89,18 +92,21 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
           transition={{ duration: 0.35, ease: "easeOut" }}>
           <Card
             sx={{
-              maxWidth: 600,
+              maxWidth: { xs: "90%", sm: 500, md: 600 },
               mx: "auto",
               mt: 4,
-              borderRadius: theme.shape.borderRadius * 2.2, // iOS pill
-              p: 1,
-              backdropFilter: "blur(22px)",
+              borderRadius: theme.shape.borderRadius * 0.2,
+              p: 0,
+              background: theme.palette.background.glass,
+              backdropFilter: "blur(22px) saturate(180%)",
+              border: `1px solid ${theme.palette.divider}`,
+              boxShadow: theme.shadows[4],
             }}>
             <CardContent sx={{ p: 3 }}>
               <Typography
                 variant="h5"
                 sx={{
-                  mb: 2,
+                  mb: 3,
                   fontWeight: 700,
                   textAlign: "center",
                   letterSpacing: "0.4px",
@@ -108,17 +114,19 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                 Update Issue
               </Typography>
 
-              <form
+              <Box
+                component="form"
                 onSubmit={handleSubmit}
-                style={{
+                sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "18px",
+                  gap: theme.spacing(2.5),
                 }}>
                 <TextField
                   label="Title"
                   name="title"
                   fullWidth
+                  variant="outlined"
                   value={formData.title}
                   onChange={handleChange}
                 />
@@ -129,6 +137,7 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                   fullWidth
                   multiline
                   rows={4}
+                  variant="outlined"
                   value={formData.description}
                   onChange={handleChange}
                 />
@@ -137,6 +146,7 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                   label="Category"
                   name="category"
                   fullWidth
+                  variant="outlined"
                   value={formData.category}
                   onChange={handleChange}
                 />
@@ -145,18 +155,13 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                   label="Location"
                   name="location"
                   fullWidth
+                  variant="outlined"
                   value={formData.location}
                   onChange={handleChange}
                 />
 
                 {/* Image Upload */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "20px",
-                    marginTop: "6px",
-                  }}>
+                <Stack direction="row" alignItems="center" spacing={2.5}>
                   <Avatar
                     src={imagePreview}
                     sx={{
@@ -171,11 +176,7 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                   <Button
                     variant="contained"
                     component="label"
-                    sx={{
-                      borderRadius: "14px",
-                      py: 1.2,
-                      px: 3,
-                    }}>
+                    sx={{ borderRadius: "14px", py: 1.2, px: 3 }}>
                     Change Image
                     <input
                       type="file"
@@ -184,24 +185,19 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                       onChange={handleImageChange}
                     />
                   </Button>
-                </div>
+                </Stack>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: "12px",
-                    marginTop: "10px",
-                  }}>
+                {/* Action Buttons */}
+                <Stack
+                  direction="row"
+                  justifyContent="flex-end"
+                  spacing={1.5}
+                  sx={{ mt: 1 }}>
                   <Button
                     variant="outlined"
                     onClick={onClose}
                     disabled={loading}
-                    sx={{
-                      borderRadius: "14px",
-                      px: 3,
-                      py: 1,
-                    }}>
+                    sx={{ borderRadius: "14px", py: 1, px: 3 }}>
                     Cancel
                   </Button>
 
@@ -209,15 +205,15 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
                     variant="contained"
                     type="submit"
                     disabled={loading}
-                    sx={{
-                      borderRadius: "14px",
-                      px: 3,
-                      py: 1,
-                    }}>
-                    {loading ? <CircularProgress size={22} /> : "Save"}
+                    sx={{ borderRadius: "14px", py: 1, px: 3 }}>
+                    {loading ? (
+                      <CircularProgress size={22} color="inherit" />
+                    ) : (
+                      "Save"
+                    )}
                   </Button>
-                </div>
-              </form>
+                </Stack>
+              </Box>
             </CardContent>
           </Card>
         </motion.div>
@@ -227,176 +223,3 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
 };
 
 export default UpdateIssue;
-
-// import { useState, useEffect } from "react";
-// import {
-//   Card,
-//   CardContent,
-//   TextField,
-//   Button,
-//   Typography,
-//   CircularProgress,
-//   Avatar,
-// } from "@mui/material";
-// import { motion, AnimatePresence } from "framer-motion";
-// import { issuesService } from "../../../services/issuesService";
-
-// const UpdateIssue = ({ issue, onClose, onUpdate }) => {
-//   const [formData, setFormData] = useState({
-//     title: "",
-//     description: "",
-//     category: "",
-//     location: "",
-//   });
-//   const [image, setImage] = useState(null);
-//   const [imagePreview, setImagePreview] = useState(null);
-//   const [loading, setLoading] = useState(false);
-
-//   useEffect(() => {
-//     if (issue) {
-//       setFormData({
-//         title: issue.title || "",
-//         description: issue.description || "",
-//         category: issue.category || "",
-//         location: issue.location || "",
-//       });
-//       setImagePreview(issue.image || null);
-//     }
-//   }, [issue]);
-
-//   const handleChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value });
-//   };
-
-//   const handleImageChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       setImage(file);
-//       setImagePreview(URL.createObjectURL(file));
-//     }
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-
-//     try {
-//       let payload;
-//       if (image) {
-//         // Send FormData if image is updated
-//         payload = new FormData();
-//         Object.entries(formData).forEach(([key, value]) =>
-//           payload.append(key, value)
-//         );
-//         payload.append("image", image);
-//       } else {
-//         // Send JSON if no image
-//         payload = { ...formData };
-//       }
-
-//       const response = await issuesService.updateIssue(issue._id, payload);
-//       console.log("Issue updated:", response);
-
-//       if (onUpdate) onUpdate(response.data);
-//       if (onClose) onClose();
-//     } catch (err) {
-//       console.error("Failed to update issue:", err);
-//       alert(err.message || "Failed to update issue");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <AnimatePresence>
-//       {issue && (
-//         <motion.div
-//           initial={{ opacity: 0, y: 20 }}
-//           animate={{ opacity: 1, y: 0 }}
-//           exit={{ opacity: 0, y: 20 }}
-//           transition={{ duration: 0.3 }}>
-//           <Card sx={{ maxWidth: 600, mx: "auto", mt: 3 }}>
-//             <CardContent>
-//               <Typography variant="h6" gutterBottom>
-//                 Update Issue
-//               </Typography>
-
-//               <form
-//                 onSubmit={handleSubmit}
-//                 className="d-flex flex-column gap-3">
-//                 <TextField
-//                   label="Title"
-//                   name="title"
-//                   fullWidth
-//                   value={formData.title}
-//                   onChange={handleChange}
-//                   required
-//                 />
-
-//                 <TextField
-//                   label="Description"
-//                   name="description"
-//                   fullWidth
-//                   multiline
-//                   rows={4}
-//                   value={formData.description}
-//                   onChange={handleChange}
-//                   required
-//                 />
-
-//                 <TextField
-//                   label="Category"
-//                   name="category"
-//                   fullWidth
-//                   value={formData.category}
-//                   onChange={handleChange}
-//                   required
-//                 />
-
-//                 <TextField
-//                   label="Location"
-//                   name="location"
-//                   fullWidth
-//                   value={formData.location}
-//                   onChange={handleChange}
-//                   required
-//                 />
-
-//                 {/* Image Upload */}
-//                 <div className="d-flex align-items-center gap-3">
-//                   <Avatar
-//                     src={imagePreview}
-//                     sx={{ width: 80, height: 80, border: "2px solid #ccc" }}
-//                   />
-//                   <Button variant="contained" component="label">
-//                     Change Image
-//                     <input
-//                       type="file"
-//                       hidden
-//                       accept="image/*"
-//                       onChange={handleImageChange}
-//                     />
-//                   </Button>
-//                 </div>
-
-//                 <div className="d-flex gap-2 justify-content-end mt-2">
-//                   <Button
-//                     variant="outlined"
-//                     onClick={onClose}
-//                     disabled={loading}>
-//                     Cancel
-//                   </Button>
-//                   <Button variant="contained" type="submit" disabled={loading}>
-//                     {loading ? <CircularProgress size={22} /> : "Save Changes"}
-//                   </Button>
-//                 </div>
-//               </form>
-//             </CardContent>
-//           </Card>
-//         </motion.div>
-//       )}
-//     </AnimatePresence>
-//   );
-// };
-
-// export default UpdateIssue;

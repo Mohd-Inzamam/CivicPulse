@@ -99,7 +99,7 @@ function ReportIssue() {
   };
 
   return (
-    <PageCard title="Report an Issue">
+    <PageCard sx={{ maxWidth: 450 }} title="Report an Issue">
       {errors.general && (
         <Typography color="error" sx={{ mb: 2 }}>
           {errors.general}

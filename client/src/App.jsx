@@ -19,6 +19,14 @@ import UpdateIssue from "./modules/issues/pages/UpdateIssue";
 import Footer from "./components/Footer";
 import UserDashboard from "./modules/dashboard/user/UserDashboard";
 import ReportIssue from "./modules/issues/pages/ReportIssue.jsx";
+import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import TermsConditions from "./pages/TermsConditions.jsx";
+import FAQ from "./pages/FAQ.jsx";
+import Team from "./pages/Team.jsx";
+import Support from "./pages/Support.jsx";
+import Feedback from "./pages/Feedback.jsx";
 
 function App() {
   // ✅ Only keep filters state - issues are now managed by individual components
@@ -30,14 +38,7 @@ function App() {
   });
 
   return (
-    <div
-      // style={{
-      //   background: "var(--color-bg-default)",
-      //   minHeight: "100vh",
-      //   display: "flex",
-      //   flexDirection: "column",
-      // }}
-      className="App">
+    <div className="App">
       <Navbar setFilters={setFilters} />
       <SessionTimeout />
 
@@ -58,6 +59,14 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsConditions />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/team" element={<Team />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/feedback" element={<Feedback />} />
 
         {/* Protected routes */}
         <Route

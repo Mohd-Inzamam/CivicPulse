@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { lightTheme, darkTheme, themeValues } from "../theme/theme"; // Import themeValues
+import { ThemeProvider as MuiThemeProvider } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 
 const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
@@ -105,111 +107,10 @@ export const ThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme, theme }}>
-      {children}
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };
-
-// import React, { createContext, useContext, useState, useEffect } from "react";
-// import { lightTheme, darkTheme } from "../theme/theme";
-
-// const ThemeContext = createContext();
-
-// export const useTheme = () => {
-//   const context = useContext(ThemeContext);
-//   if (!context) throw new Error("useTheme must be used within ThemeProvider");
-//   return context;
-// };
-
-// export const ThemeProvider = ({ children }) => {
-//   const [isDarkMode, setIsDarkMode] = useState(() => {
-//     const saved = localStorage.getItem("theme");
-//     if (saved) return saved === "dark";
-//     return window.matchMedia("(prefers-color-scheme: dark)").matches;
-//   });
-
-//   const toggleTheme = () => setIsDarkMode(prev => !prev);
-
-//   const theme = isDarkMode ? darkTheme : lightTheme;
-
-//   useEffect(() => {
-//     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-
-//     const root = document.documentElement;
-//     const colors = theme.palette;
-
-//     // 🌟 ONLY Glass variables — nothing else
-//     root.style.setProperty("--glass-bg", colors.glass.background);
-//     root.style.setProperty("--glass-border", colors.glass.border);
-//     root.style.setProperty("--glass-blur", colors.glass.blur);
-//     root.style.setProperty("--glass-shadow", colors.glass.shadow);
-
-//     // Text colors for custom components
-//     root.style.setProperty("--text-primary", colors.text.primary);
-//     root.style.setProperty("--text-secondary", colors.text.secondary);
-//   }, [isDarkMode, theme]);
-
-//   return (
-//     <ThemeContext.Provider value={{ isDarkMode, toggleTheme, theme }}>
-//       {children}
-//     </ThemeContext.Provider>
-//   );
-// };
-
-// import React, { createContext, useContext, useState, useEffect } from 'react';
-// import { lightTheme, darkTheme } from '../theme/theme';
-
-// const ThemeContext = createContext();
-
-// export const useTheme = () => {
-//   const context = useContext(ThemeContext);
-//   if (!context) {
-//     throw new Error('useTheme must be used within a ThemeProvider');
-//   }
-//   return context;
-// };
-
-// export const ThemeProvider = ({ children }) => {
-//   const [isDarkMode, setIsDarkMode] = useState(() => {
-//     // Check localStorage first, then system preference
-//     const savedTheme = localStorage.getItem('theme');
-//     if (savedTheme) {
-//       return savedTheme === 'dark';
-//     }
-//     return window.matchMedia('(prefers-color-scheme: dark)').matches;
-//   });
-
-//   const toggleTheme = () => {
-//     setIsDarkMode(prev => !prev);
-//   };
-
-//   const theme = isDarkMode ? darkTheme : lightTheme;
-
-//   useEffect(() => {
-//     // Save theme preference to localStorage
-//     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-
-//     // Update CSS variables for non-MUI components
-//     const root = document.documentElement;
-//     const colors = isDarkMode ? darkTheme.palette : lightTheme.palette;
-
-//     root.style.setProperty('--color-primary', colors.primary.main);
-//     root.style.setProperty('--color-text-primary', colors.text.primary);
-//     root.style.setProperty('--color-text-secondary', colors.text.secondary);
-//     root.style.setProperty('--color-bg-paper', 'transparent');
-//     root.style.setProperty('--color-bg-default', 'transparent');
-//     root.style.setProperty('--color-bg-glass', colors.background.glass);
-//   }, [isDarkMode]);
-
-//   const value = {
-//     isDarkMode,
-//     toggleTheme,
-//     theme,
-//   };
-
-//   return (
-//     <ThemeContext.Provider value={value}>
-//       {children}
-//     </ThemeContext.Provider>
-//   );
-// };

@@ -11,82 +11,73 @@ export default function Footer() {
       component="footer"
       sx={{
         mt: 8,
-        mb: 4,
-        mx: 2,
-        py: 4,
+        py: 5,
         px: { xs: 3, md: 6 },
         bgcolor: "rgba(255,255,255,0.25)",
         backdropFilter: "blur(20px) saturate(180%)",
-        borderRadius: "2xl",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+        borderRadius: "22px",
         border: "1px solid rgba(255,255,255,0.3)",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
       }}>
       <Stack
         direction={{ xs: "column", md: "row" }}
         justifyContent="space-between"
         alignItems="center"
         spacing={3}>
-        {/* Left: Copy */}
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 500,
-            color: "text.secondary",
-            textAlign: { xs: "center", md: "left" },
-          }}>
-          &copy; {new Date().getFullYear()} Civic Pulse. All rights reserved.
-        </Typography>
-
-        {/* Center: Navigation */}
-        <Stack direction="row" spacing={3} sx={{ justifyContent: "center" }}>
+        {/* Branding + Tagline */}
+        <Stack alignItems={{ xs: "center", md: "flex-start" }}>
           <Typography
-            component="a"
-            href="/"
+            variant="h6"
             sx={{
-              textDecoration: "none",
-              color: "text.primary",
-              fontWeight: 600,
-              position: "relative",
-              "&:hover": { color: "primary.main" },
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
             }}>
-            Home
+            🌐⚡ CivicPulse
           </Typography>
           <Typography
-            component="a"
-            href="/issues"
-            sx={{
-              textDecoration: "none",
-              color: "text.primary",
-              fontWeight: 600,
-              "&:hover": { color: "primary.main" },
-            }}>
-            Report
-          </Typography>
-          <Typography
-            component="a"
-            href="/dashboard"
-            sx={{
-              textDecoration: "none",
-              color: "text.primary",
-              fontWeight: 600,
-              "&:hover": { color: "primary.main" },
-            }}>
-            Dashboard
-          </Typography>
-          <Typography
-            component="a"
-            href="/profile"
-            sx={{
-              textDecoration: "none",
-              color: "text.primary",
-              fontWeight: 600,
-              "&:hover": { color: "primary.main" },
-            }}>
-            Profile
+            variant="body2"
+            sx={{ color: "text.secondary", fontWeight: 500 }}>
+            Empowering Communities, One Issue at a Time.
           </Typography>
         </Stack>
 
-        {/* Right: Social */}
+        {/* Footer Info Links */}
+        <Stack
+          direction="row"
+          spacing={4}
+          sx={{ textAlign: "center", justifyContent: "center" }}>
+          {[
+            { label: "About", path: "/about" },
+            { label: "Contact", path: "/contact" },
+            { label: "Privacy Policy", path: "/privacy" },
+            { label: "Terms & Conditions", path: "/terms" },
+            { label: "FAQ", path: "/faq" },
+            { label: "Team", path: "/team" },
+            { label: "Support", path: "/support" },
+            { label: "Feedback", path: "/feedback" },
+          ].map((item, idx) => (
+            <Typography
+              key={idx}
+              component="a"
+              href={item.path}
+              sx={{
+                textDecoration: "none",
+                color: "text.primary",
+                fontWeight: 600,
+                "&:hover": {
+                  color: "primary.main",
+                  transform: "translateY(-2px)",
+                  transition: "0.2s ease-in-out",
+                },
+              }}>
+              {item.label}
+            </Typography>
+          ))}
+        </Stack>
+
+        {/* Social Icons */}
         <Stack direction="row" spacing={1}>
           {[FacebookIcon, TwitterIcon, InstagramIcon, GitHubIcon].map(
             (Icon, idx) => (
@@ -98,12 +89,12 @@ export default function Footer() {
                   p: 1.2,
                   borderRadius: "50%",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  transition: "all 0.25s ease",
                   "&:hover": {
                     bgcolor: "primary.main",
                     color: "white",
-                    transform: "scale(1.1)",
+                    transform: "scale(1.12)",
                   },
-                  transition: "all 0.2s ease-in-out",
                 }}>
                 <Icon />
               </IconButton>
@@ -111,6 +102,18 @@ export default function Footer() {
           )}
         </Stack>
       </Stack>
+
+      {/* Copyright */}
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          textAlign: "center",
+          mt: 3,
+          color: "text.secondary",
+        }}>
+        © {new Date().getFullYear()} CivicPulse — All Rights Reserved
+      </Typography>
     </Box>
   );
 }

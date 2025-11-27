@@ -13,15 +13,13 @@ import lightTheme from "./theme/theme.jsx";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
-    <MuiThemeProvider theme={lightTheme}>
-      <ThemeProvider>
-        <CssBaseline />
-        <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </BrowserRouter>
-      </ThemeProvider>
-    </MuiThemeProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider>
+          {/* ThemeProvider now wraps MUI and provides dynamic theme */}
+          <App />
+        </ThemeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </>
 );

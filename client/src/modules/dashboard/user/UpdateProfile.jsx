@@ -11,11 +11,12 @@ import {
 } from "@mui/material";
 import API_ENDPOINTS from "../../../config/api";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "@mui/material/styles";
 
 const UpdateProfile = () => {
   const { login } = useAuth();
   const [user, setUser] = useState(null);
-
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -139,15 +140,15 @@ const UpdateProfile = () => {
       }}>
       <Card
         sx={{
-          borderRadius: 5,
+          borderRadius: theme.shape.borderRadius * 0.2,
           overflow: "hidden",
-          backdropFilter: "blur(16px)",
-          background: "rgba(255, 255, 255, 0.55)",
-          border: "1px solid rgba(255,255,255,0.3)",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-          p: 1,
+          backdropFilter: "blur(20px)",
+          background: theme.palette.background.glass,
+          border: "1px solid rgba(255,255,255,0.25)",
+          boxShadow: theme.shadows[4],
+          p: { xs: 1, sm: 2 },
         }}>
-        <CardContent sx={{ p: 4 }}>
+        <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
           <Typography
             variant="h5"
             sx={{
@@ -165,8 +166,9 @@ const UpdateProfile = () => {
               sx={{
                 width: 90,
                 height: 90,
-                border: "3px solid rgba(255,255,255,0.5)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                borderRadius: theme.shape.borderRadius * 0.2,
+                border: `2px solid ${theme.palette.divider}`,
+                boxShadow: theme.shadows[2],
               }}
             />
 
@@ -175,11 +177,14 @@ const UpdateProfile = () => {
                 variant="outlined"
                 component="label"
                 sx={{
-                  borderRadius: 3,
-                  backdropFilter: "blur(10px)",
-                  background: "rgba(255,255,255,0.4)",
-                  border: "1px solid rgba(255,255,255,0.3)",
+                  borderRadius: 14,
+                  py: 1.2,
+                  px: 3,
                   textTransform: "none",
+                  "&:hover": {
+                    boxShadow: theme.shadows[2],
+                    background: "rgba(255,255,255,0.6)",
+                  },
                 }}>
                 Choose Avatar
                 <input
@@ -196,12 +201,12 @@ const UpdateProfile = () => {
                   onClick={uploadAvatar}
                   disabled={avatarUploading}
                   sx={{
-                    borderRadius: 3,
-                    backdropFilter: "blur(10px)",
-                    background: "rgba(255,255,255,0.4)",
-                    border: "1px solid rgba(255,255,255,0.3)",
+                    borderRadius: 14,
+                    py: 1.2,
+                    px: 3,
                     textTransform: "none",
                     "&:hover": {
+                      boxShadow: theme.shadows[2],
                       background: "rgba(255,255,255,0.6)",
                     },
                   }}>
@@ -256,14 +261,15 @@ const UpdateProfile = () => {
                 onClick={submitProfileUpdate}
                 disabled={updating}
                 sx={{
-                  mt: 4,
-                  width: "100%",
-                  py: 1.5,
-                  borderRadius: 3,
-                  backdropFilter: "blur(10px)",
-                  background: "rgba(255,255,255,0.4)",
-                  border: "1px solid rgba(255,255,255,0.3)",
+                  borderRadius: 14,
+                  py: 1.2,
+                  px: 3,
                   textTransform: "none",
+                  "&:hover": {
+                    boxShadow: theme.shadows[2],
+                    background: "rgba(255,255,255,0.6)",
+                  },
+                  marginTop: 3,
                 }}>
                 {updating ? <CircularProgress size={24} /> : "Save Changes"}
               </Button>
