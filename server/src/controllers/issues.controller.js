@@ -111,7 +111,7 @@ const updateIssue = asyncHandler(async (req, res) => {
   }
 
   // Check if user is the creator or admin
-  if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'user') {
+  if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
     throw new apiError(403, 'Not authorized to update this issue')
   }
 
@@ -128,25 +128,6 @@ const updateIssue = asyncHandler(async (req, res) => {
 
   return res.status(200).json(new apiResponce(200, updatedIssue, 'Issue updated successfully'))
 })
-
-// const deleteIssue = asyncHandler(async (req, res) => {
-//   const { id } = req.params
-
-//   const issue = await Issue.findById(id)
-
-//   if (!issue) {
-//     throw new apiError(404, 'Issue not found')
-//   }
-
-//   // Check if user is the creator or admin
-//   if (issue.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-//     throw new apiError(403, 'Not authorized to delete this issue')
-//   }
-
-//   await Issue.findByIdAndDelete(id)
-
-//   return res.status(200).json(new apiResponce(200, {}, 'Issue deleted successfully'))
-// })
 
 const deleteIssue = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -199,6 +180,10 @@ const upvoteIssue = asyncHandler(async (req, res) => {
 
   if (!issue) {
     throw new apiError(404, 'Issue not found')
+  }
+
+  if (req.user.role === "admin") {
+    throw new apiError(403, "Admins cannot upvote issues");
   }
 
   // Check if user has already upvoted

@@ -25,25 +25,22 @@ export const registerAdmin = asyncHandler(async (req, res) => {
         ward,
     } = req.body;
 
-    // Basic validation
     if (!fullName || !email || !password || !confirmPassword) {
-        throw new apiError(
-            400,
-            "Full Name, Email, Password, and Confirm Password are required"
-        );
+        throw new apiError(400, "Full Name, Email, Password, and Confirm Password are required");
     }
 
     if (password !== confirmPassword) {
         throw new apiError(400, "Passwords do not match");
     }
 
-    // Check if admin already exists
     const existedUser = await User.findOne({ email });
     if (existedUser) {
         throw new apiError(409, "Admin with this email already exists");
     }
 
-    // Upload avatar (optional)
+    // Default avatar
+    // let avatarUrl = "https://via.placeholder.com/150";
+
     let avatarUrl = "https://via.placeholder.com/150";
     if (req.file?.path) {
         const uploadResult = await cloudinary.v2.uploader.upload(req.file.path, {
@@ -53,18 +50,15 @@ export const registerAdmin = asyncHandler(async (req, res) => {
         fs.unlinkSync(req.file.path);
     }
 
-    // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    // Create admin user
     const admin = await User.create({
         fullName: fullName.toLowerCase(),
         email,
         password,
-        confirmPassword,
+        confirmPassword, // will be hashed by pre-save middleware
         avatar: avatarUrl,
         role: "admin",
-
         officialDetails: {
             department,
             employeeId,
@@ -74,72 +68,120 @@ export const registerAdmin = asyncHandler(async (req, res) => {
             city,
             ward,
         },
-
         isEmailVerified: false,
         emailVerificationToken: verificationToken,
     });
 
-    // SEND VERIFICATION EMAIL
     try {
-        const FRONTEND_URL = "http://localhost:5173";
-
+        const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
         const verifyLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
         await transporter.sendMail({
             from: process.env.SMTP_FROM,
             to: email,
-            subject: "Verify your CivicPulse account",
+            subject: "Verify your CivicPulse Admin account",
             html: verifyEmailTemplate(fullName, verifyLink),
         });
 
     } catch (error) {
         console.error("❌ Email sending failed:", error.message);
-        // do not throw — registration should still work
     }
 
-    return res
-        .status(200)
-        .json(
-            new apiResponce(
-                201,
-                admin,
-                "Admin registered successfully. Please verify your email."
-            )
-        );
+    const safeAdminData = await User.findById(admin._id)
+        .select("-password -confirmPassword -refreshToken");
+
+    return res.status(201).json(
+        new apiResponce(201, safeAdminData, "Admin registered successfully. Please verify your email.")
+    );
 });
 
 //   LOGIN ADMIN
 export const loginAdmin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    const isProd = process.env.NODE_ENV === "production";
 
     if (!email || !password) {
         throw new apiError(400, "Email and Password are required");
     }
 
+    // Ensure only admins can login via this route
     const admin = await User.findOne({ email, role: "admin" });
     if (!admin) {
-        throw new apiError(404, "Admin not found or not registered");
+        throw new apiError(404, "Admin not found or Not an Admin");
     }
 
-    // Check password
     const isPasswordValid = await admin.isPassWordCorrect(password);
     if (!isPasswordValid) {
         throw new apiError(401, "Invalid credentials");
     }
 
-    // Generate tokens
+    if (!admin.isEmailVerified) {
+        throw new apiError(400, "Please verify your email before logging in");
+    }
+
+    // Generate new tokens
     const accessToken = admin.generateAccessToken();
     const refreshToken = admin.generateRefreshToken();
 
-    // Save refresh token
+    // Save refresh token in DB
     admin.refreshToken = refreshToken;
     await admin.save({ validateBeforeSave: false });
 
+    // Remove sensitive data
+    const safeAdmin = await User.findById(admin._id)
+        .select("-password -confirmPassword -refreshToken");
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, cookieOptions)
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .json(
+            new apiResponce(
+                200,
+                {
+                    admin: safeAdmin,
+                    accessToken,
+                },
+                "Admin logged in successfully"
+            )
+        );
+});
+
+// ==============================
+// DISABLE / ENABLE USER
+// ==============================
+export const toggleUserStatus = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        throw new apiError(400, "User ID is required");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new apiError(404, "User not found");
+    }
+
+    // Prevent admin from disabling themselves
+    if (user.role === "admin") {
+        throw new apiError(403, "Cannot disable another admin");
+    }
+
+    // Toggle isActive status
+    user.isActive = !user.isActive;
+    await user.save({ validateBeforeSave: false });
+
     return res.status(200).json(
-        new apiResponce(200, "Admin logged in successfully", {
-            accessToken,
-            refreshToken,
-            admin,
-        })
+        new apiResponce(
+            200,
+            { userId: user._id, isActive: user.isActive },
+            `User has been ${user.isActive ? "enabled" : "disabled"} successfully`
+        )
     );
 });

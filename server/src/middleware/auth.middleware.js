@@ -20,6 +20,10 @@ const verifyJwt = asyncHandler(async (req, res, next) => {
       throw new apiError(400, 'User Not Found')
     }
 
+    if (user.isActive === false) {
+      throw new apiError(403, 'User account is disabled. Contact admin.');
+    }
+
     req.user = user
 
     next()

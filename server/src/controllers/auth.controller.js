@@ -25,7 +25,6 @@ const generateAccessAndRefreshToken = async (UserID) => {
   }
 };
 
-
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, password, confirmPassword, role, ssn } = req.body;
 
@@ -38,33 +37,28 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const existingUser = await User.findOne({ $or: [{ email }, { SSN: ssn }] });
-
   if (existingUser) {
     throw new apiError(400, "User already exists with this email or SSN");
   }
 
   // AVATAR UPLOAD
   let avatarURL = "https://via.placeholder.com/150";
-
   if (req.files?.avatar?.[0]) {
     const localFilePath = req.files.avatar[0].path;
-
     const uploaded = await uploadOnCloudinary(localFilePath);
     if (!uploaded) throw new apiError(400, "Avatar upload failed");
-
     avatarURL = uploaded.url;
   }
 
   // CREATE EMAIL VERIFICATION TOKEN
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
-  // CREATE USER
+  // CREATE USER (NO confirmPassword saved)
   const user = await User.create({
-    fullName: fullName.toLowerCase(),
+    fullName: fullName, // 🚀 keep case
     email,
-    password: password,
-    confirmPassword: confirmPassword,
-    SSN: ssn,
+    password,
+    SSN: role === "user" ? ssn : undefined,
     avatar: avatarURL,
     role: role || "user",
     isEmailVerified: false,
@@ -72,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -confirmPassword -refreshToken"
+    "-password -refreshToken"
   );
 
   if (!createdUser) {
@@ -80,10 +74,8 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // SEND VERIFICATION EMAIL
-
   try {
     const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-
     const verifyLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     await transporter.sendMail({
@@ -92,13 +84,10 @@ const registerUser = asyncHandler(async (req, res) => {
       subject: "Verify your CivicPulse account",
       html: verifyEmailTemplate(fullName, verifyLink),
     });
-
   } catch (error) {
     console.error("❌ Email sending failed:", error.message);
-    // Don't throw — registration should NOT fail due to email failure
   }
 
-  // RESPONSE
   return res.status(201).json(
     new apiResponce(
       201,
@@ -123,10 +112,15 @@ const LoginUser = asyncHandler(async (req, res) => {
   }
 
   if (!user) {
-    throw new apiError(400, "Invalid credentials");
+    throw new apiError(400, "User not Found");
   }
 
-  const isPasswordValid = await user.isPassWordCorrect(password);
+  // ❌ New check for disabled users
+  if (!user.isActive) {
+    throw new apiError(403, "Your account has been disabled. Contact admin.");
+  }
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
     throw new apiError(400, "Invalid credentials");
   }

@@ -10,6 +10,7 @@ import {
 } from '../controllers/issues.controller.js'
 import { verifyJwt } from '../middleware/auth.middleware.js'
 import { upload } from '../middleware/multer.middleware.js'
+import { verifyAdmin } from '../middleware/role.middleware.js'
 
 const router = Router()
 
@@ -22,6 +23,6 @@ router.route('/').post(verifyJwt, upload.single("image"), createIssue)
 router.route('/:id').put(verifyJwt, updateIssue)
 router.route('/:id').delete(verifyJwt, deleteIssue)
 router.route('/:id/upvote').post(verifyJwt, upvoteIssue)
-router.route('/:id/status').patch(verifyJwt, updateIssueStatus)
+router.route('/:id/status').patch(verifyJwt, verifyAdmin, updateIssueStatus)
 
 export { router }
