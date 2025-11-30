@@ -41,7 +41,7 @@ import dayjs from "dayjs";
 // usersService.getUser(userId)
 // usersService.toggleUserStatus(userId) -> returns updated user
 // usersService.updateUserRole(userId, role) -> returns updated user
-import { issuesService } from "../../../../../src/services/issuesService.js"; // adjust path as needed
+import { userServices } from "../../../../../src/services/userServices.js"; // adjust path as needed
 
 // ----------------------------
 // Helper small UI components
@@ -137,7 +137,7 @@ export default function AdminUsersPage() {
       else setPageLoading(true);
 
       // the service should accept these query params. adapt if your service differs.
-      const res = await issuesService.getUsers({
+      const res = await userServices.getAllUsers({
         page: p,
         limit,
         search: q || undefined,
@@ -289,7 +289,7 @@ export default function AdminUsersPage() {
 
   const openProfile = async (userId) => {
     try {
-      const res = await usersService.getUser(userId);
+      const res = await userServices.getUserById(userId);
       const u = res.data?.user || res.user || res;
       setSelectedUser(u);
       setDrawerOpen(true);

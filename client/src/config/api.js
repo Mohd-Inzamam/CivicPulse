@@ -1,6 +1,9 @@
 // API Configuration
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2500';
 
+// Define the base path for User Routes
+const USER_ROUTE_BASE = `${API_BASE_URL}/civicpulse/v1/users`;
+
 export const API_ENDPOINTS = {
   // Auth endpoints
   LOGIN: `${API_BASE_URL}/auth/login`,
@@ -29,6 +32,13 @@ export const API_ENDPOINTS = {
   // Dashboard endpoints
   DASHBOARD_STATS: `${API_BASE_URL}/api/dashboard/stats`,
   DASHBOARD_CHARTS: `${API_BASE_URL}/api/dashboard/charts`,
+
+  // 👤 User endpoints (FOR userServices.js)
+  // Corresponds to your router prefix: /CivicPlus/v1/users
+  USERS: USER_ROUTE_BASE,                               // GET /CivicPlus/v1/users (getAllUsers)
+  USER_PROFILE: `${USER_ROUTE_BASE}/me`,                // GET /CivicPlus/v1/users/me (getProfile)
+  USER_BY_ID: (id) => `${USER_ROUTE_BASE}/${id}`,       // GET & DELETE /CivicPlus/v1/users/:id (getUserById, deleteUser)
+  USER_STATUS: (id) => `${USER_ROUTE_BASE}/${id}/status`, // PATCH /CivicPlus/v1/users/:id/status (toggleUserStatus)
 };
 
 export default API_ENDPOINTS;

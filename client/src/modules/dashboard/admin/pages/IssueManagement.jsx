@@ -310,7 +310,8 @@ export default function IssueManagement() {
       )
     );
     try {
-      await issuesService.updateIssueStatus(issueId, { status: newStatus });
+      const validatedStatus = newStatus.trim();
+      await issuesService.updateIssueStatus(issueId, validatedStatus);
       setToast({ open: true, message: "Status updated", severity: "success" });
     } catch (err) {
       console.error("Status update failed", err);

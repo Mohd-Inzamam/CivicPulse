@@ -23,51 +23,58 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // 🚀 Get a list of all users (Admin/Staff only)
 const getAllUsers = asyncHandler(async (req, res) => {
-    // 1. Authorization Check
-    if (req.user.role !== "admin" && req.user.role !== "staff") {
-        throw new apiError(403, "Access denied. Only Admins/Staff can view all users.");
-    }
 
-    // 2. Pagination and Filtering from query parameters
-    const { page = 1, limit = 10, search, role } = req.query;
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
-    const skip = (pageNumber - 1) * limitNumber;
+    try {
 
-    const filter = {};
-    if (role) filter.role = role;
-    if (search) {
-        filter.$or = [
-            { fullName: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { SSN: { $regex: search, $options: "i" } },
-        ];
-    }
+        // 1. Authorization Check
+        if (req.user.role !== "admin" && req.user.role !== "staff") {
+            throw new apiError(403, "Access denied. Only Admins/Staff can view all users.");
+        }
 
-    const users = await User.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limitNumber)
-        .select("-password -refreshToken -confirmPassword")
-        .lean(); // Use .lean() for faster query performance
+        // 2. Pagination and Filtering from query parameters
+        const { page = 1, limit = 10, search, role } = req.query;
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+        const skip = (pageNumber - 1) * limitNumber;
 
-    const totalUsers = await User.countDocuments(filter);
+        const filter = {};
+        if (role) filter.role = role;
+        if (search) {
+            filter.$or = [
+                { fullName: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { SSN: { $regex: search, $options: "i" } },
+            ];
+        }
 
-    return res.status(200).json(
-        new apiResponce(
-            200,
-            {
-                users,
-                pagination: {
-                    totalResults: totalUsers,
-                    page: pageNumber,
-                    limit: limitNumber,
-                    totalPages: Math.ceil(totalUsers / limitNumber),
+        const users = await User.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNumber)
+            .select("-password -refreshToken -confirmPassword")
+            .lean(); // Use .lean() for faster query performance
+
+        const totalUsers = await User.countDocuments(filter);
+        console.log("Users fetched successfully", users)
+
+        return res.status(200).json(
+            new apiResponce(
+                200,
+                {
+                    users,
+                    pagination: {
+                        totalResults: totalUsers,
+                        page: pageNumber,
+                        limit: limitNumber,
+                        totalPages: Math.ceil(totalUsers / limitNumber),
+                    },
                 },
-            },
-            "Users list fetched successfully"
-        )
-    );
+                "Users list fetched successfully"
+            )
+        );
+    } catch (error) {
+        console.log("something went wrong", error);
+    }
 });
 
 // 🚀 Get a specific user by ID (Admin/Staff only)

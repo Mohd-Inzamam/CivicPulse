@@ -26,7 +26,7 @@ import { router as dashboardRouter } from './routes/dashboard.route.js'
 import { router as adminRoutes } from './routes/admin.routes.js'
 
 // Use routes
-app.use('/CivicPlus/v1/users', userRouter) // Legacy user routes
+app.use('/civicPulse/v1/users', userRouter) // Legacy user routes
 app.use('/auth', authRouter) // New auth routes
 app.use('/api/issues', issuesRouter) // Issues management
 app.use('/api/dashboard', dashboardRouter) // Dashboard data
