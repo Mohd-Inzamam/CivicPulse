@@ -1,28 +1,34 @@
-import { Router } from 'express'
-import { upload } from '../middleware/multer.middleware.js'
+// // user.route.js
+import { Router } from "express";
 import {
-  LoginUser,
-  logOutUser,
-  refAccessToken,
-  registerUser,
-  updateAccountDetails,
-  updatePassword
-} from '../controllers/auth.controller.js'
-import { verifyJwt } from '../middleware/auth.middleware.js'
+  getCurrentUser,
+  getAllUsers,
+  getUserById,
+  deleteUser,
+  toggleUserStatus,
+} from "../controllers/user.controller.js";
+import { verifyJwt } from "../middleware/auth.middleware.js"; // Assuming your JWT middleware path
 
-const router = Router()
-console.log('kuchc aaya ya nhi', registerUser)
+const router = Router();
 
-router
-  .route('/registerUser')
-  .post(upload.fields([{ name: 'avatar', maxCount: 1 }]), registerUser)
+// Routes protected by JWT middleware
 
-router.route('/loginUser').post(LoginUser)
+// GET /api/v1/users/me - Get the logged-in user's profile
+router.route("/me").get(verifyJwt, getCurrentUser);
 
-// middlewere
-router.route('/logOutUser').post(verifyJwt, logOutUser)
-router.route('/refresh-token').post(refAccessToken)
-router.route('/update-password').patch(verifyJwt, updatePassword)
-router.route('/update-accoutDetails').patch(verifyJwt, updateAccountDetails)
+// GET /api/v1/users - Get all users (Admin/Staff)
+// POST /api/v1/users/:id/status - Admin/Staff only
+router.route("/")
+  .get(verifyJwt, getAllUsers);
 
-export { router } // ab isko app me import kro
+// GET /api/v1/users/:id - Get user by ID (Admin/Staff or Self)
+// DELETE /api/v1/users/:id - Delete user (Admin only)
+router.route("/:id")
+  .get(verifyJwt, getUserById)
+  .delete(verifyJwt, deleteUser);
+
+// PATCH /api/v1/users/:id/status - Toggle user active/inactive status
+router.route("/:id/status").patch(verifyJwt, toggleUserStatus);
+
+
+export { router };

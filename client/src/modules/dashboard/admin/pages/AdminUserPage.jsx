@@ -41,7 +41,7 @@ import dayjs from "dayjs";
 // usersService.getUser(userId)
 // usersService.toggleUserStatus(userId) -> returns updated user
 // usersService.updateUserRole(userId, role) -> returns updated user
-import { usersService } from "../../../../services/usersService"; // adjust path as needed
+import { issuesService } from "../../../../../src/services/issuesService.js"; // adjust path as needed
 
 // ----------------------------
 // Helper small UI components
@@ -137,7 +137,7 @@ export default function AdminUsersPage() {
       else setPageLoading(true);
 
       // the service should accept these query params. adapt if your service differs.
-      const res = await usersService.getUsers({
+      const res = await issuesService.getUsers({
         page: p,
         limit,
         search: q || undefined,

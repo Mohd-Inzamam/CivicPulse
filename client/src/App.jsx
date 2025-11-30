@@ -27,6 +27,8 @@ import FAQ from "./pages/FAQ.jsx";
 import Team from "./pages/Team.jsx";
 import Support from "./pages/Support.jsx";
 import Feedback from "./pages/Feedback.jsx";
+import AdminUsersPage from "./modules/dashboard/admin/pages/AdminUserPage.jsx";
+import IssueManagement from "./modules/dashboard/admin/pages/IssueManagement.jsx";
 
 function App() {
   // ✅ Only keep filters state - issues are now managed by individual components
@@ -128,6 +130,7 @@ function App() {
           }
         />
 
+        {/* Admin-only routes */}
         <Route
           path="/dashboard"
           element={
@@ -138,12 +141,20 @@ function App() {
           }
         />
 
-        {/* Admin-only routes */}
         <Route
-          path="/admin/*"
+          path="/admin-user-page"
           element={
             <AuthGuard requiredRole="admin">
-              <div>Admin Panel - Coming Soon</div>
+              <AdminUsersPage />
+            </AuthGuard>
+          }
+        />
+
+        <Route
+          path="/admin-issue-page"
+          element={
+            <AuthGuard requiredRole="admin">
+              <IssueManagement />
             </AuthGuard>
           }
         />

@@ -18,6 +18,7 @@ import {
 import { verifyJwt } from '../middleware/auth.middleware.js'
 
 const router = Router()
+console.log("This is the main auth file", registerUser);
 
 // Public routes
 router.route('/register').post(upload.fields([{ name: 'avatar', maxCount: 1 }]), registerUser)
