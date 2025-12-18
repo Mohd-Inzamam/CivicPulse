@@ -88,6 +88,16 @@ export default function Navbar({ setFilters }) {
             to: "/dashboard",
             icon: <SpaceDashboardRoundedIcon fontSize="small" />,
           },
+          {
+            label: "Manage Users",
+            to: "/admin-user-page",
+            icon: <ManageAccountsRounded fontSize="small" />,
+          },
+          {
+            label: "Manage Issues",
+            to: "/admin-issue-page",
+            icon: <FormatListBulletedRoundedIcon fontSize="small" />,
+          },
         ]
       : []),
   ];
