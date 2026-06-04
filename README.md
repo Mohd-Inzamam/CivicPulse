@@ -29,7 +29,8 @@ Architecture
 - Tokens generated per-user and stored hashed in DB where applicable; refresh token persisted in user doc.
 
 Screenshots
-- I'll add Screenshots soon.
+- I've added the Screenshots.
+- /client/assets/screenshots
 
 Installation (Windows)
 1. Clone repository and open workspace:
