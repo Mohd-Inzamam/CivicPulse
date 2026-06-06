@@ -74,5 +74,3 @@ Future Enhancements
 - Add email token expiry and audit logs for security events.
 - Improve UI/UX and accessibility; add tests (unit/integration).
 - Add admin analytics and real-time notifications (WebSockets).
-
-
