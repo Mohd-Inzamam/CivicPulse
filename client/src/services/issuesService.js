@@ -1,5 +1,5 @@
 // Issues API Service
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -137,3 +137,31 @@ export const issuesService = {
 };
 
 export default issuesService;
+
+// FIX #1 — comment methods (added to issuesService object)
+issuesService.addComment = async (issueId, text) => {
+  const response = await fetch(`${API_BASE_URL}/api/issues/${issueId}/comments`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify({ text })
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Failed to add comment');
+  }
+  return response.json();
+};
+
+issuesService.deleteComment = async (issueId, commentId) => {
+  const response = await fetch(`${API_BASE_URL}/api/issues/${issueId}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Failed to delete comment');
+  }
+  return response.json();
+};

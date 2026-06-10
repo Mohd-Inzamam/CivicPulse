@@ -6,7 +6,9 @@ import {
   updateIssue,
   deleteIssue,
   upvoteIssue,
-  updateIssueStatus
+  updateIssueStatus,
+  addComment,
+  deleteComment
 } from '../controllers/issues.controller.js'
 import { verifyJwt } from '../middleware/auth.middleware.js'
 import { upload } from '../middleware/multer.middleware.js'
@@ -24,5 +26,9 @@ router.route('/:id').put(verifyJwt, updateIssue)
 router.route('/:id').delete(verifyJwt, deleteIssue)
 router.route('/:id/upvote').post(verifyJwt, upvoteIssue)
 router.route('/:id/status').patch(verifyJwt, verifyAdmin, updateIssueStatus)
+
+// FIX #1 — comment routes
+router.route('/:id/comments').post(verifyJwt, addComment)
+router.route('/:id/comments/:commentId').delete(verifyJwt, deleteComment)
 
 export { router }

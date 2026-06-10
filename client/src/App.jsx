@@ -29,6 +29,7 @@ import Support from "./pages/Support.jsx";
 import Feedback from "./pages/Feedback.jsx";
 import AdminUsersPage from "./modules/dashboard/admin/pages/AdminUserPage.jsx";
 import IssueManagement from "./modules/dashboard/admin/pages/IssueManagement.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 function App() {
   // ✅ Only keep filters state - issues are now managed by individual components
@@ -158,6 +159,9 @@ function App() {
             </AuthGuard>
           }
         />
+
+        {/* 404 catch-all */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
     </div>
