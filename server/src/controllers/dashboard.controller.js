@@ -90,7 +90,20 @@ const getDashboardCharts = asyncHandler(async (req, res) => {
   return res.status(200).json(new apiResponce(200, charts, 'Dashboard charts retrieved successfully'))
 })
 
-export {
-  getDashboardStats,
-  getDashboardCharts
-}
+
+// Public stats endpoint for the Home page hero section
+const getPublicStats = asyncHandler(async (req, res) => {
+  const total = await Issue.countDocuments()
+  const resolved = await Issue.countDocuments({ status: 'Resolved' })
+  const inProgress = await Issue.countDocuments({ status: 'In Progress' })
+  const totalUsers = await User.countDocuments()
+
+  return res.status(200).json(new apiResponce(200, {
+    totalIssues: total,
+    resolvedIssues: resolved,
+    inProgressIssues: inProgress,
+    totalCitizens: totalUsers
+  }, 'Public stats retrieved'))
+})
+
+export { getDashboardStats, getDashboardCharts, getPublicStats }
