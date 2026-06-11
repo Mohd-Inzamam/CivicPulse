@@ -165,3 +165,16 @@ issuesService.deleteComment = async (issueId, commentId) => {
   }
   return response.json();
 };
+// Watch / unwatch
+issuesService.watchIssue = async (issueId) => {
+  const response = await fetch(`${API_BASE_URL}/api/issues/${issueId}/watch`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Failed to toggle watch');
+  }
+  return response.json();
+};
