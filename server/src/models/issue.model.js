@@ -33,6 +33,26 @@ const issueSchema = new Schema(
       enum: ['Open', 'In Progress', 'Resolved', 'Closed'],
       default: 'Open'
     },
+    // STATUS HISTORY — array of every status change with timestamp
+    statusHistory: [{
+      status: {
+        type: String,
+        enum: ['Open', 'In Progress', 'Resolved', 'Closed']
+      },
+      changedAt: {
+        type: Date,
+        default: Date.now
+      },
+      changedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+      },
+      note: {
+        type: String,
+        default: ''
+      }
+    }],
     upvotes: {
       type: Number,
       default: 0,
@@ -75,12 +95,16 @@ const issueSchema = new Schema(
         type: Date,
         default: Date.now
       }
+    }],
+    // WATCHERS — users who follow this issue for notifications
+    watchers: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     }]
   },
   { timestamps: true }
 )
 
-// Index for better query performance
 issueSchema.index({ category: 1, status: 1 })
 issueSchema.index({ location: 'text', title: 'text', description: 'text' })
 issueSchema.index({ createdAt: -1 })
