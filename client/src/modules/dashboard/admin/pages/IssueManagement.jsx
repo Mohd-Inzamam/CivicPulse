@@ -27,12 +27,14 @@ import {
   Divider,
 } from "@mui/material";
 import { Edit, Delete, Search, MoreHoriz } from "@mui/icons-material";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 // Adjust this import path to match your project
 import { issuesService } from "../../../../services/issuesService";
+import { API_BASE_URL } from "../../../../config/api.js";
 
 // Helper: status color mapping (colors use theme tokens where possible)
 const statusColor = (status) => {
@@ -83,6 +85,15 @@ export default function IssueManagement() {
     severity: "success",
   });
 
+  // AI response suggestion state
+  const [aiResponseDialog, setAiResponseDialog] = useState({
+    open: false,
+    issueId: null,
+    newStatus: "",
+    suggestion: "",
+    loading: false,
+  });
+
   // sentinel for infinite scroll
   const sentinelRef = useRef(null);
 
@@ -120,7 +131,7 @@ export default function IssueManagement() {
         setIssues(list);
         // derive categories
         const cats = Array.from(
-          new Set(list.map((i) => i.category).filter(Boolean))
+          new Set(list.map((i) => i.category).filter(Boolean)),
         );
         setCategories(cats);
         // set hasMore based on pagination if available
@@ -139,7 +150,7 @@ export default function IssueManagement() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [search, statusFilter, categoryFilter, locationFilter]
+    [search, statusFilter, categoryFilter, locationFilter],
   );
 
   // load next page for infinite scroll
@@ -176,7 +187,7 @@ export default function IssueManagement() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hasMore, search, statusFilter, categoryFilter, locationFilter]
+    [hasMore, search, statusFilter, categoryFilter, locationFilter],
   );
 
   // initial mount
@@ -210,7 +221,7 @@ export default function IssueManagement() {
           }
         });
       },
-      { root: null, rootMargin: "300px", threshold: 0.1 }
+      { root: null, rootMargin: "300px", threshold: 0.1 },
     );
     obs.observe(sentinelRef.current);
     return () => obs.disconnect();
@@ -253,13 +264,13 @@ export default function IssueManagement() {
       };
       const res = await issuesService.updateIssue(
         editingIssue._id || editingIssue.id,
-        updatePayload
+        updatePayload,
       );
       const updated = res?.data || res;
       setIssues((prev) =>
         prev.map((it) =>
-          it._id === updated._id || it._id === updated.id ? updated : it
-        )
+          it._id === updated._id || it._id === updated.id ? updated : it,
+        ),
       );
       setToast({ open: true, message: "Issue updated", severity: "success" });
       closeDrawer();
@@ -285,8 +296,8 @@ export default function IssueManagement() {
       await issuesService.deleteIssue(deletingIssue._id || deletingIssue.id);
       setIssues((prev) =>
         prev.filter(
-          (it) => it._id !== deletingIssue._id && it._id !== deletingIssue.id
-        )
+          (it) => it._id !== deletingIssue._id && it._id !== deletingIssue.id,
+        ),
       );
       setToast({ open: true, message: "Issue deleted", severity: "success" });
       setDeleteDialogOpen(false);
@@ -306,13 +317,48 @@ export default function IssueManagement() {
       prev.map((it) =>
         it._id === issueId || it.id === issueId
           ? { ...it, status: newStatus }
-          : it
-      )
+          : it,
+      ),
     );
     try {
       const validatedStatus = newStatus.trim();
       await issuesService.updateIssueStatus(issueId, validatedStatus);
       setToast({ open: true, message: "Status updated", severity: "success" });
+
+      // Fetch AI response suggestion in background — show dialog with result
+      setAiResponseDialog({
+        open: false,
+        issueId,
+        newStatus,
+        suggestion: "",
+        loading: true,
+      });
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE_URL}/api/ai/suggest-response`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          credentials: "include",
+          body: JSON.stringify({ issueId, newStatus }),
+        });
+        const data = await res.json();
+        const suggestion = data.data?.suggestion || data.suggestion || "";
+        if (suggestion) {
+          setAiResponseDialog({
+            open: true,
+            issueId,
+            newStatus,
+            suggestion,
+            loading: false,
+          });
+        }
+      } catch {
+        // silently ignore — AI suggestion is optional
+        setAiResponseDialog((p) => ({ ...p, loading: false, open: false }));
+      }
     } catch (err) {
       console.error("Status update failed", err);
       setToast({
@@ -320,7 +366,6 @@ export default function IssueManagement() {
         message: "Status update failed",
         severity: "error",
       });
-      // rollback by reloading first page (simple)
       loadFirstPage();
     }
   };
@@ -722,6 +767,63 @@ export default function IssueManagement() {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
         <Alert severity={toast.severity}>{toast.message}</Alert>
       </Snackbar>
+
+      {/* AI Response Suggestion Dialog */}
+      <Dialog
+        open={aiResponseDialog.open}
+        onClose={() => setAiResponseDialog((p) => ({ ...p, open: false }))}
+        maxWidth="sm"
+        fullWidth>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <AutoAwesomeIcon sx={{ color: "primary.main", fontSize: 20 }} />
+          AI Response Suggestion
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Status changed to <strong>{aiResponseDialog.newStatus}</strong>.
+            Here's a suggested public response you can use:
+          </Typography>
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              background: "rgba(25,118,210,0.05)",
+              border: "1px solid rgba(25,118,210,0.15)",
+              fontStyle: "italic",
+              fontSize: 14,
+              lineHeight: 1.7,
+            }}>
+            {aiResponseDialog.suggestion}
+          </Box>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 1.5, display: "block" }}>
+            You can copy this and post it as a comment on the issue.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              navigator.clipboard?.writeText(aiResponseDialog.suggestion);
+              setToast({
+                open: true,
+                message: "Copied to clipboard",
+                severity: "success",
+              });
+            }}>
+            Copy
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setAiResponseDialog((p) => ({ ...p, open: false }))}>
+            Done
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
