@@ -60,11 +60,16 @@ export default function Navbar({ setFilters }) {
 
   // Show search only on pages supporting it
   const showSearch = ["/issues", "/dashboard", "/user-dashboard"].includes(
-    pathname
+    pathname,
   );
 
   const links = [
     { label: "Home", to: "/", icon: <HomeRoundedIcon fontSize="small" /> },
+    {
+      label: "Map",
+      to: "/map",
+      icon: <span style={{ fontSize: 16 }}>🗺️</span>,
+    },
 
     ...(user?.role === "user"
       ? [

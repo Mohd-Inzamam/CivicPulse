@@ -30,6 +30,7 @@ import Feedback from "./pages/Feedback.jsx";
 import AdminUsersPage from "./modules/dashboard/admin/pages/AdminUserPage.jsx";
 import IssueManagement from "./modules/dashboard/admin/pages/IssueManagement.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import IssueMap from "./pages/IssueMap.jsx";
 
 function App() {
   // ✅ Only keep filters state - issues are now managed by individual components
@@ -103,20 +104,18 @@ function App() {
         />
 
         <Route
-          path="/issues/:id"
+          path="/issues/:id/edit"
           element={
             <AuthGuard requiredRole={"user"}>
-              {/* Update Issue */}
               <UpdateIssue />
             </AuthGuard>
           }
         />
 
         <Route
-          path="user-dashboard"
+          path="/user-dashboard"
           element={
             <AuthGuard requiredRole={"user"}>
-              {/* Update Issue */}
               <UserDashboard />
             </AuthGuard>
           }
@@ -159,6 +158,9 @@ function App() {
             </AuthGuard>
           }
         />
+
+        {/* Public map — no auth required */}
+        <Route path="/map" element={<IssueMap />} />
 
         {/* 404 catch-all */}
         <Route path="*" element={<NotFound />} />
