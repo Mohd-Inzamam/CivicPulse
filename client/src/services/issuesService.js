@@ -178,3 +178,22 @@ issuesService.watchIssue = async (issueId) => {
   }
   return response.json();
 };
+// Resolution proof — admin uploads photo evidence
+issuesService.uploadResolutionProof = async (issueId, file, note) => {
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('proofImage', file);
+  if (note) formData.append('note', note);
+
+  const response = await fetch(`${API_BASE_URL}/api/issues/${issueId}/resolution-proof`, {
+    method: 'POST',
+    headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+    credentials: 'include',
+    body: formData
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Failed to upload resolution proof');
+  }
+  return response.json();
+};
