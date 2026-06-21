@@ -27,7 +27,10 @@ function IssuePage({ filters }) {
 
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const glass = theme.palette.glass || {
     background:
@@ -59,7 +62,7 @@ function IssuePage({ filters }) {
     }, {}),
     totalUpvotes: issues.reduce((sum, i) => sum + (i.upvotes || 0), 0),
     mostUpvoted: [...issues].sort(
-      (a, b) => (b.upvotes || 0) - (a.upvotes || 0)
+      (a, b) => (b.upvotes || 0) - (a.upvotes || 0),
     )[0],
   };
 
@@ -67,8 +70,15 @@ function IssuePage({ filters }) {
     const fetchIssues = async () => {
       setLoading(true);
       try {
-        const response = await issuesService.getAllIssues();
-        setIssues(response.data?.issues || response.issues || []);
+        const response = await issuesService.getAllIssues({
+          page: 1,
+          limit: 12,
+        });
+        const fetched = response.data?.issues || response.issues || [];
+        const pagination = response.data?.pagination || response.pagination;
+        setIssues(fetched);
+        setPage(1);
+        setHasMore(pagination ? pagination.page < pagination.pages : false);
       } catch (err) {
         setError("Failed to load issues");
       } finally {
@@ -78,20 +88,38 @@ function IssuePage({ filters }) {
     fetchIssues();
   }, []);
 
-  console.log("Issue response", issues);
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const response = await issuesService.getAllIssues({
+        page: nextPage,
+        limit: 12,
+      });
+      const fetched = response.data?.issues || response.issues || [];
+      const pagination = response.data?.pagination || response.pagination;
+      setIssues((prev) => [...prev, ...fetched]);
+      setPage(nextPage);
+      setHasMore(pagination ? pagination.page < pagination.pages : false);
+    } catch (err) {
+      console.error("Failed to load more issues", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleUpvote = async (issueId) => {
     try {
       const response = await issuesService.upvoteIssue(issueId);
-      const updatedUpvotes =
-        response?.data?.data?.upvotes ||
-        response?.data?.upvotes ||
-        response?.upvotes;
+      const result = response?.data || response;
+      const updatedUpvotes = result?.upvotes;
 
       setIssues((prev) =>
         prev.map((i) =>
-          i._id === issueId ? { ...i, upvotes: updatedUpvotes } : i
-        )
+          i._id === issueId
+            ? { ...i, upvotes: updatedUpvotes ?? i.upvotes }
+            : i,
+        ),
       );
     } catch (error) {
       console.error(error);
@@ -189,7 +217,7 @@ function IssuePage({ filters }) {
                         onUpvote={handleUpvote}
                         onUpdateIssue={(u) =>
                           setIssues((prev) =>
-                            prev.map((i) => (i._id === u._id ? u : i))
+                            prev.map((i) => (i._id === u._id ? u : i)),
                           )
                         }
                         onDeleteIssue={(id) =>
@@ -197,6 +225,30 @@ function IssuePage({ filters }) {
                         }
                       />
                     </Box>
+
+                    {hasMore && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          py: 3,
+                        }}>
+                        <Button
+                          variant="outlined"
+                          onClick={handleLoadMore}
+                          disabled={loadingMore}
+                          sx={{
+                            borderRadius: 3,
+                            px: 4,
+                            textTransform: "none",
+                          }}>
+                          {loadingMore ? (
+                            <CircularProgress size={18} sx={{ mr: 1 }} />
+                          ) : null}
+                          {loadingMore ? "Loading…" : "Load More Issues"}
+                        </Button>
+                      </Box>
+                    )}
                   </Stack>
                 </Grid>
               </Grid>
