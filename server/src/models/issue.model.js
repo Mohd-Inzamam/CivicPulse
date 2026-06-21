@@ -100,7 +100,14 @@ const issueSchema = new Schema(
     watchers: [{
       type: Schema.Types.ObjectId,
       ref: 'User'
-    }]
+    }],
+    // RESOLUTION PROOF — admin-uploaded photo evidence when marking Resolved
+    resolutionProof: {
+      image: { type: String, default: null },
+      uploadedAt: { type: Date, default: null },
+      uploadedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+      note: { type: String, default: '' }
+    }
   },
   { timestamps: true }
 )
