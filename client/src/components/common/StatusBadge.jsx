@@ -1,28 +1,18 @@
-import React from 'react';
-import { Chip } from '@mui/material';
+import React from "react";
+import { Chip } from "@mui/material";
+import { getStatusConfig } from "../../constants/categoryConfig";
 
-const StatusBadge = ({ status, size = 'medium' }) => {
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'open':
-        return 'error';
-      case 'in progress':
-        return 'warning';
-      case 'resolved':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
-
+const StatusBadge = ({ status, size = "medium" }) => {
+  const config = getStatusConfig(status);
   return (
     <Chip
-      label={status}
-      color={getStatusColor(status)}
+      label={`${config.icon} ${config.label}`}
       size={size}
       sx={{
         fontWeight: 500,
-        textTransform: 'capitalize',
+        background: `${config.color}1A`,
+        color: config.color,
+        border: `1px solid ${config.color}40`,
       }}
     />
   );

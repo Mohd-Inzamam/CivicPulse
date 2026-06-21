@@ -162,6 +162,9 @@ function App() {
         {/* Public map — no auth required */}
         <Route path="/map" element={<IssueMap />} />
 
+        {/* Public leaderboard — no auth required */}
+        <Route path="/leaderboard" element={<Leaderboard />} />
+
         {/* 404 catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>

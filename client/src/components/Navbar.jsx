@@ -70,6 +70,11 @@ export default function Navbar({ setFilters }) {
       to: "/map",
       icon: <span style={{ fontSize: 16 }}>🗺️</span>,
     },
+    {
+      label: "Leaderboard",
+      to: "/leaderboard",
+      icon: <span style={{ fontSize: 16 }}>🏆</span>,
+    },
 
     ...(user?.role === "user"
       ? [
