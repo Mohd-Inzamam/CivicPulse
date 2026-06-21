@@ -343,6 +343,60 @@ const watchIssue = asyncHandler(async (req, res) => {
   }
 })
 
+// ─── resolution proof — admin uploads photo evidence on Resolved ────────────
+const uploadResolutionProof = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params
+    const { note } = req.body
+
+    if (req.user.role !== 'admin') {
+      throw new apiError(403, 'Only admins can upload resolution proof')
+    }
+
+    if (!req.file?.path) {
+      throw new apiError(400, 'Proof image is required')
+    }
+
+    const issue = await Issue.findById(id)
+    if (!issue) throw new apiError(404, 'Issue not found')
+
+    const uploaded = await uploadOnCloudinary(req.file.path)
+    if (!uploaded?.secure_url) {
+      throw new apiError(500, 'Failed to upload proof image')
+    }
+
+    issue.resolutionProof = {
+      image: uploaded.secure_url,
+      uploadedAt: new Date(),
+      uploadedBy: req.user._id,
+      note: note?.trim() || ''
+    }
+
+    // Ensure status reflects Resolved if not already
+    if (issue.status !== 'Resolved') {
+      issue.statusHistory.push({
+        status: 'Resolved',
+        changedAt: new Date(),
+        changedBy: req.user._id,
+        note: note?.trim() || 'Marked resolved with proof'
+      })
+      issue.status = 'Resolved'
+    }
+
+    await issue.save()
+
+    const updatedIssue = await populatedIssueQuery(Issue.findById(id))
+
+    // Notify reporter + watchers with the resolution
+    sendStatusEmail(updatedIssue, 'In Progress', 'Resolved')
+
+    return res.status(200).json(new apiResponce(200, updatedIssue, 'Resolution proof uploaded successfully'))
+  } catch (error) {
+    console.log('Error uploading resolution proof', error)
+    throw error
+  }
+})
+
 export {
   getAllIssues,
   getIssueById,
@@ -353,5 +407,6 @@ export {
   updateIssueStatus,
   addComment,
   deleteComment,
-  watchIssue
+  watchIssue,
+  uploadResolutionProof
 }
