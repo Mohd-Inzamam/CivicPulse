@@ -107,3 +107,50 @@ const getPublicStats = asyncHandler(async (req, res) => {
 })
 
 export { getDashboardStats, getDashboardCharts, getPublicStats }
+// ─── Citizen leaderboard — public, top reporters by activity ────────────────
+const getLeaderboard = asyncHandler(async (req, res) => {
+  const leaderboard = await Issue.aggregate([
+    {
+      $group: {
+        _id: '$createdBy',
+        issuesFiled: { $sum: 1 },
+        totalUpvotesReceived: { $sum: '$upvotes' },
+        resolvedCount: {
+          $sum: { $cond: [{ $eq: ['$status', 'Resolved'] }, 1, 0] }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        _id: 0,
+        userId: '$user._id',
+        fullName: '$user.fullName',
+        issuesFiled: 1,
+        totalUpvotesReceived: 1,
+        resolvedCount: 1,
+        resolutionRate: {
+          $cond: [
+            { $eq: ['$issuesFiled', 0] },
+            0,
+            { $round: [{ $multiply: [{ $divide: ['$resolvedCount', '$issuesFiled'] }, 100] }, 0] }
+          ]
+        }
+      }
+    },
+    { $sort: { issuesFiled: -1, totalUpvotesReceived: -1 } },
+    { $limit: 10 }
+  ])
+
+  return res.status(200).json(new apiResponce(200, leaderboard, 'Leaderboard retrieved successfully'))
+})
+
+export { getLeaderboard }
