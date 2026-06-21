@@ -6,8 +6,9 @@ import {
     suggestCategoryAndPriority,
     detectDuplicates,
     generateCivicInsight,
-    suggestAdminResponse
-} from '../app.js/aiUtils.js'
+    suggestAdminResponse,
+    scoreReportQuality
+} from '../utils/Aiutils.js'
 
 // ─── 1. Category + priority suggestion ──────────────────────────────────────
 // Called on description blur in ReportIssue form
@@ -131,5 +132,27 @@ export const getAdminResponseSuggestion = asyncHandler(async (req, res) => {
 
     return res.status(200).json(
         new apiResponce(200, { suggestion }, 'Response suggestion generated')
+    )
+})
+// ─── 5. Report quality scorer ────────────────────────────────────────────────
+// Called while user types description in ReportIssue form — debounced client-side
+// Protected — logged-in users only
+export const getReportQualityScore = asyncHandler(async (req, res) => {
+    const { title, description, location } = req.body
+
+    if (!description || description.trim().length < 20) {
+        return res.status(200).json(
+            new apiResponce(200, { score: null, tip: null }, 'Description too short to score')
+        )
+    }
+
+    const result = await scoreReportQuality({
+        title: title?.trim() || '',
+        description: description.trim(),
+        location: location?.trim() || ''
+    })
+
+    return res.status(200).json(
+        new apiResponce(200, result, 'Report quality scored')
     )
 })
