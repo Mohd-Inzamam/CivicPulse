@@ -179,3 +179,45 @@ The response should acknowledge the citizen, explain what the status change mean
         return fallback
     }
 }
+// ─── 5. Report quality scorer ────────────────────────────────────────────────
+export async function scoreReportQuality({ title, description, location }) {
+    const fallback = { score: 5, tip: 'Add specific details like landmarks or street names to help authorities locate this issue faster.' }
+
+    if (!description || description.trim().length < 20) {
+        return fallback
+    }
+
+    try {
+        const result = await callGroq({
+            system: `You rate the quality of civic issue reports for clarity and actionability.
+Always respond with valid JSON only — no markdown, no explanation.`,
+            user: `Rate this civic issue report's quality from 1-10 and give exactly ONE specific, actionable tip to improve it.
+
+Title: "${title || 'Untitled'}"
+Description: "${description}"
+Location: "${location || 'Not specified'}"
+
+A high-quality report has: a specific location (street/landmark), clear description of the problem, severity indication, and is actionable for authorities.
+
+Return JSON with exactly these fields:
+{
+  "score": number (1-10),
+  "tip": "one specific, actionable tip under 20 words to improve this report, or null if score >= 8"
+}`,
+            json: true,
+            maxTokens: 150,
+            temperature: 0.3
+        })
+
+        if (result && typeof result.score === 'number') {
+            return {
+                score: Math.max(1, Math.min(10, Math.round(result.score))),
+                tip: result.tip || null
+            }
+        }
+        return fallback
+    } catch (err) {
+        console.error('AI report quality scorer error:', err.message)
+        return fallback
+    }
+}
