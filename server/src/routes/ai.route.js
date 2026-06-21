@@ -5,7 +5,8 @@ import {
     suggestIssueCategory,
     checkDuplicates,
     getCivicInsight,
-    getAdminResponseSuggestion
+    getAdminResponseSuggestion,
+    getReportQualityScore
 } from '../controllers/ai.controller.js'
 
 const router = Router()
@@ -13,6 +14,7 @@ const router = Router()
 // User routes — logged-in citizens
 router.post('/suggest-category', verifyJwt, suggestIssueCategory)
 router.post('/check-duplicates', verifyJwt, checkDuplicates)
+router.post('/report-quality', verifyJwt, getReportQualityScore)
 
 // Admin only
 router.get('/civic-insight', verifyJwt, verifyAdmin, getCivicInsight)

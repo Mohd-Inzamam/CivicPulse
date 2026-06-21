@@ -9,7 +9,8 @@ import {
   updateIssueStatus,
   addComment,
   deleteComment,
-  watchIssue
+  watchIssue,
+  uploadResolutionProof
 } from '../controllers/issues.controller.js'
 import { verifyJwt } from '../middleware/auth.middleware.js'
 import { upload } from '../middleware/multer.middleware.js'
@@ -28,6 +29,7 @@ router.route('/:id').delete(verifyJwt, deleteIssue)
 router.route('/:id/upvote').post(verifyJwt, upvoteIssue)
 router.route('/:id/status').patch(verifyJwt, verifyAdmin, updateIssueStatus)
 router.route('/:id/watch').post(verifyJwt, watchIssue)
+router.route('/:id/resolution-proof').post(verifyJwt, verifyAdmin, upload.single('proofImage'), uploadResolutionProof)
 router.route('/:id/comments').post(verifyJwt, addComment)
 router.route('/:id/comments/:commentId').delete(verifyJwt, deleteComment)
 
