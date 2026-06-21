@@ -1,6 +1,6 @@
 import React from "react";
 import { Chip } from "@mui/material";
-import { getStatusConfig } from "../../constants/categoryConfig";
+import { getStatusConfig } from "../../constant/Categoryconfig";
 
 const StatusBadge = ({ status, size = "medium" }) => {
   const config = getStatusConfig(status);
