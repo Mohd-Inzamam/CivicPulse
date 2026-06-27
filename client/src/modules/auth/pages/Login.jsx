@@ -1,17 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Grid,
-  Typography,
-  Alert,
-  Divider,
-  Checkbox,
-  FormControlLabel,
-  Button,
-  useTheme,
-} from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import FormField from "../../../components/common/FormField";
 import PasswordField from "../../../components/common/PasswordField";
@@ -23,7 +11,6 @@ import { useAuth } from "../../../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const theme = useTheme();
   const { login } = useAuth();
 
   const [role, setRole] = useState("user");
@@ -38,13 +25,6 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
-  const glass = theme.palette.glass || {
-    background: "rgba(255,255,255,0.25)",
-    border: "1px solid rgba(255,255,255,0.35)",
-    blur: "18px",
-    shadow: "0 4px 20px rgba(0,0,0,0.1)",
-  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -142,179 +122,151 @@ export default function Login() {
   };
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 5 }}>
-      <Grid item xs={12} sm={10} md={6} lg={5}>
-        <PageCard
-          title="Login"
-          sx={{
-            maxWidth: 420,
-            background: glass.background,
-            backdropFilter: `blur(${glass.blur}) saturate(180%)`,
-            border: glass.border,
-            boxShadow: glass.shadow,
-          }}>
-          <div className="mb-3">
-            <RoleToggle
-              value={role}
-              onChange={(val) => {
-                setRole(val);
-                setForm({
-                  email: "",
-                  password: "",
-                  department: "",
-                  employeeId: "",
-                });
-                setFieldErrors({});
-              }}
-            />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "40px 16px",
+        background: "var(--page-bg)",
+      }}>
+      <PageCard
+        title="Welcome back"
+        subtitle="Sign in to your CivicPulse account">
+        <RoleToggle
+          value={role}
+          onChange={(val) => {
+            setRole(val);
+            setForm({
+              email: "",
+              password: "",
+              department: "",
+              employeeId: "",
+            });
+            setFieldErrors({});
+          }}
+        />
+
+        {error && (
+          <div className="alert alert-error">
+            <i className="ti ti-alert-circle" aria-hidden="true" />
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success">
+            <i className="ti ti-circle-check" aria-hidden="true" />
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <FormField
+            label="Email"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={fieldErrors.email}
+            placeholder="you@example.com"
+            required
+          />
+
+          <PasswordField
+            value={form.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={fieldErrors.password}
+          />
+
+          {/* Admin-only fields — CSS transition instead of AnimatePresence */}
+          {role === "admin" && (
+            <div
+              style={{
+                borderTop: "0.5px solid var(--border-subtle)",
+                paddingTop: 16,
+                marginTop: 8,
+              }}>
+              <FormField
+                label="Department"
+                name="department"
+                value={form.department}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={fieldErrors.department}
+                placeholder="Enter your department"
+                required
+              />
+              <FormField
+                label="Employee ID"
+                name="employeeId"
+                value={form.employeeId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={fieldErrors.employeeId}
+                placeholder="e.g. EMP-1234"
+                required
+              />
+            </div>
+          )}
+
+          {/* Remember me + Forgot password row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              margin: "12px 0",
+            }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                color: "var(--ink-secondary)",
+                cursor: "pointer",
+              }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: 15, height: 15, accentColor: "var(--accent)" }}
+              />
+              Remember me
+            </label>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => navigate("/forgot-password")}>
+              Forgot password?
+            </button>
           </div>
 
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {error}
-                </Alert>
-              </motion.div>
-            )}
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert
-                  severity="success"
-                  icon={<CheckCircleIcon fontSize="inherit" />}
-                  sx={{ mb: 3 }}>
-                  {success}
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <SubmitButton loading={loading}>Login</SubmitButton>
 
-          <form onSubmit={handleSubmit}>
-            <FormField
-              label="Email"
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={fieldErrors.email}
-              animationDelay={0.1}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: theme.shape.borderRadius,
-                },
-              }}
-            />
-            <PasswordField
-              value={form.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={fieldErrors.password}
-              animationDelay={0.2}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: theme.shape.borderRadius,
-                },
-              }}
-            />
+          <div className="divider-labeled" style={{ margin: "16px 0" }}>
+            or
+          </div>
 
-            <AnimatePresence mode="wait">
-              {role === "admin" && (
-                <motion.div
-                  key="admin-fields"
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.4 }}>
-                  <FormField
-                    label="Department"
-                    name="department"
-                    value={form.department}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={fieldErrors.department}
-                    placeholder="Enter your department"
-                    animationDelay={0.3}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: theme.shape.borderRadius,
-                      },
-                    }}
-                  />
-                  <FormField
-                    label="Employee ID"
-                    name="employeeId"
-                    value={form.employeeId}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={fieldErrors.employeeId}
-                    placeholder="Enter your employee ID"
-                    animationDelay={0.4}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: theme.shape.borderRadius,
-                      },
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <Grid
-              container
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mt: 2, mb: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                }
-                label={<Typography variant="body2">Remember me</Typography>}
-              />
-              <Button
-                variant="text"
-                size="small"
-                onClick={() => navigate("/forgot-password")}
-                sx={{
-                  textTransform: "none",
-                  fontSize: "0.875rem",
-                  color: theme.palette.primary.main,
-                }}>
-                Forgot Password?
-              </Button>
-            </Grid>
-
-            <SubmitButton
-              loading={loading}
-              animationDelay={role === "admin" ? 0.6 : 0.4}>
-              Login
-            </SubmitButton>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography align="center" variant="body2">
-              Don't have an account?{" "}
-              <Button
-                variant="text"
-                onClick={() => navigate("/signup")}
-                sx={{ textTransform: "none" }}>
-                Sign Up
-              </Button>
-            </Typography>
-          </form>
-        </PageCard>
-      </Grid>
-    </Grid>
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 13,
+              color: "var(--ink-tertiary)",
+            }}>
+            Don't have an account?{" "}
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => navigate("/signup")}>
+              Sign up
+            </button>
+          </p>
+        </form>
+      </PageCard>
+    </div>
   );
 }
