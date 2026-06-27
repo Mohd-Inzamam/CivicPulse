@@ -225,47 +225,69 @@ export default function Signup() {
               alignItems: "center",
               marginBottom: 24,
             }}>
-            <Avatar
-              src={avatarPreview}
-              sx={{ width: 90, height: 90, mb: 1.5 }}
-            />
-            <Button variant="contained" component="label" size="small">
-              Choose Avatar
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleAvatarChange}
-              />
-            </Button>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 24,
+              }}>
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  background: "var(--surface-muted)",
+                  overflow: "hidden",
+                  border: "2px solid var(--border-subtle)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Avatar preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <i
+                    className="ti ti-user"
+                    style={{ fontSize: 32, color: "var(--ink-disabled)" }}
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+              <label
+                className="btn btn-ghost btn-sm"
+                style={{ cursor: "pointer" }}>
+                <i className="ti ti-upload" aria-hidden="true" /> Upload photo
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                />
+              </label>
+            </div>
           </motion.div>
 
           <AnimatePresence>
             {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {error}
-                </Alert>
-              </motion.div>
+              <div className="alert alert-error" style={{ marginBottom: 16 }}>
+                <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
+              </div>
             )}
-
             {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert
-                  severity="success"
-                  icon={<CheckCircleIcon fontSize="inherit" />}
-                  sx={{ mb: 3 }}>
-                  {success}
-                </Alert>
-              </motion.div>
+              <div className="alert alert-success" style={{ marginBottom: 16 }}>
+                <i className="ti ti-circle-check" aria-hidden="true" />{" "}
+                {success}
+              </div>
             )}
           </AnimatePresence>
 
@@ -307,83 +329,70 @@ export default function Signup() {
               animationDelay={0.4}
             />
 
-            <AnimatePresence mode="wait">
-              {role === "user" ? (
-                <motion.div
-                  key="user-fields"
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 30 }}
-                  transition={{ duration: 0.4 }}>
+            {role === "user" ? (
+              <div>
+                <FormField
+                  label="Phone (optional)"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+            ) : (
+              <div
+                style={{
+                  borderTop: "0.5px solid var(--border-subtle)",
+                  paddingTop: 16,
+                }}>
+                <FormField
+                  label="Department No"
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.department}
+                  required
+                />
+                <FormField
+                  label="Employee ID"
+                  name="employeeId"
+                  value={form.employeeId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={fieldErrors.employeeId}
+                  required
+                />
+                <SelectField
+                  label="Designation"
+                  name="designation"
+                  value={form.designation}
+                  onChange={handleChange}
+                  error={fieldErrors.designation}
+                  options={roleOptions}
+                  placeholder="Select designation"
+                  required
+                />
+                {["state", "district", "city", "ward"].map((loc) => (
                   <FormField
-                    label="SSN"
-                    name="ssn"
-                    value={form.ssn}
+                    key={loc}
+                    label={
+                      loc === "city"
+                        ? "City / Municipality"
+                        : loc === "ward"
+                          ? "Ward / Zone"
+                          : loc.charAt(0).toUpperCase() + loc.slice(1)
+                    }
+                    name={loc}
+                    value={form[loc]}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={fieldErrors.ssn}
-                    animationDelay={0.5}
+                    error={fieldErrors[loc]}
+                    required
                   />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="admin-fields"
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.4 }}>
-                  <FormField
-                    label="Department No"
-                    name="department"
-                    value={form.department || ""}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={fieldErrors.department}
-                    animationDelay={0.5}
-                  />
-                  <FormField
-                    label="Employee ID"
-                    name="employeeId"
-                    value={form.employeeId || ""}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={fieldErrors.employeeId}
-                    animationDelay={0.6}
-                  />
-                  <SelectField
-                    label="Designation"
-                    name="designation"
-                    value={form.designation || ""}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={fieldErrors.designation}
-                    options={roleOptions}
-                    placeholder="Select Designation"
-                    animationDelay={0.7}
-                  />
-                  {["state", "district", "city", "ward"].map((loc, index) => (
-                    <FormField
-                      key={loc}
-                      label={
-                        loc === "state"
-                          ? "State"
-                          : loc === "district"
-                            ? "District"
-                            : loc === "city"
-                              ? "City / Municipality"
-                              : "Ward / Zone"
-                      }
-                      name={loc}
-                      value={form[loc] || ""}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={fieldErrors[loc]}
-                      animationDelay={0.8 + index * 0.1}
-                    />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                ))}
+              </div>
+            )}
 
             <SubmitButton
               loading={loading}
@@ -391,17 +400,23 @@ export default function Signup() {
               Sign Up
             </SubmitButton>
 
-            <Divider sx={{ my: 2 }} />
-
-            <Typography align="center" variant="body2">
+            <div className="divider-labeled" style={{ margin: "16px 0" }}>
+              or
+            </div>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: 13,
+                color: "var(--ink-tertiary)",
+              }}>
               Already have an account?{" "}
-              <Button
-                variant="text"
-                onClick={() => navigate("/login")}
-                sx={{ textTransform: "none" }}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => navigate("/login")}>
                 Login
-              </Button>
-            </Typography>
+              </button>
+            </p>
           </form>
         </PageCard>
       </Grid>
