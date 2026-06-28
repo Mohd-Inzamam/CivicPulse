@@ -85,129 +85,180 @@ export default function EmailVerification() {
   };
 
   const renderContent = () => {
-    const commonBoxStyles = { textAlign: "center", padding: "2rem" };
-
     switch (status) {
       case "verifying":
         return (
-          <Box sx={commonBoxStyles}>
-            <CircularProgress size={60} />
-            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <span
+              className="spinner"
+              style={{ "--sz": "48px" }}
+              role="status"
+              aria-label="Verifying email"
+            />
+            <h3
+              style={{
+                marginTop: 16,
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--ink-primary)",
+              }}>
               Verifying your email...
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Please wait while we verify your email address.
-            </Typography>
-          </Box>
+            </h3>
+            <p
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "var(--ink-tertiary)",
+              }}>
+              Please wait a moment.
+            </p>
+          </div>
         );
 
       case "success":
         return (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}>
-            <Box sx={commonBoxStyles}>
-              <CheckCircleIcon
-                sx={{ fontSize: 80, color: "success.main", mb: 2 }}
-              />
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                Email Verified!
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Your email has been successfully verified. You can now access
-                all features of CivicPulse.
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/login")}
-                sx={{ textTransform: "none" }}>
-                Continue to Login
-              </Button>
-            </Box>
-          </motion.div>
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <div style={{ fontSize: 64 }}>✅</div>
+            <h2
+              style={{
+                marginTop: 16,
+                fontSize: 22,
+                fontWeight: 700,
+                color: "var(--ink-primary)",
+              }}>
+              Email verified!
+            </h2>
+            <p
+              style={{
+                marginTop: 8,
+                fontSize: 14,
+                color: "var(--ink-tertiary)",
+                marginBottom: 24,
+              }}>
+              Your account is active. You can now sign in and start reporting
+              issues.
+            </p>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/login")}>
+              Continue to login
+            </button>
+          </div>
         );
 
       case "expired":
         return (
-          <Box sx={commonBoxStyles}>
-            <EmailIcon sx={{ fontSize: 80, color: "warning.main", mb: 2 }} />
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-              Verification Link Expired
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              This verification link has expired. Please request a new one.
-            </Typography>
-            <Box
-              sx={{
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <div style={{ fontSize: 64 }}>📧</div>
+            <h2
+              style={{
+                marginTop: 16,
+                fontSize: 20,
+                fontWeight: 700,
+                color: "var(--ink-primary)",
+              }}>
+              Link expired
+            </h2>
+            <p
+              style={{
+                marginTop: 8,
+                fontSize: 14,
+                color: "var(--ink-tertiary)",
+                marginBottom: 24,
+              }}>
+              This verification link has expired. Request a new one.
+            </p>
+            <div
+              style={{
                 display: "flex",
+                gap: 8,
                 justifyContent: "center",
-                gap: 2,
                 flexWrap: "wrap",
               }}>
-              <Button
-                variant="contained"
-                onClick={resendVerification}
+              <button
+                className="btn btn-primary"
                 disabled={loading}
-                sx={{ textTransform: "none" }}>
+                onClick={resendVerification}>
                 {loading ? (
-                  <CircularProgress size={20} />
+                  <span className="spinner" role="status" />
                 ) : (
-                  "Resend Verification"
+                  "Resend verification"
                 )}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/login")}
-                sx={{ textTransform: "none" }}>
-                Back to Login
-              </Button>
-            </Box>
-          </Box>
+              </button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => navigate("/login")}>
+                Back to login
+              </button>
+            </div>
+          </div>
         );
 
-      case "error":
-      default:
+      default: // error
         return (
-          <Box sx={commonBoxStyles}>
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Verification Failed
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              There was an error verifying your email address.
-            </Typography>
-            <Box
-              sx={{
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <div className="alert alert-error" style={{ marginBottom: 24 }}>
+              <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
+            </div>
+            <h3
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                marginBottom: 8,
+                color: "var(--ink-primary)",
+              }}>
+              Verification failed
+            </h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--ink-tertiary)",
+                marginBottom: 24,
+              }}>
+              There was a problem verifying your email.
+            </p>
+            <div
+              style={{
                 display: "flex",
+                gap: 8,
                 justifyContent: "center",
-                gap: 2,
                 flexWrap: "wrap",
               }}>
-              <Button
-                variant="contained"
-                onClick={resendVerification}
+              <button
+                className="btn btn-primary"
                 disabled={loading}
-                sx={{ textTransform: "none" }}>
+                onClick={resendVerification}>
                 {loading ? (
-                  <CircularProgress size={20} />
+                  <span className="spinner" role="status" />
                 ) : (
-                  "Resend Verification"
+                  "Resend verification"
                 )}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/login")}
-                sx={{ textTransform: "none" }}>
-                Back to Login
-              </Button>
-            </Box>
-          </Box>
+              </button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => navigate("/login")}>
+                Back to login
+              </button>
+            </div>
+          </div>
         );
     }
   };
+
+  // Outer wrapper — replace <Grid container> with:
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "40px 16px",
+        background: "var(--page-bg)",
+      }}>
+      <PageCard>{renderContent()}</PageCard>
+    </div>
+  );
 
   return (
     <Grid container justifyContent="center" sx={{ mt: 5 }}>
