@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Grid, Typography, Alert, Button } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import FormField from "../../../components/common/FormField";
 import SubmitButton from "../../../components/common/SubmitButton";
@@ -65,87 +62,63 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 5 }}>
-      <Grid item xs={12} sm={10} md={6} lg={5}>
-        <PageCard sx={{ maxWidth: 420 }} title="Reset Password">
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ mb: 3 }}>
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </Typography>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "40px 16px",
+        background: "var(--page-bg)",
+      }}>
+      <PageCard
+        title="Reset password"
+        subtitle="Enter your email and we'll send you a reset link.">
+        {error && (
+          <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success" style={{ marginBottom: 16 }}>
+            <i className="ti ti-circle-check" aria-hidden="true" /> {success}
+          </div>
+        )}
 
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {error}
-                </Alert>
-              </motion.div>
-            )}
+        <form onSubmit={handleSubmit}>
+          <FormField
+            label="Email address"
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleEmailChange}
+            error={emailError}
+            placeholder="you@example.com"
+            required
+          />
 
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert
-                  severity="success"
-                  icon={<CheckCircleIcon fontSize="inherit" />}
-                  sx={{ mb: 3 }}>
-                  {success}
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <SubmitButton loading={loading} style={{ marginTop: 8 }}>
+            Send reset link
+          </SubmitButton>
+        </form>
 
-          <form onSubmit={handleSubmit}>
-            <FormField
-              label="Email Address"
-              type="email"
-              name="email"
-              value={email}
-              onChange={handleEmailChange}
-              error={emailError}
-              placeholder="Enter your email address"
-              animationDelay={0.1}
-            />
+        <div className="divider-labeled" style={{ margin: "16px 0" }} />
 
-            <SubmitButton loading={loading} animationDelay={0.2} sx={{ mt: 2 }}>
-              Send Reset Link
-            </SubmitButton>
-
-            <Button
-              variant="text"
-              onClick={() => navigate("/login")}
-              startIcon={<ArrowBackIcon />}
-              sx={{ mt: 2, width: "100%", textTransform: "none" }}>
-              Back to Login
-            </Button>
-          </form>
-
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            align="center"
-            sx={{ mt: 3, display: "block" }}>
-            Remember your password?{" "}
-            <Button
-              variant="text"
-              onClick={() => navigate("/login")}
-              sx={{ textTransform: "none", p: 0, minWidth: "auto" }}>
-              Sign in
-            </Button>
-          </Typography>
-        </PageCard>
-      </Grid>
-    </Grid>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 13,
+            color: "var(--ink-tertiary)",
+          }}>
+          Remember your password?{" "}
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => navigate("/login")}>
+            Sign in
+          </button>
+        </p>
+      </PageCard>
+    </div>
   );
 }
