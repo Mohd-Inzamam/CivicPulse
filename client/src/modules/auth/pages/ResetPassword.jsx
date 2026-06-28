@@ -132,121 +132,121 @@ export default function ResetPassword() {
 
   const commonBoxStyles = { textAlign: "center", padding: "2rem" };
 
+  // REMOVE: <Grid><Grid item><PageCard><Alert><Button>
+  // REPLACE:
   if (tokenValid === false) {
     return (
-      <Grid container justifyContent="center" sx={{ mt: 5 }}>
-        <Grid item xs={12} sm={10} md={6} lg={5}>
-          <PageCard title="Invalid Token">
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-            <Button
-              variant="contained"
-              startIcon={<ArrowBackIcon />}
-              onClick={() => navigate("/login")}
-              fullWidth>
-              Back to Login
-            </Button>
-          </PageCard>
-        </Grid>
-      </Grid>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          padding: 16,
+        }}>
+        <PageCard title="Invalid link">
+          <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
+          </div>
+          <button
+            className="btn btn-primary btn-full"
+            onClick={() => navigate("/login")}>
+            <i className="ti ti-arrow-left" aria-hidden="true" /> Back to login
+          </button>
+        </PageCard>
+      </div>
     );
   }
 
+  // REMOVE: <Box sx={commonBoxStyles}><CircularProgress /><Typography>
+  // REPLACE:
   if (tokenValid === null) {
     return (
-      <Grid container justifyContent="center" sx={{ mt: 5 }}>
-        <Grid item xs={12} sm={10} md={6} lg={5}>
-          <PageCard title="Verifying Token">
-            <Box sx={commonBoxStyles}>
-              <CircularProgress />
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Verifying reset token...
-              </Typography>
-            </Box>
-          </PageCard>
-        </Grid>
-      </Grid>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          padding: 16,
+        }}>
+        <PageCard title="Verifying link">
+          <div style={{ textAlign: "center", padding: "32px 0" }}>
+            <span
+              className="spinner"
+              style={{ "--sz": "40px" }}
+              role="status"
+              aria-label="Verifying token"
+            />
+            <p
+              style={{
+                marginTop: 12,
+                color: "var(--ink-tertiary)",
+                fontSize: 13,
+              }}>
+              Verifying reset token...
+            </p>
+          </div>
+        </PageCard>
+      </div>
     );
   }
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 5 }}>
-      <Grid item xs={12} sm={10} md={6} lg={5}>
-        <PageCard title="Set New Password">
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ mb: 3 }}>
-            Enter your new password below. Make sure it's strong and secure.
-          </Typography>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "40px 16px",
+        background: "var(--page-bg)",
+      }}>
+      <PageCard
+        title="Set new password"
+        subtitle="Make sure it's strong — 8+ chars, upper, lower, number, symbol.">
+        {error && (
+          <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success" style={{ marginBottom: 16 }}>
+            <i className="ti ti-circle-check" aria-hidden="true" /> {success}
+          </div>
+        )}
 
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {error}
-                </Alert>
-              </motion.div>
-            )}
-
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}>
-                <Alert
-                  severity="success"
-                  icon={<CheckCircleIcon fontSize="inherit" />}
-                  sx={{ mb: 3 }}>
-                  {success}
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <form onSubmit={handleSubmit}>
-            <PasswordField
-              label="New Password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.password}
-              helperText="Must be at least 8 characters with uppercase, lowercase, number, and special character"
-              animationDelay={0.1}
-            />
-
-            <PasswordField
-              label="Confirm New Password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.confirmPassword}
-              animationDelay={0.2}
-            />
-
-            <SubmitButton loading={loading} animationDelay={0.3} sx={{ mt: 2 }}>
-              Reset Password
-            </SubmitButton>
-
-            <Button
-              variant="text"
-              startIcon={<ArrowBackIcon />}
-              onClick={() => navigate("/login")}
-              sx={{ mt: 2, width: "100%", textTransform: "none" }}>
-              Back to Login
-            </Button>
-          </form>
-        </PageCard>
-      </Grid>
-    </Grid>
+        <form onSubmit={handleSubmit}>
+          <PasswordField
+            label="New password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.password}
+            autoComplete="new-password"
+          />
+          <PasswordField
+            label="Confirm new password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.confirmPassword}
+            autoComplete="new-password"
+          />
+          <SubmitButton loading={loading} style={{ marginTop: 8 }}>
+            Reset password
+          </SubmitButton>
+          <button
+            type="button"
+            className="btn btn-ghost btn-full"
+            style={{ marginTop: 8 }}
+            onClick={() => navigate("/login")}>
+            <i className="ti ti-arrow-left" aria-hidden="true" /> Back to login
+          </button>
+        </form>
+      </PageCard>
+    </div>
   );
 }
