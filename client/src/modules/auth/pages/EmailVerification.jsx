@@ -1,16 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  Grid,
-  Typography,
-  Alert,
-  Button,
-  CircularProgress,
-  Box,
-} from "@mui/material";
-import { motion } from "framer-motion";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import EmailIcon from "@mui/icons-material/Email";
 
 import PageCard from "../../../components/common/PageCard";
 import { API_ENDPOINTS } from "../../../config/api";
@@ -258,13 +247,5 @@ export default function EmailVerification() {
       }}>
       <PageCard>{renderContent()}</PageCard>
     </div>
-  );
-
-  return (
-    <Grid container justifyContent="center" sx={{ mt: 5 }}>
-      <Grid item xs={12} sm={10} md={6} lg={5}>
-        <PageCard>{renderContent()}</PageCard>
-      </Grid>
-    </Grid>
   );
 }

@@ -54,13 +54,6 @@ export default function UserDashboard() {
     boxShadow: "0 4px 30px rgba(0,0,0,0.06)",
   };
 
-  const stats = [
-    { label: "Reported", value: total, color: "primary" },
-    { label: "Open", value: open, color: "warning" },
-    { label: "In Progress", value: inProgress, color: "info" },
-    { label: "Resolved", value: resolved, color: "success" },
-  ];
-
   return (
     <Box sx={{ px: 3, py: 4, maxWidth: "1100px", mx: "auto" }}>
       {/* Header */}
@@ -76,23 +69,74 @@ export default function UserDashboard() {
             alignItems: "center",
             gap: 2,
           }}>
-          <Avatar
-            src={user?.avatar}
-            sx={{
-              width: 60,
-              height: 60,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginBottom: 24,
+              padding: 20,
+              background: "var(--surface-subtle)",
+              borderRadius: "var(--radius-lg)",
+              border: "0.5px solid var(--border-subtle)",
             }}>
-            {user?.fullName?.charAt(0)?.toUpperCase()}
-          </Avatar>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              Welcome back, {user?.fullName?.split(" ")[0]} 👋
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Here's your personal civic activity
-            </Typography>
-          </Box>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                background: "var(--accent-muted)",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}>
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.fullName}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "var(--accent-text)",
+                  }}>
+                  {user?.fullName?.[0]?.toUpperCase() || "U"}
+                </div>
+              )}
+            </div>
+            <div>
+              <h2
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "var(--ink-primary)",
+                  margin: 0,
+                }}>
+                {user?.fullName || "Citizen"}
+              </h2>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--ink-tertiary)",
+                  margin: "3px 0 0",
+                }}>
+                {user?.email}
+              </p>
+            </div>
+            <button
+              className="btn btn-ghost btn-sm"
+              style={{ marginLeft: "auto" }}
+              onClick={() => navigate("/update-profile")}>
+              <i className="ti ti-edit" aria-hidden="true" /> Edit
+            </button>
+          </div>
         </Box>
       </motion.div>
 
@@ -104,7 +148,7 @@ export default function UserDashboard() {
           gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(4, 1fr)" },
           gap: 3,
         }}>
-        {stats.map((stat, index) => (
+        {/* {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 25 }}
@@ -124,7 +168,27 @@ export default function UserDashboard() {
               </CardContent>
             </Card>
           </motion.div>
-        ))}
+        ))} */}
+
+        <div className="kpi-row" style={{ marginBottom: 24 }}>
+          {[
+            { label: "Reported", value: total, color: "var(--ink-primary)" },
+            { label: "Open", value: open, color: "var(--status-open)" },
+            {
+              label: "In Progress",
+              value: inProgress,
+              color: "var(--status-prog)",
+            },
+            { label: "Resolved", value: resolved, color: "var(--status-done)" },
+          ].map((s) => (
+            <div key={s.label} className="kpi-card">
+              <div className="kpi-value" style={{ color: s.color }}>
+                {s.value}
+              </div>
+              <div className="kpi-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
       </Box>
 
       {/* My issues list */}
