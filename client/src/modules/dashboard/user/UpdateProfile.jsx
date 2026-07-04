@@ -131,153 +131,138 @@ const UpdateProfile = () => {
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: 650,
-        mx: "auto",
-        mt: 6,
-        px: 2,
-      }}>
-      <Card
-        sx={{
-          borderRadius: theme.shape.borderRadius * 0.2,
-          overflow: "hidden",
-          backdropFilter: "blur(20px)",
-          background: theme.palette.background.glass,
-          border: "1px solid rgba(255,255,255,0.25)",
-          boxShadow: theme.shadows[4],
-          p: { xs: 1, sm: 2 },
-        }}>
-        <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
-          <Typography
-            variant="h5"
-            sx={{
-              mb: 4,
+    <div style={{ maxWidth: 560, margin: "40px auto", padding: "0 16px" }}>
+      <div className="card">
+        <div className="card-body">
+          <h1
+            style={{
+              fontSize: 20,
               fontWeight: 700,
-              letterSpacing: "-0.3px",
+              color: "var(--ink-primary)",
+              marginBottom: 24,
             }}>
-            Update Profile
-          </Typography>
+            Update profile
+          </h1>
 
-          {/* Avatar Section */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
-            <Avatar
-              src={avatarPreview}
-              sx={{
-                width: 90,
-                height: 90,
-                borderRadius: theme.shape.borderRadius * 0.2,
-                border: `2px solid ${theme.palette.divider}`,
-                boxShadow: theme.shadows[2],
-              }}
-            />
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{
-                  borderRadius: 14,
-                  py: 1.2,
-                  px: 3,
-                  textTransform: "none",
-                  "&:hover": {
-                    boxShadow: theme.shadows[2],
-                    background: "rgba(255,255,255,0.6)",
-                  },
-                }}>
-                Choose Avatar
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                />
-              </Button>
-
-              {avatar && (
-                <Button
-                  variant="contained"
-                  onClick={uploadAvatar}
-                  disabled={avatarUploading}
-                  sx={{
-                    borderRadius: 14,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: "none",
-                    "&:hover": {
-                      boxShadow: theme.shadows[2],
-                      background: "rgba(255,255,255,0.6)",
-                    },
-                  }}>
-                  {avatarUploading ? (
-                    <CircularProgress size={22} />
-                  ) : (
-                    "Save Avatar"
-                  )}
-                </Button>
-              )}
-            </Box>
-          </Box>
-
-          {/* Form Fields */}
           {loading ? (
-            <CircularProgress />
+            <div style={{ textAlign: "center", padding: 32 }}>
+              <span
+                className="spinner"
+                style={{ "--sz": "32px" }}
+                role="status"
+                aria-label="Loading profile"
+              />
+            </div>
           ) : (
             <>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                  gap: 3,
+              {/* Avatar */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 28,
                 }}>
-                <TextField
-                  label="Full Name"
+                <div
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    background: "var(--surface-muted)",
+                    border: "2px solid var(--border-subtle)",
+                  }}>
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: "var(--accent-text)",
+                      }}>
+                      {formData.name?.[0]?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+                <label
+                  className="btn btn-ghost btn-sm"
+                  style={{ cursor: "pointer" }}>
+                  <i className="ti ti-camera" aria-hidden="true" /> Change photo
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+                {avatarUploading && (
+                  <span
+                    className="spinner"
+                    role="status"
+                    aria-label="Uploading photo"
+                  />
+                )}
+              </div>
+
+              {/* Fields */}
+              <div className="form-group">
+                <label className="form-label" htmlFor="name">
+                  Full name
+                </label>
+                <input
+                  id="name"
                   name="name"
-                  fullWidth
+                  className="input"
                   value={formData.name}
                   onChange={handleInput}
+                  placeholder="Your full name"
                 />
-
-                <TextField
-                  label="Email"
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  id="email"
                   name="email"
-                  fullWidth
+                  type="email"
+                  className="input"
                   value={formData.email}
                   onChange={handleInput}
+                  placeholder="you@example.com"
                 />
+              </div>
 
-                <TextField
-                  label="SSN"
-                  name="ssn"
-                  fullWidth
-                  value={formData.ssn}
-                  onChange={handleInput}
-                />
-              </Box>
-
-              <Button
-                variant="outlined"
-                onClick={submitProfileUpdate}
+              <button
+                className="btn btn-primary btn-full"
                 disabled={updating}
-                sx={{
-                  borderRadius: 14,
-                  py: 1.2,
-                  px: 3,
-                  textTransform: "none",
-                  "&:hover": {
-                    boxShadow: theme.shadows[2],
-                    background: "rgba(255,255,255,0.6)",
-                  },
-                  marginTop: 3,
-                }}>
-                {updating ? <CircularProgress size={24} /> : "Save Changes"}
-              </Button>
+                onClick={submitProfileUpdate}>
+                {updating ? (
+                  <span className="spinner" role="status" />
+                ) : (
+                  "Save changes"
+                )}
+              </button>
             </>
           )}
-        </CardContent>
-      </Card>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 
