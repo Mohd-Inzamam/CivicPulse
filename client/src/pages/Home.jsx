@@ -100,7 +100,7 @@ export default function Home() {
               Your voice matters. Join neighbors in improving your community —
               one report at a time.
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {/* <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Button
                 variant="contained"
                 size="large"
@@ -127,7 +127,73 @@ export default function Home() {
                 }}>
                 Browse Issues
               </Button>
-            </Box>
+            </Box> */}
+            <section
+              style={{
+                background: "var(--surface-base)",
+                padding: "60px 24px 48px",
+                textAlign: "center",
+              }}>
+              <div className="container-md">
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--accent)",
+                    background: "var(--accent-muted)",
+                    padding: "4px 12px",
+                    borderRadius: "var(--radius-pill)",
+                    marginBottom: 16,
+                  }}>
+                  📍 Real issues. Real change.
+                </span>
+                <h1
+                  style={{
+                    fontSize: "clamp(28px, 5vw, 48px)",
+                    fontWeight: 800,
+                    color: "var(--ink-primary)",
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.5px",
+                    marginBottom: 16,
+                  }}>
+                  What's broken in
+                  <br />
+                  your community?
+                </h1>
+                <p
+                  style={{
+                    fontSize: 16,
+                    color: "var(--ink-tertiary)",
+                    maxWidth: 480,
+                    margin: "0 auto 32px",
+                    lineHeight: 1.7,
+                  }}>
+                  Report it. Track it. See it fixed.
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                  }}>
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={() => navigate("/report-issue")}>
+                    <i className="ti ti-plus" aria-hidden="true" /> Report an
+                    issue
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-lg"
+                    onClick={() => navigate("/issues")}>
+                    Browse issues
+                  </button>
+                </div>
+              </div>
+            </section>
             <Typography
               variant="body2"
               sx={{ mt: 1.5, cursor: "pointer", opacity: 0.7 }}
