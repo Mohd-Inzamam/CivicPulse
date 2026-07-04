@@ -1,4 +1,3 @@
-// // BarChartStatus.jsx
 import {
   BarChart,
   Bar,
@@ -8,8 +7,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { motion } from "framer-motion";
-import { Card, CardContent, Typography, Box } from "@mui/material";
 
 export default function BarChartStatus({ issues = [] }) {
   // Compute counts per status
@@ -26,47 +23,35 @@ export default function BarChartStatus({ issues = [] }) {
 
   if (data.length === 0) {
     return (
-      <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Status Distribution
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: 250,
-              }}>
-              <Typography variant="body2" color="text.secondary">
-                No data available
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 250 }}>
+        <span style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
+          No data available
+        </span>
+      </div>
     );
   }
 
   return (
-    <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Status Distribution
-          </Typography>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data}>
-              <XAxis dataKey="status" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="#1976d2" animationDuration={800} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <div style={{ width: "100%", height: 250 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data}>
+          <XAxis dataKey="status" stroke="var(--ink-tertiary)" fontSize={12} tickLine={false} axisLine={false} />
+          <YAxis stroke="var(--ink-tertiary)" fontSize={12} tickLine={false} axisLine={false} />
+          <Tooltip 
+            cursor={{ fill: "var(--surface-subtle)" }}
+            contentStyle={{
+              borderRadius: "8px",
+              boxShadow: "var(--shadow-md)",
+              backgroundColor: "var(--surface-base)",
+              border: "1px solid var(--border-subtle)",
+              padding: "8px 12px",
+            }}
+            itemStyle={{ color: "var(--ink-primary)", fontWeight: "bold" }}
+          />
+          <Legend wrapperStyle={{ fontSize: "0.9rem", color: "var(--ink-secondary)" }} />
+          <Bar dataKey="count" fill="var(--accent)" radius={[4, 4, 0, 0]} animationDuration={800} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

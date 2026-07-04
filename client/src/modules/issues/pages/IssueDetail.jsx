@@ -1,32 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Box,
-  TextField,
-  Avatar,
-  Divider,
-  useTheme,
-  CircularProgress,
-  IconButton,
-  Tooltip,
-  Chip,
-} from "@mui/material";
 import { issuesService } from "../../../services/issuesService";
 import StatusBadge from "../../../components/common/StatusBadge";
 import CategoryBadge from "../../../components/common/CategoryBadge";
-import { motion } from "framer-motion";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import ShareIcon from "@mui/icons-material/Share";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
-import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { useAuth } from "../../../context/AuthContext";
 
 const STATUS_COLORS = {
@@ -44,103 +20,96 @@ const STATUS_ICONS = {
 };
 
 function StatusTimeline({ history }) {
-  const theme = useTheme();
   if (!history?.length) return null;
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Typography
-        variant="subtitle2"
-        sx={{
-          mb: 1.5,
+    <div style={{ marginTop: 24 }}>
+      <div
+        style={{
+          marginBottom: 12,
           opacity: 0.6,
           textTransform: "uppercase",
           letterSpacing: "0.06em",
           fontSize: 11,
+          fontWeight: 600,
+          color: "var(--ink-primary)"
         }}>
         Status History
-      </Typography>
-      <Box sx={{ position: "relative", pl: 2 }}>
+      </div>
+      <div style={{ position: "relative", paddingLeft: 16 }}>
         {/* Vertical line */}
-        <Box
-          sx={{
+        <div
+          style={{
             position: "absolute",
             left: 7,
             top: 8,
             bottom: 8,
             width: 2,
-            background: theme.palette.divider,
+            background: "var(--border-subtle)",
             borderRadius: 4,
           }}
         />
         {[...history].reverse().map((entry, i) => (
-          <motion.div
+          <div
             key={i}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06 }}>
-            <Box
-              sx={{ display: "flex", gap: 2, mb: 2, alignItems: "flex-start" }}>
-              {/* Dot */}
-              <Box
-                sx={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: "50%",
-                  flexShrink: 0,
-                  mt: 0.3,
-                  background: STATUS_COLORS[entry.status] || "#94a3b8",
-                  border: `2px solid ${theme.palette.background.paper}`,
-                  boxShadow: `0 0 0 2px ${STATUS_COLORS[entry.status] || "#94a3b8"}33`,
-                  zIndex: 1,
-                }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    flexWrap: "wrap",
-                  }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {STATUS_ICONS[entry.status]} {entry.status}
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.55 }}>
-                    {new Date(entry.changedAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </Typography>
-                </Box>
-                {entry.changedBy?.fullName && (
-                  <Typography variant="caption" sx={{ opacity: 0.5 }}>
-                    by {entry.changedBy.fullName}
-                  </Typography>
-                )}
-                {entry.note && (
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 0.5, opacity: 0.75, fontStyle: "italic" }}>
-                    "{entry.note}"
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </motion.div>
+            style={{ display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start", animation: `fadeIn 0.3s ease-out ${i * 0.06}s both` }}>
+            {/* Dot */}
+            <div
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                flexShrink: 0,
+                marginTop: 2.4,
+                background: STATUS_COLORS[entry.status] || "#94a3b8",
+                border: `2px solid var(--surface-base)`,
+                boxShadow: `0 0 0 2px ${STATUS_COLORS[entry.status] || "#94a3b8"}33`,
+                zIndex: 1,
+              }}
+            />
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}>
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--ink-primary)" }}>
+                  {STATUS_ICONS[entry.status]} {entry.status}
+                </div>
+                <div style={{ fontSize: "0.75rem", opacity: 0.55, color: "var(--ink-primary)" }}>
+                  {new Date(entry.changedAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+              </div>
+              {entry.changedBy?.fullName && (
+                <div style={{ fontSize: "0.75rem", opacity: 0.5, color: "var(--ink-primary)" }}>
+                  by {entry.changedBy.fullName}
+                </div>
+              )}
+              {entry.note && (
+                <div
+                  style={{ marginTop: 4, opacity: 0.75, fontStyle: "italic", fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                  "{entry.note}"
+                </div>
+              )}
+            </div>
+          </div>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
 export default function IssueDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const theme = useTheme();
   const { user } = useAuth();
 
   const [issue, setIssue] = useState(null);
@@ -293,225 +262,214 @@ export default function IssueDetail() {
 
   if (loading) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           height: "80vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}>
-        <CircularProgress />
-      </Box>
+        <span className="spinner" style={{ "--sz": "40px" }} />
+      </div>
     );
   }
 
   if (!issue) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           height: "80vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}>
-        <Typography variant="h5" color="error">
+        <h5 style={{ color: "var(--status-open)", fontSize: "1.5rem" }}>
           Issue not found
-        </Typography>
-      </Box>
+        </h5>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", py: 5, px: 2 }}>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        style={{ width: "100%", maxWidth: 750 }}>
-        <Card
-          sx={{
-            borderRadius: 3,
-            background: theme.palette.background.glass,
-            backdropFilter: "blur(14px)",
-            border: `1px solid ${theme.palette.divider}`,
-            boxShadow: theme.shadows[4],
+    <div style={{ display: "flex", justifyContent: "center", padding: "40px 16px" }}>
+      <div
+        style={{ width: "100%", maxWidth: 750, animation: "fadeInUp 0.45s ease-out" }}>
+        <div className="card"
+          style={{
+            borderRadius: 24,
+            background: "var(--surface-base)", // Solid background replacing glass
+            border: "0.5px solid var(--border-subtle)",
+            boxShadow: "var(--shadow-sm)",
             overflow: "hidden",
           }}>
           {issue.image && (
-            <Box
-              component="img"
+            <img
               src={issue.image}
               alt={issue.title}
-              sx={{ width: "100%", maxHeight: 300, objectFit: "cover" }}
+              style={{ width: "100%", maxHeight: 300, objectFit: "cover", display: "block" }}
             />
           )}
 
-          <CardContent sx={{ p: 3 }}>
+          <div className="card-body" style={{ padding: 24 }}>
             {/* Title + owner actions */}
-            <Box
-              sx={{
-                mb: 2,
+            <div
+              style={{
+                marginBottom: 16,
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
-                gap: 1,
+                gap: 8,
               }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, flex: 1 }}>
+              <h4 style={{ margin: 0, fontWeight: 700, flex: 1, fontSize: "2.125rem", color: "var(--ink-primary)" }}>
                 {issue.title}
-              </Typography>
+              </h4>
               {(isOwner || isAdmin) && (
-                <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
+                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
                   {isOwner && (
-                    <Tooltip title="Edit issue">
-                      <IconButton
-                        size="small"
-                        onClick={() => navigate(`/issues/${issue._id}/edit`)}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    <button
+                      className="btn-icon"
+                      title="Edit issue"
+                      onClick={() => navigate(`/issues/${issue._id}/edit`)}>
+                      <i className="ti ti-edit" style={{ fontSize: "1.25rem" }} />
+                    </button>
                   )}
-                  <Tooltip title="Delete issue">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={async () => {
-                        if (!window.confirm("Delete this issue?")) return;
-                        await issuesService.deleteIssue(issue._id);
-                        navigate("/issues");
-                      }}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+                  <button
+                    className="btn-icon"
+                    style={{ color: "var(--status-open)" }}
+                    title="Delete issue"
+                    onClick={async () => {
+                      if (!window.confirm("Delete this issue?")) return;
+                      await issuesService.deleteIssue(issue._id);
+                      navigate("/issues");
+                    }}>
+                    <i className="ti ti-trash" style={{ fontSize: "1.25rem" }} />
+                  </button>
+                </div>
               )}
-            </Box>
+            </div>
 
             {/* Badges */}
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
               <CategoryBadge category={issue.category} />
               <StatusBadge status={issue.status} />
-              <Chip
-                label={`🔥 ${issue.priority}`}
-                size="small"
-                sx={{ fontSize: 12 }}
-              />
-            </Box>
+              <span
+                style={{ 
+                  fontSize: 12, 
+                  background: "var(--surface-subtle)", 
+                  padding: "4px 12px", 
+                  borderRadius: 16, 
+                  display: "inline-flex", 
+                  alignItems: "center" 
+                }}
+              >
+                🔥 {issue.priority}
+              </span>
+            </div>
 
             {/* Meta */}
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
+            <div style={{ fontSize: "0.875rem", opacity: 0.7, color: "var(--ink-primary)", marginBottom: 4 }}>
               📍 {issue.location}
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
+            </div>
+            <div style={{ fontSize: "0.875rem", opacity: 0.7, color: "var(--ink-primary)", marginBottom: 4 }}>
               👤 {issue.createdBy?.fullName}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
+            </div>
+            <div
+              style={{
+                fontSize: "0.875rem",
                 opacity: 0.6,
                 display: "flex",
                 alignItems: "center",
-                gap: 0.5,
+                gap: 4,
+                color: "var(--ink-primary)"
               }}>
-              <AccessTimeIcon fontSize="small" />
+              <i className="ti ti-clock" />
               {new Date(issue.createdAt).toLocaleString()}
-            </Typography>
+            </div>
 
-            <Typography variant="body1" sx={{ mt: 3, mb: 2, lineHeight: 1.7 }}>
+            <p style={{ marginTop: 24, marginBottom: 16, lineHeight: 1.7, fontSize: "1rem", color: "var(--ink-primary)" }}>
               {issue.description}
-            </Typography>
+            </p>
 
             {/* Actions row */}
-            <Box sx={{ mt: 2, display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-              <Button
-                variant="outlined"
+            <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button
+                className="btn btn-outline"
                 onClick={handleUpvote}
                 disabled={hasUpvoted || upvoting || user?.role === "admin"}>
                 {upvoting
                   ? "..."
                   : `👍 ${hasUpvoted ? "Voted" : "Upvote"} (${issue.upvotes})`}
-              </Button>
+              </button>
 
               {/* Watch / unwatch */}
               {user && user.role !== "admin" && (
-                <Tooltip
+                <button
+                  className={`btn ${isWatching ? "btn-primary" : "btn-outline"}`}
                   title={
                     isWatching
                       ? "Stop watching this issue"
                       : "Watch — get notified on updates"
-                  }>
-                  <Button
-                    variant={isWatching ? "contained" : "outlined"}
-                    color={isWatching ? "primary" : "inherit"}
-                    startIcon={
-                      isWatching ? (
-                        <NotificationsActiveIcon />
-                      ) : (
-                        <NotificationsOffIcon />
-                      )
-                    }
-                    onClick={handleWatch}
-                    disabled={watching}
-                    size="small">
-                    {isWatching ? "Watching" : "Watch"}
-                    {issue.watchers?.length > 0 &&
-                      ` (${issue.watchers.length})`}
-                  </Button>
-                </Tooltip>
+                  }
+                  onClick={handleWatch}
+                  disabled={watching}>
+                  <i className={`ti ${isWatching ? "ti-bell-ringing" : "ti-bell-off"}`} style={{ marginRight: 8 }} />
+                  {isWatching ? "Watching" : "Watch"}
+                  {issue.watchers?.length > 0 &&
+                    ` (${issue.watchers.length})`}
+                </button>
               )}
 
-              <Tooltip title="Copy link to clipboard">
-                <Button
-                  variant="outlined"
-                  startIcon={<ShareIcon />}
-                  onClick={() =>
-                    navigator.clipboard?.writeText(window.location.href)
-                  }>
-                  Share
-                </Button>
-              </Tooltip>
-            </Box>
+              <button
+                className="btn btn-outline"
+                title="Copy link to clipboard"
+                onClick={() =>
+                  navigator.clipboard?.writeText(window.location.href)
+                }>
+                <i className="ti ti-share" style={{ marginRight: 8 }} />
+                Share
+              </button>
+            </div>
 
-            <Divider sx={{ my: 3 }} />
+            <div className="divider" style={{ margin: "24px 0" }} />
 
             {/* Status history timeline */}
             <StatusTimeline history={issue.statusHistory} />
 
             {/* Resolution proof — display if it exists */}
             {issue.resolutionProof?.image && (
-              <Box sx={{ mt: 3 }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    mb: 1.5,
+              <div style={{ marginTop: 24 }}>
+                <div
+                  style={{
+                    marginBottom: 12,
                     opacity: 0.6,
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
                     fontSize: 11,
+                    fontWeight: 600,
+                    color: "var(--ink-primary)"
                   }}>
                   Resolution Proof
-                </Typography>
-                <Box
-                  component="img"
+                </div>
+                <img
                   src={issue.resolutionProof.image}
                   alt="Resolution proof"
-                  sx={{
+                  style={{
                     width: "100%",
                     maxHeight: 280,
                     objectFit: "cover",
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: 16,
+                    border: "1px solid var(--border-subtle)",
+                    display: "block"
                   }}
                 />
                 {issue.resolutionProof.note && (
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 1, opacity: 0.75, fontStyle: "italic" }}>
+                  <div
+                    style={{ marginTop: 8, opacity: 0.75, fontStyle: "italic", fontSize: "0.875rem", color: "var(--ink-primary)" }}>
                     "{issue.resolutionProof.note}"
-                  </Typography>
+                  </div>
                 )}
-                <Typography
-                  variant="caption"
-                  sx={{ opacity: 0.5, display: "block", mt: 0.5 }}>
+                <div
+                  style={{ opacity: 0.5, display: "block", marginTop: 4, fontSize: "0.75rem", color: "var(--ink-primary)" }}>
                   Uploaded{" "}
                   {new Date(
                     issue.resolutionProof.uploadedAt,
@@ -520,87 +478,81 @@ export default function IssueDetail() {
                     month: "short",
                     year: "numeric",
                   })}
-                </Typography>
-              </Box>
+                </div>
+              </div>
             )}
 
             {/* Resolution proof — admin upload form */}
             {isAdmin && !issue.resolutionProof?.image && (
-              <Box sx={{ mt: 3 }}>
+              <div style={{ marginTop: 24 }}>
                 {!showProofForm ? (
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<AddAPhotoIcon fontSize="small" />}
+                  <button
+                    className="btn btn-outline"
                     onClick={() => setShowProofForm(true)}>
+                    <i className="ti ti-camera-plus" style={{ marginRight: 8 }} />
                     Add Resolution Proof
-                  </Button>
+                  </button>
                 ) : (
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      border: `1px solid ${theme.palette.divider}`,
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 16,
+                      border: "1px solid var(--border-subtle)",
                       background: "rgba(34,197,94,0.04)",
                     }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{ mb: 1.5, fontSize: 13, fontWeight: 600 }}>
+                    <div
+                      style={{ marginBottom: 12, fontSize: 13, fontWeight: 600, color: "var(--ink-primary)" }}>
                       📷 Upload Resolution Proof
-                    </Typography>
+                    </div>
 
-                    <Button
-                      component="label"
-                      size="small"
-                      variant="outlined"
-                      sx={{ mb: 1.5, textTransform: "none" }}>
+                    <label className="btn btn-outline" style={{ marginBottom: 12, display: "inline-block", cursor: "pointer" }}>
                       Choose Photo
                       <input
                         type="file"
                         accept="image/*"
                         hidden
                         onChange={handleProofFileChange}
+                        style={{ display: "none" }}
                       />
-                    </Button>
+                    </label>
 
                     {proofPreview && (
-                      <Box
-                        component="img"
+                      <img
                         src={proofPreview}
                         alt="Preview"
-                        sx={{
+                        style={{
                           width: "100%",
                           maxHeight: 200,
                           objectFit: "cover",
-                          borderRadius: 2,
-                          mb: 1.5,
+                          borderRadius: 16,
+                          marginBottom: 12,
+                          display: "block"
                         }}
                       />
                     )}
 
-                    <TextField
-                      fullWidth
-                      size="small"
+                    <input
+                      className="input"
+                      type="text"
                       placeholder="Optional note (e.g. 'Pothole filled and resurfaced')"
                       value={proofNote}
                       onChange={(e) => setProofNote(e.target.value)}
-                      sx={{ mb: 1.5 }}
+                      style={{ marginBottom: 12, width: "100%", borderRadius: 8 }}
                     />
 
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <Button
-                        size="small"
-                        variant="contained"
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="btn btn-primary"
                         disabled={!proofFile || uploadingProof}
                         onClick={handleUploadProof}>
                         {uploadingProof ? (
-                          <CircularProgress size={16} />
+                          <span className="spinner" style={{ "--sz": "16px" }} />
                         ) : (
                           "Upload & Mark Resolved"
                         )}
-                      </Button>
-                      <Button
-                        size="small"
+                      </button>
+                      <button
+                        className="btn btn-ghost"
                         onClick={() => {
                           setShowProofForm(false);
                           setProofFile(null);
@@ -608,27 +560,27 @@ export default function IssueDetail() {
                           setProofNote("");
                         }}>
                         Cancel
-                      </Button>
-                    </Box>
-                  </Box>
+                      </button>
+                    </div>
+                  </div>
                 )}
-              </Box>
+              </div>
             )}
 
-            <Divider sx={{ my: 3 }} />
+            <div className="divider" style={{ margin: "24px 0" }} />
 
             {/* Comments */}
-            <Typography
-              variant="h6"
-              sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
-              <ChatBubbleOutlineIcon />
+            <h6
+              style={{ margin: "0 0 16px 0", display: "flex", alignItems: "center", gap: 8, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
+              <i className="ti ti-message-circle-2" />
               Comments ({issue.comments?.length ?? 0})
-            </Typography>
+            </h6>
 
             {user ? (
-              <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                  fullWidth
+              <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+                <input
+                  className="input"
+                  type="text"
                   placeholder="Write a comment…"
                   value={commentInput}
                   onChange={(e) => setCommentInput(e.target.value)}
@@ -638,30 +590,29 @@ export default function IssueDetail() {
                       handleAddComment();
                     }
                   }}
-                  sx={{ borderRadius: 2 }}
+                  style={{ width: "100%", borderRadius: 16 }}
                 />
-                <Button
-                  variant="contained"
+                <button
+                  className="btn btn-primary"
                   onClick={handleAddComment}
                   disabled={submittingComment || !commentInput.trim()}>
-                  {submittingComment ? <CircularProgress size={18} /> : "Post"}
-                </Button>
-              </Box>
+                  {submittingComment ? <span className="spinner" style={{ "--sz": "18px" }} /> : "Post"}
+                </button>
+              </div>
             ) : (
-              <Typography variant="body2" sx={{ mb: 2, opacity: 0.6 }}>
-                <Button size="small" onClick={() => navigate("/login")}>
+              <div style={{ marginBottom: 16, opacity: 0.6, fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                <button className="btn btn-ghost" style={{ padding: "4px 8px" }} onClick={() => navigate("/login")}>
                   Log in
-                </Button>{" "}
+                </button>{" "}
                 to leave a comment.
-              </Typography>
+              </div>
             )}
 
             {(issue.comments?.length ?? 0) === 0 ? (
-              <Typography
-                variant="body2"
-                sx={{ opacity: 0.5, textAlign: "center", py: 2 }}>
+              <div
+                style={{ opacity: 0.5, textAlign: "center", padding: "16px 0", fontSize: "0.875rem", color: "var(--ink-primary)" }}>
                 No comments yet. Be the first to comment.
-              </Typography>
+              </div>
             ) : (
               [...(issue.comments ?? [])]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -670,50 +621,59 @@ export default function IssueDetail() {
                     c.user?._id?.toString() ?? c.user?.toString();
                   const canDelete = user && (userId === cAuthorId || isAdmin);
                   return (
-                    <Box
+                    <div
                       key={c._id}
-                      sx={{
-                        mb: 2,
-                        p: 2,
-                        borderRadius: 2,
-                        background: "rgba(255,255,255,0.07)",
+                      style={{
+                        marginBottom: 16,
+                        padding: 16,
+                        borderRadius: 16,
+                        background: "rgba(128,128,128,0.07)",
                         display: "flex",
-                        gap: 1.5,
+                        gap: 12,
                       }}>
-                      <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600 }}>
                         {c.user?.fullName?.charAt(0)?.toUpperCase() ?? "?"}
-                      </Avatar>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2">
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--ink-primary)" }}>
                           {c.user?.fullName ?? "Unknown"}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ opacity: 0.85, mt: 0.25 }}>
+                        </div>
+                        <div
+                          style={{ fontSize: "0.875rem", opacity: 0.85, marginTop: 2, color: "var(--ink-primary)" }}>
                           {c.text}
-                        </Typography>
-                        <Typography variant="caption" sx={{ opacity: 0.5 }}>
+                        </div>
+                        <div style={{ fontSize: "0.75rem", opacity: 0.5, color: "var(--ink-primary)", marginTop: 4 }}>
                           {new Date(c.createdAt).toLocaleString()}
-                        </Typography>
-                      </Box>
+                        </div>
+                      </div>
                       {canDelete && (
-                        <Tooltip title="Delete comment">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            disabled={deletingComment === c._id}
-                            onClick={() => handleDeleteComment(c._id)}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        <button
+                          className="btn-icon"
+                          style={{ color: "var(--status-open)" }}
+                          title="Delete comment"
+                          disabled={deletingComment === c._id}
+                          onClick={() => handleDeleteComment(c._id)}>
+                          <i className="ti ti-trash" style={{ fontSize: "1.25rem" }} />
+                        </button>
                       )}
-                    </Box>
+                    </div>
                   );
                 })
             )}
-          </CardContent>
-        </Card>
-      </motion.div>
-    </Box>
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateX(-8px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
+    </div>
   );
 }

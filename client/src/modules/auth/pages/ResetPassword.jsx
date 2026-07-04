@@ -1,17 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  Grid,
-  Typography,
-  Alert,
-  Button,
-  CircularProgress,
-  Box,
-} from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 import PasswordField from "../../../components/common/PasswordField";
 import SubmitButton from "../../../components/common/SubmitButton";
 import PageCard from "../../../components/common/PageCard";
@@ -83,11 +71,11 @@ export default function ResetPassword() {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    const error =
+    const errorMsg =
       name === "password"
         ? validatePassword(value)
         : validateConfirmPassword(value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: errorMsg }));
   };
 
   const handleSubmit = async (e) => {
@@ -130,10 +118,6 @@ export default function ResetPassword() {
     }
   };
 
-  const commonBoxStyles = { textAlign: "center", padding: "2rem" };
-
-  // REMOVE: <Grid><Grid item><PageCard><Alert><Button>
-  // REPLACE:
   if (tokenValid === false) {
     return (
       <div
@@ -149,17 +133,16 @@ export default function ResetPassword() {
             <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
           </div>
           <button
-            className="btn btn-primary btn-full"
+            className="btn btn-primary"
+            style={{ width: "100%" }}
             onClick={() => navigate("/login")}>
-            <i className="ti ti-arrow-left" aria-hidden="true" /> Back to login
+            <i className="ti ti-arrow-left" style={{ marginRight: 8 }} /> Back to login
           </button>
         </PageCard>
       </div>
     );
   }
 
-  // REMOVE: <Box sx={commonBoxStyles}><CircularProgress /><Typography>
-  // REPLACE:
   if (tokenValid === null) {
     return (
       <div
@@ -183,6 +166,7 @@ export default function ResetPassword() {
                 marginTop: 12,
                 color: "var(--ink-tertiary)",
                 fontSize: 13,
+                margin: 0
               }}>
               Verifying reset token...
             </p>
@@ -240,10 +224,10 @@ export default function ResetPassword() {
           </SubmitButton>
           <button
             type="button"
-            className="btn btn-ghost btn-full"
-            style={{ marginTop: 8 }}
+            className="btn btn-ghost"
+            style={{ width: "100%", marginTop: 8 }}
             onClick={() => navigate("/login")}>
-            <i className="ti ti-arrow-left" aria-hidden="true" /> Back to login
+            <i className="ti ti-arrow-left" style={{ marginRight: 8 }} /> Back to login
           </button>
         </form>
       </PageCard>

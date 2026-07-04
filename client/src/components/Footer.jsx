@@ -1,53 +1,72 @@
 import React from "react";
-import { Box, Stack, Typography, IconButton } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <Box
-      component="footer"
-      sx={{
-        mt: 8,
-        py: 5,
-        px: { xs: 3, md: 6 },
-        bgcolor: "rgba(255,255,255,0.25)",
+    <footer
+      style={{
+        marginTop: 64, // mt: 8 → 8×8 = 64px
+        paddingTop: 40, // py: 5 → 5×8 = 40px
+        paddingBottom: 40,
+        paddingLeft: "clamp(24px, 5vw, 48px)", // px: {xs:3, md:6}
+        paddingRight: "clamp(24px, 5vw, 48px)",
+        background: "rgba(255,255,255,0.05)", // slightly lighter than var(--surface-base) for contrast
         backdropFilter: "blur(20px) saturate(180%)",
-        borderRadius: "22px",
-        border: "1px solid rgba(255,255,255,0.3)",
+        borderRadius: 22, // borderRadius: 22px
+        border: "1px solid rgba(255,255,255,0.3)", // keeping original glass border
         boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
-      }}>
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={3}>
+      }}
+    >
+      <div 
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 24, // spacing: 3 → 3×8 = 24px
+          "@media (min-width: 900px)": {
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }
+        }}
+        className="footer-flex-container"
+      >
         {/* Branding + Tagline */}
-        <Stack alignItems={{ xs: "center", md: "flex-start" }}>
-          <Typography
-            variant="h6"
-            sx={{
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} className="footer-brand-section">
+          <h6
+            style={{
+              margin: 0,
+              fontSize: "1.25rem",
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
-              gap: 1,
-            }}>
+              gap: 8, // gap: 1 → 8px
+              color: "var(--ink-primary)",
+            }}
+          >
             🌐⚡ CivicPulse
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "text.secondary", fontWeight: 500 }}>
+          </h6>
+          <p
+            style={{ 
+              margin: 0, 
+              fontSize: "0.875rem", 
+              color: "var(--ink-secondary)", // color: "text.secondary"
+              fontWeight: 500 
+            }}
+          >
             Empowering Communities, One Issue at a Time.
-          </Typography>
-        </Stack>
+          </p>
+        </div>
 
         {/* Footer Info Links */}
-        <Stack
-          direction="row"
-          spacing={4}
-          sx={{ textAlign: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 32, // spacing: 4 → 4×8 = 32px
+            textAlign: "center",
+            justifyContent: "center",
+          }}
+        >
           {[
             { label: "About", path: "/about" },
             { label: "Contact", path: "/contact" },
@@ -58,62 +77,82 @@ export default function Footer() {
             { label: "Support", path: "/support" },
             { label: "Feedback", path: "/feedback" },
           ].map((item, idx) => (
-            <Typography
+            <RouterLink
               key={idx}
-              component="a"
-              href={item.path}
-              sx={{
+              to={item.path}
+              className="footer-link"
+              style={{
                 textDecoration: "none",
-                color: "text.primary",
+                color: "var(--ink-primary)", // text.primary
                 fontWeight: 600,
-                "&:hover": {
-                  color: "primary.main",
-                  transform: "translateY(-2px)",
-                  transition: "0.2s ease-in-out",
-                },
-              }}>
+                fontSize: "0.875rem",
+                display: "inline-block",
+                transition: "all 0.2s ease-in-out",
+              }}
+            >
               {item.label}
-            </Typography>
+            </RouterLink>
           ))}
-        </Stack>
+        </div>
 
         {/* Social Icons */}
-        <Stack direction="row" spacing={1}>
-          {[FacebookIcon, TwitterIcon, InstagramIcon, GitHubIcon].map(
-            (Icon, idx) => (
-              <IconButton
+        <div style={{ display: "flex", gap: 8 }}>
+          {["brand-facebook", "brand-twitter", "brand-instagram", "brand-github"].map(
+            (iconName, idx) => (
+              <button
                 key={idx}
-                sx={{
-                  bgcolor: "white",
-                  color: "primary.main",
-                  p: 1.2,
+                className="btn-icon footer-social-btn"
+                style={{
+                  background: "var(--surface-base)", // bgcolor: "white"
+                  color: "var(--accent)", // color: "primary.main"
+                  padding: 9.6, // p: 1.2 → 1.2×8 = 9.6px
                   borderRadius: "50%",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                   transition: "all 0.25s ease",
-                  "&:hover": {
-                    bgcolor: "primary.main",
-                    color: "white",
-                    transform: "scale(1.12)",
-                  },
-                }}>
-                <Icon />
-              </IconButton>
+                }}
+                aria-label={`Follow us on ${iconName.split("-")[1]}`}
+              >
+                <i className={`ti ti-${iconName}`} aria-hidden="true" />
+              </button>
             )
           )}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
 
       {/* Copyright */}
-      <Typography
-        variant="caption"
-        sx={{
+      <div
+        style={{
           display: "block",
           textAlign: "center",
-          mt: 3,
-          color: "text.secondary",
-        }}>
+          marginTop: 24, // mt: 3 → 3×8 = 24px
+          fontSize: "0.75rem",
+          color: "var(--ink-tertiary)", // text.secondary
+        }}
+      >
         © {new Date().getFullYear()} CivicPulse — All Rights Reserved
-      </Typography>
-    </Box>
+      </div>
+      
+      {/* Adding a style block to handle media queries that inline styles can't */}
+      <style>{`
+        @media (min-width: 900px) {
+          .footer-flex-container {
+            flex-direction: row !important;
+            justify-content: space-between !important;
+          }
+          .footer-brand-section {
+            align-items: flex-start !important;
+          }
+        }
+        .footer-link:hover {
+          color: var(--accent) !important;
+          transform: translateY(-2px);
+        }
+        .footer-social-btn:hover {
+          background: var(--accent) !important;
+          color: var(--surface-base) !important;
+          transform: scale(1.12);
+        }
+      `}</style>
+    </footer>
   );
 }

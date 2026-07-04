@@ -1,7 +1,3 @@
-import React from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
-
 const PageCard = ({
   children,
   title,
@@ -13,50 +9,64 @@ const PageCard = ({
   ...props
 }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: animationDelay }}
+    <div
+      style={{
+        animation: `fadeInUp 0.6s ease-out ${animationDelay}s both`,
+        maxWidth,
+        margin: "24px auto",
+        width: "100%",
+        ...sx,
+      }}
+      {...props}
     >
-      <Card
-        elevation={elevation}
-        sx={{
-          borderRadius: '20px',
-          mt: 3,
-          maxWidth,
-          mx: 'auto',
-          p: 3,
-          ...sx,
+      <div 
+        className="card" 
+        style={{ 
+          borderRadius: "var(--radius-xl)", 
+          boxShadow: elevation > 4 ? "var(--shadow-lg)" : "var(--shadow-md)",
+          background: "var(--surface-base)",
+          border: "0.5px solid var(--border-subtle)"
         }}
-        {...props}
       >
-        <CardContent>
+        <div style={{ padding: "32px 24px" }}>
           {title && (
-            <Typography
-              variant="h4"
-              align="center"
-              color="primary"
-              gutterBottom
-              sx={{ fontWeight: 'bold', mb: 3 }}
+            <h2
+              style={{
+                textAlign: "center",
+                color: "var(--ink-primary)",
+                fontWeight: 700,
+                fontSize: "2rem",
+                marginBottom: subtitle ? 8 : 24,
+                marginTop: 0
+              }}
             >
               {title}
-            </Typography>
+            </h2>
           )}
           {subtitle && (
-            <Typography
-              variant="subtitle1"
-              align="center"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 3 }}
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--ink-secondary)",
+                fontSize: "1rem",
+                marginBottom: 24,
+                marginTop: 0
+              }}
             >
               {subtitle}
-            </Typography>
+            </p>
           )}
           {children}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
   );
 };
 

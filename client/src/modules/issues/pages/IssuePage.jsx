@@ -1,16 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Box,
-  Container,
-  Stack,
-  CircularProgress,
-  Typography,
-  useTheme,
-  Button,
-  Card,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
 import { useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
 import { issuesService } from "../../../services/issuesService";
@@ -22,7 +10,6 @@ import EngagementStatsCard from "../components/EngagementStatsCard";
 import NoIssuesCard from "../components/NoIssuesCard";
 
 function IssuePage({ filters }) {
-  const theme = useTheme();
   const navigate = useNavigate();
 
   const [issues, setIssues] = useState([]);
@@ -31,22 +18,6 @@ function IssuePage({ filters }) {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
-  const glass = theme.palette.glass || {
-    background:
-      theme.palette.mode === "dark"
-        ? "rgba(0, 0, 0, 0.35)"
-        : "rgba(255, 255, 255, 0.25)",
-    border:
-      theme.palette.mode === "dark"
-        ? "1px solid rgba(255,255,255,0.15)"
-        : "1px solid rgba(255,255,255,0.35)",
-    blur: "18px",
-    shadow:
-      theme.palette.mode === "dark"
-        ? "0 4px 25px rgba(0,0,0,0.3)"
-        : "0 4px 20px rgba(0,0,0,0.1)",
-  };
 
   // Compute statistics
   const stats = {
@@ -128,90 +99,90 @@ function IssuePage({ filters }) {
 
   if (loading)
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Stack
-          alignItems="center"
-          justifyContent="center"
-          sx={{ minHeight: "50vh" }}>
-          <CircularProgress size={60} />
-          <Typography mt={2}>Loading issues...</Typography>
-        </Stack>
-      </Container>
+      <div className="container-lg" style={{ padding: "48px 0" }}>
+        <div
+          style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            minHeight: "50vh" 
+          }}>
+          <span className="spinner" style={{ "--sz": "60px" }} />
+          <p style={{ marginTop: 16, color: "var(--ink-primary)" }}>Loading issues...</p>
+        </div>
+      </div>
     );
 
   if (error)
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Card sx={{ p: 4 }}>{error}</Card>
-      </Container>
+      <div className="container-lg" style={{ padding: "48px 0" }}>
+        <div className="card" style={{ padding: 32 }}>{error}</div>
+      </div>
     );
 
   const hasIssues = issues.length > 0;
+  
   return (
-    <Box sx={{ minHeight: "100vh", py: 4 }}>
-      <Container maxWidth="xl">
-        <AnimatePresence mode="wait">
+    <div style={{ minHeight: "100vh", padding: "32px 0" }}>
+      <div className="container-xl" style={{ padding: "0 24px" }}>
+        <div style={{ animation: "fadeIn 0.4s ease-out" }}>
           {!hasIssues ? (
-            <NoIssuesCard
-              glass={glass}
-              onReport={() => navigate("/report-issue")}
-            />
+            <NoIssuesCard onReport={() => navigate("/report-issue")} />
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Grid container spacing={4}>
+            <div>
+              <div className="grid-container" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
                 {/* STATS — Top Horizontal */}
-                <Grid item xs={12}>
-                  <Stack
-                    direction={{ xs: "column", md: "row" }}
-                    spacing={3}
-                    sx={{ width: "100%", justifyContent: "flex-start" }}>
+                <div style={{ width: "100%" }}>
+                  <div
+                    className="stats-container"
+                    style={{ 
+                      display: "flex",
+                      width: "100%", 
+                      justifyContent: "flex-start",
+                      gap: 24,
+                    }}>
                     <StatsOverviewCard
                       stats={stats}
-                      glass={glass}
-                      sx={{ minWidth: 300, maxWidth: 400 }}
+                      sx={{ minWidth: 300, maxWidth: 400, flex: 1 }}
                     />
                     <CategoryStatsCard
                       stats={stats}
-                      glass={glass}
-                      sx={{ minWidth: 300, maxWidth: 400 }}
+                      sx={{ minWidth: 300, maxWidth: 400, flex: 1 }}
                     />
                     <EngagementStatsCard
                       stats={stats}
-                      glass={glass}
-                      sx={{ minWidth: 300, maxWidth: 400 }}
+                      sx={{ minWidth: 300, maxWidth: 400, flex: 1 }}
                     />
-                  </Stack>
+                  </div>
 
-                  <Box sx={{ mt: 1, opacity: 0.5 }}>
-                    <Typography variant="caption">
+                  <div style={{ marginTop: 8, opacity: 0.5 }}>
+                    <span style={{ fontSize: "0.75rem", color: "var(--ink-primary)" }}>
                       Insights update when new issues are reported or actions
                       performed.
-                    </Typography>
-                  </Box>
-                </Grid>
+                    </span>
+                  </div>
+                </div>
+                
                 {/* ISSUES BELOW */}
-                <Grid item xs={12}>
-                  <Stack
-                    spacing={3}
-                    sx={{ mt: 2, height: "calc(100vh - 300px)" }}>
-                    <Box
-                      sx={{
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 24, marginTop: 16, minHeight: "calc(100vh - 300px)" }}>
+                    <div
+                      style={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                       }}>
-                      {/* <Typography variant="h4" fontWeight={700}>
-                        Reported Issues
-                      </Typography> */}
-
-                      <Button
-                        variant="contained"
+                      <div /> {/* Placeholder for left align */}
+                      <button
+                        className="btn btn-primary"
                         onClick={() => navigate("/report-issue")}>
                         + Report Issue
-                      </Button>
-                    </Box>
+                      </button>
+                    </div>
 
-                    <Box flexGrow={1}>
+                    <div style={{ flexGrow: 1 }}>
                       <IssueList
                         issues={issues}
                         onUpvote={handleUpvote}
@@ -224,39 +195,54 @@ function IssuePage({ filters }) {
                           setIssues((prev) => prev.filter((i) => i._id !== id))
                         }
                       />
-                    </Box>
+                    </div>
 
                     {hasMore && (
-                      <Box
-                        sx={{
+                      <div
+                        style={{
                           display: "flex",
                           justifyContent: "center",
-                          py: 3,
+                          padding: "24px 0",
                         }}>
-                        <Button
-                          variant="outlined"
+                        <button
+                          className="btn btn-outline"
                           onClick={handleLoadMore}
                           disabled={loadingMore}
-                          sx={{
-                            borderRadius: 3,
-                            px: 4,
-                            textTransform: "none",
+                          style={{
+                            borderRadius: 24,
+                            padding: "8px 32px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8
                           }}>
-                          {loadingMore ? (
-                            <CircularProgress size={18} sx={{ mr: 1 }} />
-                          ) : null}
+                          {loadingMore && <span className="spinner" style={{ "--sz": "18px" }} />}
                           {loadingMore ? "Loading…" : "Load More Issues"}
-                        </Button>
-                      </Box>
+                        </button>
+                      </div>
                     )}
-                  </Stack>
-                </Grid>
-              </Grid>
-            </motion.div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
-      </Container>
-    </Box>
+        </div>
+      </div>
+      
+      <style>{`
+        .stats-container {
+          flex-direction: column;
+        }
+        @media (min-width: 900px) {
+          .stats-container {
+            flex-direction: row;
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+    </div>
   );
 }
 

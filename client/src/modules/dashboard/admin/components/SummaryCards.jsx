@@ -1,55 +1,53 @@
-import { Card, CardContent, Typography, Box, useTheme } from "@mui/material";
-import { motion } from "framer-motion";
+import React from "react";
 
-const COLORS = ["#1976d2", "#d32f2f", "#ed6c02", "#2e7d32"];
+const COLORS = ["var(--ink-primary)", "var(--status-open)", "var(--status-warn)", "var(--status-done)"];
 
 export default function SummaryCards({ item, index }) {
-  const theme = useTheme();
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.15 }}>
-      <Card
-        sx={{
-          borderRadius: 3,
+    <div style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.15}s both` }}>
+      <div
+        className="card kpi-hover-card"
+        style={{
+          borderRadius: "var(--radius-xl)",
           textAlign: "center",
-          background: theme.palette.background.glass,
-          boxShadow: theme.shadows[4],
-          py: 2,
-          px: 1,
+          background: "var(--surface-base)",
+          padding: "16px 8px",
           transition: "0.3s",
-          "&:hover": {
-            boxShadow: theme.shadows[6],
-            transform: "translateY(-2px)",
-          },
         }}>
-        <CardContent>
-          <Box
-            display="flex"
-            justifyContent="center"
-            mb={1}
-            alignItems="center">
-            <Box
-              sx={{
+        <div style={{ padding: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: 8,
+              alignItems: "center"
+            }}>
+            <div
+              style={{
                 width: 12,
                 height: 12,
                 borderRadius: "50%",
                 backgroundColor: COLORS[index % COLORS.length],
-                mr: 1,
+                marginRight: 8,
               }}
             />
-            <Typography variant="subtitle2" color="text.secondary">
+            <span style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
               {item.label}
-            </Typography>
-          </Box>
+            </span>
+          </div>
 
-          <Typography variant="h4" fontWeight="bold">
+          <div style={{ fontSize: "2.125rem", fontWeight: 700, color: "var(--ink-primary)" }}>
             {item.count}
-          </Typography>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        .kpi-hover-card:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+        }
+      `}</style>
+    </div>
   );
 }

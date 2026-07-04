@@ -1,114 +1,102 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Select,
-  MenuItem,
-  Typography,
-  Card,
-  CardContent,
-  Grow,
-} from "@mui/material";
-import { motion } from "framer-motion";
+// IssuesTable.jsx
 
 const getStatusColor = (status) => {
   switch (status) {
     case "Open":
-      return { color: "#f44336", label: "Open" };
+      return { bg: "var(--status-open)", label: "Open" };
     case "In Progress":
-      return { color: "#ff9800", label: "In Progress" };
+      return { bg: "var(--status-warn)", label: "In Progress" };
     case "Resolved":
-      return { color: "#4caf50", label: "Resolved" };
+      return { bg: "var(--status-done)", label: "Resolved" };
     default:
-      return { color: "#9e9e9e", label: status };
+      return { bg: "var(--ink-secondary)", label: status };
   }
 };
 
 export default function IssuesTable({ issues, handleStatusChange }) {
   return (
-    <Grow in timeout={800}>
-      <Card sx={{ boxShadow: "var(--shadow-medium)", borderRadius: 3 }}>
-        <CardContent>
-          <Typography
-            variant="h5"
-            gutterBottom
-            component={motion.div}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}>
+    <div style={{ animation: "fadeInUp 0.8s ease-out" }}>
+      <div className="card" style={{ borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-md)" }}>
+        <div style={{ padding: 24 }}>
+          <h5 style={{ margin: "0 0 16px 0", fontWeight: 600, fontSize: "1.5rem", color: "var(--ink-primary)" }}>
             Recent Issues
-          </Typography>
+          </h5>
 
-          <TableContainer
-            component={Paper}
-            sx={{ borderRadius: 2, boxShadow: "var(--shadow-light)" }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Issue</TableCell>
-                  <TableCell>Reporter</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Update Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 600 }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border-subtle)", textAlign: "left" }}>
+                  <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--ink-secondary)", fontSize: "0.875rem" }}>ID</th>
+                  <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--ink-secondary)", fontSize: "0.875rem" }}>Issue</th>
+                  <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--ink-secondary)", fontSize: "0.875rem" }}>Reporter</th>
+                  <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--ink-secondary)", fontSize: "0.875rem" }}>Status</th>
+                  <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--ink-secondary)", fontSize: "0.875rem" }}>Update Status</th>
+                </tr>
+              </thead>
+              <tbody>
                 {issues.map((issue, index) => {
                   const issueId = issue._id || issue.id;
+                  const statusStyle = getStatusColor(issue.status);
+                  
                   return (
-                    <motion.tr
+                    <tr
                       key={issueId || index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}>
-                      <TableCell>{issueId || "N/A"}</TableCell>
-                      <TableCell>{issue.title}</TableCell>
-                      <TableCell>
+                      style={{
+                        borderBottom: "1px solid var(--border-subtle)",
+                        animation: `fadeInUp 0.4s ease-out ${index * 0.1}s both`,
+                        transition: "background 0.2s"
+                      }}
+                    >
+                      <td style={{ padding: "12px 16px", fontSize: "0.875rem", color: "var(--ink-primary)" }}>{issueId || "N/A"}</td>
+                      <td style={{ padding: "12px 16px", fontSize: "0.875rem", color: "var(--ink-primary)", fontWeight: 500 }}>{issue.title}</td>
+                      <td style={{ padding: "12px 16px", fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
                         {issue.createdBy?.fullName || "Unknown"}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
                         <span
                           style={{
                             display: "inline-block",
-                            borderRadius: "16px",
+                            borderRadius: 16,
                             padding: "4px 10px",
                             color: "white",
-                            backgroundColor: getStatusColor(issue.status).color,
+                            backgroundColor: statusStyle.bg,
                             fontWeight: 600,
-                            fontSize: "0.8rem",
+                            fontSize: "0.75rem",
                           }}>
-                          {getStatusColor(issue.status).label}
+                          {statusStyle.label}
                         </span>
-                      </TableCell>
-                      <TableCell>
-                        <Select
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <select
+                          className="input"
+                          style={{ minWidth: 130, padding: "4px 8px", height: 32 }}
                           value={issue.status}
-                          onChange={(e) =>
-                            handleStatusChange(issueId, e.target.value)
-                          }
-                          size="small"
-                          sx={{
-                            minWidth: 130,
-                            borderRadius: "8px",
-                            background: "var(--color-bg-paper)",
-                          }}>
-                          <MenuItem value="Open">Open</MenuItem>
-                          <MenuItem value="In Progress">In Progress</MenuItem>
-                          <MenuItem value="Resolved">Resolved</MenuItem>
-                        </Select>
-                      </TableCell>
-                    </motion.tr>
+                          onChange={(e) => handleStatusChange(issueId, e.target.value)}
+                        >
+                          <option value="Open">Open</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Resolved">Resolved</option>
+                        </select>
+                      </td>
+                    </tr>
                   );
                 })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-    </Grow>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        tbody tr:hover {
+          background-color: var(--surface-subtle);
+        }
+      `}</style>
+    </div>
   );
 }

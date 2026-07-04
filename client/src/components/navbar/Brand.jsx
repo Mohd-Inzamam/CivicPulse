@@ -1,40 +1,44 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Stack, Box, Typography } from "@mui/material";
 
 const Brand = () => {
   return (
-    <Stack
-      direction="row"
-      spacing={1}
-      alignItems="center"
-      component={RouterLink}
+    <RouterLink
       to="/"
-      style={{ textDecoration: "none" }}>
-      <Box
-        sx={{
+      className="navbar-brand"
+      style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}
+    >
+      {/* Bar chart icon */}
+      <div
+        style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 6px)",
-          gap: "4px",
-        }}>
+          gap: 4,
+        }}
+      >
         {[0, 1, 2].map((i) => (
-          <Box
+          <div
             key={i}
-            sx={{
+            style={{
               width: 6,
               height: 16 + i * 4,
-              bgcolor: "primary.main",
-              borderRadius: 1,
+              background: "var(--accent)", // bgcolor: "primary.main"
+              borderRadius: 8, // borderRadius: 1 → 1×8 = 8px
             }}
           />
         ))}
-      </Box>
-      <Typography
-        variant="h6"
-        sx={{ fontWeight: 800, letterSpacing: 1, color: "text.primary" }}>
+      </div>
+      <span
+        style={{
+          fontSize: 17, // variant="h6"
+          fontWeight: 800,
+          letterSpacing: 1,
+          color: "var(--ink-primary)", // color: "text.primary"
+        }}
+      >
         CIVIC-PULSE
-      </Typography>
-    </Stack>
+      </span>
+    </RouterLink>
   );
 };
 

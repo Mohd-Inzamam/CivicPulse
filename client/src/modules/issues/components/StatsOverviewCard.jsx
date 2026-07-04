@@ -1,54 +1,58 @@
-import { Card, Typography, Stack, Box, Chip, Divider } from "@mui/material";
+import React from "react";
 
-export default function StatsOverviewCard({ stats, glass, sx }) {
+export default function StatsOverviewCard({ stats, sx = {} }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        p: 3,
-        background: glass.background,
-        backdropFilter: `blur(${glass.blur})`,
-        border: glass.border,
-        boxShadow: glass.shadow,
+    <div
+      className="card"
+      style={{
+        borderRadius: "var(--radius-xl)",
+        padding: 24,
         ...sx,
       }}>
-      <Typography variant="h6" fontWeight={700} mb={2}>
+      <h6 style={{ margin: "0 0 16px 0", fontWeight: 700, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
         📊 Overview
-      </Typography>
+      </h6>
 
-      <Stack spacing={2}>
-        <Row label="Total Issues" value={stats.total} bold />
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Row label="Total Issues" value={stats.total} />
 
-        <Divider sx={{ opacity: 0.3 }} />
+        <div className="divider" style={{ opacity: 0.3 }} />
 
-        <Row label="Open" chipValue={stats.open} color="error.main" />
+        <Row label="Open" chipValue={stats.open} color="var(--status-open)" />
         <Row
           label="In Progress"
           chipValue={stats.inProgress}
-          color="warning.main"
+          color="var(--status-warn)"
         />
-        <Row label="Resolved" chipValue={stats.resolved} color="success.main" />
-      </Stack>
-    </Card>
+        <Row label="Resolved" chipValue={stats.resolved} color="var(--status-done)" />
+      </div>
+    </div>
   );
 }
 
 function Row({ label, value, chipValue, color }) {
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-      <Typography variant="body2">{label}</Typography>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>{label}</span>
 
       {chipValue !== undefined ? (
-        <Chip
-          label={chipValue}
-          size="small"
-          sx={{ backgroundColor: color, color: "#fff", fontWeight: 600 }}
-        />
+        <span
+          style={{ 
+            backgroundColor: color, 
+            color: "#fff", 
+            fontWeight: 600,
+            fontSize: "0.8125rem",
+            padding: "2px 8px",
+            borderRadius: 16
+          }}
+        >
+          {chipValue}
+        </span>
       ) : (
-        <Typography variant="h5" fontWeight={700}>
+        <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--ink-primary)" }}>
           {value}
-        </Typography>
+        </span>
       )}
-    </Box>
+    </div>
   );
 }

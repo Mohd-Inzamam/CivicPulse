@@ -1,23 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Typography,
-  Button,
-  Card,
-  Box,
-  Chip,
-  useTheme,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  LinearProgress,
-} from "@mui/material";
-import { PhotoCamera } from "@mui/icons-material";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 // Components
 import FormField from "../../../components/common/FormField";
@@ -36,10 +18,10 @@ const categoryOptions = [
 ];
 
 const priorityOptions = [
-  { label: "Low", color: "success" },
-  { label: "Medium", color: "warning" },
-  { label: "High", color: "error" },
-  { label: "Critical", color: "secondary" },
+  { label: "Low", color: "var(--status-done)" },
+  { label: "Medium", color: "var(--status-warn)" },
+  { label: "High", color: "var(--status-open)" },
+  { label: "Critical", color: "var(--ink-primary)" },
 ];
 
 const getAuthHeaders = () => {
@@ -51,7 +33,6 @@ const getAuthHeaders = () => {
 };
 
 function ReportIssue() {
-  const theme = useTheme();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -293,21 +274,21 @@ function ReportIssue() {
     await submitIssue();
   };
 
-  const qualityColor =
+  const qualityColorVar =
     qualityScore === null
-      ? "default"
+      ? "var(--ink-secondary)"
       : qualityScore >= 8
-        ? "success"
+        ? "var(--status-done)"
         : qualityScore >= 5
-          ? "warning"
-          : "error";
+          ? "var(--status-warn)"
+          : "var(--status-open)";
 
   return (
     <PageCard sx={{ maxWidth: 500 }} title="Report an Issue">
       {errors.general && (
-        <Typography color="error" sx={{ mb: 2 }}>
+        <p className="form-error" style={{ marginBottom: 16 }}>
           {errors.general}
-        </Typography>
+        </p>
       )}
 
       <form onSubmit={handleSubmit}>
@@ -335,46 +316,44 @@ function ReportIssue() {
 
         {/* AI report quality indicator */}
         {(scoringQuality || qualityScore !== null) && (
-          <Box sx={{ mt: -1, mb: 1.5 }}>
+          <div style={{ marginTop: -8, marginBottom: 12 }}>
             {scoringQuality ? (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <CircularProgress size={12} />
-                <Typography variant="caption" color="text.secondary">
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="spinner" style={{ "--sz": "12px" }} />
+                <span style={{ fontSize: "0.75rem", color: "var(--ink-tertiary)" }}>
                   Checking report quality…
-                </Typography>
-              </Box>
+                </span>
+              </div>
             ) : (
-              <Box>
-                <Box
-                  sx={{
+              <div>
+                <div
+                  style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 1,
-                    mb: qualityTip ? 0.5 : 0,
+                    gap: 8,
+                    marginBottom: qualityTip ? 4 : 0,
                   }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>
                     Report quality: {qualityScore}/10
-                  </Typography>
-                  <Box sx={{ flex: 1, maxWidth: 100 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={qualityScore * 10}
-                      color={qualityColor}
-                      sx={{ height: 5, borderRadius: 3 }}
-                    />
-                  </Box>
-                </Box>
+                  </span>
+                  <div style={{ flex: 1, maxWidth: 100 }}>
+                    <div className="quality-track" style={{ height: 5, borderRadius: 24 }}>
+                      <div 
+                        className="quality-fill" 
+                        style={{ width: `${qualityScore * 10}%`, background: qualityColorVar, borderRadius: 24 }} 
+                      />
+                    </div>
+                  </div>
+                </div>
                 {qualityTip && (
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontStyle: "italic" }}>
+                  <span
+                    style={{ fontSize: "0.75rem", color: "var(--ink-tertiary)", fontStyle: "italic", display: "block" }}>
                     💡 {qualityTip}
-                  </Typography>
+                  </span>
                 )}
-              </Box>
+              </div>
             )}
-          </Box>
+          </div>
         )}
 
         <SelectField
@@ -390,53 +369,53 @@ function ReportIssue() {
 
         {/* AI category suggestion banner */}
         {suggestingCategory && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-            <CircularProgress size={12} />
-            <Typography variant="caption" color="text.secondary">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+            <span className="spinner" style={{ "--sz": "12px" }} />
+            <span style={{ fontSize: "0.75rem", color: "var(--ink-tertiary)" }}>
               AI is analysing your description…
-            </Typography>
-          </Box>
+            </span>
+          </div>
         )}
         {aiSuggestion && !suggestingCategory && (
-          <Box
-            sx={{
-              mt: 1,
-              p: 1.25,
-              borderRadius: 2,
+          <div
+            style={{
+              marginTop: 8,
+              padding: 10,
+              borderRadius: 16,
               background: "rgba(99,102,241,0.06)",
               border: "1px solid rgba(99,102,241,0.2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 1,
+              gap: 8,
               flexWrap: "wrap",
             }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-              <AutoAwesomeIcon sx={{ fontSize: 14, color: "primary.main" }} />
-              <Typography variant="caption">
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <i className="ti ti-sparkles" style={{ fontSize: 14, color: "var(--accent)" }} />
+              <span style={{ fontSize: "0.75rem" }}>
                 AI suggests <strong>{aiSuggestion.category}</strong>
                 {aiSuggestion.priority
                   ? ` · ${aiSuggestion.priority} priority`
                   : ""}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 0.5 }}>
-              <Button
-                size="small"
-                variant="text"
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
                 onClick={() => setAiSuggestion(null)}
-                sx={{ fontSize: 11, minWidth: "auto", py: 0.25 }}>
+                style={{ fontSize: 11, minWidth: "auto", padding: "2px 8px" }}>
                 Dismiss
-              </Button>
-              <Button
-                size="small"
-                variant="contained"
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
                 onClick={applyAiSuggestion}
-                sx={{ fontSize: 11, py: 0.25 }}>
+                style={{ fontSize: 11, padding: "2px 8px" }}>
                 Apply
-              </Button>
-            </Box>
-          </Box>
+              </button>
+            </div>
+          </div>
         )}
 
         <FormField
@@ -449,150 +428,170 @@ function ReportIssue() {
         />
 
         {/* Priority / Urgency */}
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+        <div style={{ marginTop: 16 }}>
+          <h6 style={{ fontSize: "0.875rem", fontWeight: 600, margin: "0 0 8px 0" }}>
             Urgency
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          </h6>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {priorityOptions.map((option) => (
-              <Chip
+              <button
+                type="button"
                 key={option.label}
-                label={option.label}
-                color={option.color}
-                variant={
-                  formData.priority === option.label ? "filled" : "outlined"
-                }
                 onClick={() => handlePriorityChange(option.label)}
-                sx={{ cursor: "pointer", fontWeight: 600 }}
-              />
+                style={{
+                  cursor: "pointer", 
+                  fontWeight: 600,
+                  fontSize: "0.8125rem",
+                  padding: "4px 12px",
+                  borderRadius: 16,
+                  border: formData.priority === option.label ? "none" : `1px solid ${option.color}`,
+                  background: formData.priority === option.label ? option.color : "transparent",
+                  color: formData.priority === option.label ? "#fff" : option.color,
+                  transition: "all 0.2s ease"
+                }}
+              >
+                {option.label}
+              </button>
             ))}
-          </Box>
+          </div>
           {errors.priority && (
-            <Typography
-              variant="caption"
-              color="error"
-              sx={{ mt: 1, display: "block" }}>
+            <span className="form-error" style={{ display: "block", marginTop: 8 }}>
               {errors.priority}
-            </Typography>
+            </span>
           )}
-        </Box>
+        </div>
 
         {/* Image Upload */}
-        <Box sx={{ mt: 2 }}>
-          <Button
-            variant="outlined"
-            component="label"
-            fullWidth
-            startIcon={<PhotoCamera />}
-            disabled={loading}
-            sx={{
-              py: 1.5,
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: "bold",
+        <div style={{ marginTop: 16 }}>
+          <label 
+            className="btn btn-outline btn-full" 
+            style={{ 
+              paddingTop: 12, 
+              paddingBottom: 12, 
+              borderRadius: 16, 
+              fontWeight: 700,
+              cursor: loading ? "default" : "pointer",
+              opacity: loading ? 0.6 : 1,
+              display: "flex",
+              justifyContent: "center",
+              gap: 8
             }}>
+            <i className="ti ti-camera" style={{ fontSize: "1.25rem" }} />
             {imageFile ? "Change Image" : "Upload Image"}
             <input
               hidden
               accept="image/*"
               type="file"
               onChange={handleFileChange}
+              disabled={loading}
+              style={{ display: "none" }}
             />
-          </Button>
+          </label>
           {errors.image && (
-            <Typography
-              variant="caption"
-              color="error"
-              sx={{ mt: 1, display: "block" }}>
+            <span className="form-error" style={{ display: "block", marginTop: 8 }}>
               {errors.image}
-            </Typography>
+            </span>
           )}
-        </Box>
+        </div>
 
         {preview && (
-          <Box sx={{ mt: 2 }}>
-            <Card sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2 }}>
-              <Box
-                component="img"
+          <div style={{ marginTop: 16 }}>
+            <div className="card" style={{ borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+              <img
                 src={preview}
                 alt="Preview"
-                sx={{ width: "100%", maxHeight: 250, objectFit: "cover" }}
+                style={{ width: "100%", maxHeight: 250, objectFit: "cover", display: "block" }}
               />
-            </Card>
-          </Box>
+            </div>
+          </div>
         )}
 
         {/* Submit */}
-        <Box sx={{ mt: 3 }}>
-          <SubmitButton fullWidth disabled={loading || dupCheck.checking}>
+        <div style={{ marginTop: 24 }}>
+          <SubmitButton fullWidth disabled={loading || dupCheck.checking} loading={loading || dupCheck.checking}>
             {dupCheck.checking
               ? "Checking for duplicates…"
               : loading
                 ? "Reporting..."
                 : "Submit Issue"}
           </SubmitButton>
-        </Box>
+        </div>
       </form>
 
       {/* AI duplicate detection dialog */}
-      <Dialog
-        open={dupCheck.open}
-        onClose={() =>
-          setDupCheck({ open: false, duplicates: [], checking: false })
-        }
-        maxWidth="sm"
-        fullWidth>
-        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <AutoAwesomeIcon sx={{ color: "primary.main", fontSize: 20 }} />
-          Possible duplicate found
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            We found {dupCheck.duplicates.length} similar issue
-            {dupCheck.duplicates.length !== 1 ? "s" : ""} already reported
-            nearby. You can view them or report yours anyway.
-          </Typography>
-          {dupCheck.duplicates.map((d) => (
-            <Box
-              key={d._id}
-              sx={{
-                p: 1.5,
-                mb: 1,
-                borderRadius: 2,
-                border: `1px solid ${theme.palette.divider}`,
-                cursor: "pointer",
-              }}
-              onClick={() => navigate(`/issues/${d._id}`)}>
-              <Typography variant="subtitle2">{d.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                📍 {d.location} · {d.status}
-              </Typography>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() =>
-              setDupCheck({ open: false, duplicates: [], checking: false })
-            }>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleReportAnyway}
-            disabled={loading}>
-            {loading ? "Reporting…" : "Report Anyway"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dupCheck.open && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: 600, width: "100%" }} role="dialog" aria-modal="true">
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", gap: 8 }}>
+              <i className="ti ti-sparkles" style={{ color: "var(--accent)", fontSize: 20 }} />
+              <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 500 }}>
+                Possible duplicate found
+              </h2>
+            </div>
+            
+            <div style={{ padding: 24 }}>
+              <p style={{ margin: "0 0 16px 0", fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
+                We found {dupCheck.duplicates.length} similar issue
+                {dupCheck.duplicates.length !== 1 ? "s" : ""} already reported
+                nearby. You can view them or report yours anyway.
+              </p>
+              
+              {dupCheck.duplicates.map((d) => (
+                <div
+                  key={d._id}
+                  style={{
+                    padding: 12,
+                    marginBottom: 8,
+                    borderRadius: 16,
+                    border: "1px solid var(--border-subtle)",
+                    cursor: "pointer",
+                    background: "var(--surface-base)"
+                  }}
+                  onClick={() => navigate(`/issues/${d._id}`)}
+                >
+                  <div style={{ fontSize: "0.875rem", fontWeight: 600 }}>{d.title}</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--ink-tertiary)", marginTop: 4 }}>
+                    📍 {d.location} · {d.status}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ padding: 16, display: "flex", justifyContent: "flex-end", gap: 8, borderTop: "1px solid var(--border-subtle)" }}>
+              <button 
+                className="btn btn-outline" 
+                onClick={() => setDupCheck({ open: false, duplicates: [], checking: false })}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleReportAnyway} 
+                disabled={loading}
+              >
+                {loading ? "Reporting…" : "Report Anyway"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
+      {snackbar.open && (
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 1400 }}>
+          <div style={{ 
+            background: snackbar.severity === "success" ? "var(--status-done)" : "var(--status-open)", 
+            color: "#fff", 
+            padding: "12px 24px", 
+            borderRadius: 8, 
+            boxShadow: "var(--shadow-md)",
+            fontSize: "0.875rem",
+            fontWeight: 500
+          }}>
+            {snackbar.message}
+          </div>
+        </div>
+      )}
     </PageCard>
   );
 }

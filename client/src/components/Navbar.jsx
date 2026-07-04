@@ -1,33 +1,5 @@
-import { useState } from "react";
-import { useLocation, Link as RouterLink } from "react-router-dom";
-import {
-  AppBar,
-  Toolbar,
-  Container,
-  IconButton,
-  Button,
-  Box,
-  Stack,
-  Avatar,
-  Menu,
-  MenuItem,
-  useScrollTrigger,
-  useTheme,
-  Typography,
-  Tooltip,
-} from "@mui/material";
-
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import BugReportRoundedIcon from "@mui/icons-material/BugReportRounded";
-import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
-import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import FormatListBulletedRoundedIcon from "@mui/icons-material/FormatListBulletedRounded";
-import ManageAccountsRounded from "@mui/icons-material/ManageAccountsRounded";
-
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useLocation, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 // Navbar components
@@ -38,23 +10,32 @@ import MobileDrawer from "./navbar/MobileDrawer";
 import ThemeToggle from "./common/ThemeToggle";
 
 const authLinks = [
-  { label: "Login", to: "/login", icon: <LoginRoundedIcon fontSize="small" /> },
+  { label: "Login", to: "/login", icon: <i className="ti ti-login" style={{ fontSize: "1.25rem" }} /> },
   {
     label: "Register",
     to: "/signup",
-    icon: <PersonAddAltRoundedIcon fontSize="small" />,
+    icon: <i className="ti ti-user-plus" style={{ fontSize: "1.25rem" }} />,
   },
 ];
 
 export default function Navbar({ setFilters }) {
-  const theme = useTheme();
   const { pathname } = useLocation();
-  const { user, logout, isAuthenticated } = useAuth();
-  const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(false);
+
+  // Handle scroll trigger equivalent
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const openMenu = Boolean(anchorEl);
 
@@ -64,7 +45,7 @@ export default function Navbar({ setFilters }) {
   );
 
   const links = [
-    { label: "Home", to: "/", icon: <HomeRoundedIcon fontSize="small" /> },
+    { label: "Home", to: "/", icon: <i className="ti ti-home" style={{ fontSize: "1.25rem" }} /> },
     {
       label: "Map",
       to: "/map",
@@ -80,13 +61,13 @@ export default function Navbar({ setFilters }) {
       ? [
           {
             label: "Report Issue",
-            to: "/issues",
-            icon: <BugReportRoundedIcon fontSize="small" />,
+            to: "/report-issue",
+            icon: <i className="ti ti-bug" style={{ fontSize: "1.25rem" }} />,
           },
           {
             label: "Issues",
             to: "/user-dashboard",
-            icon: <FormatListBulletedRoundedIcon fontSize="small" />,
+            icon: <i className="ti ti-list" style={{ fontSize: "1.25rem" }} />,
           },
         ]
       : []),
@@ -96,17 +77,17 @@ export default function Navbar({ setFilters }) {
           {
             label: "Admin Panel",
             to: "/dashboard",
-            icon: <SpaceDashboardRoundedIcon fontSize="small" />,
+            icon: <i className="ti ti-layout-dashboard" style={{ fontSize: "1.25rem" }} />,
           },
           {
             label: "Manage Users",
             to: "/admin-user-page",
-            icon: <ManageAccountsRounded fontSize="small" />,
+            icon: <i className="ti ti-users" style={{ fontSize: "1.25rem" }} />,
           },
           {
             label: "Manage Issues",
             to: "/admin-issue-page",
-            icon: <FormatListBulletedRoundedIcon fontSize="small" />,
+            icon: <i className="ti ti-list" style={{ fontSize: "1.25rem" }} />,
           },
         ]
       : []),
@@ -118,152 +99,215 @@ export default function Navbar({ setFilters }) {
       setFilters((prev) => ({ ...prev, search: value }));
     }
   };
+  
+  const handleLogout = () => {
+    logout();
+    setAnchorEl(false);
+    navigate("/");
+  };
 
   return (
-    <AppBar
-      position="sticky"
-      elevation={trigger ? 8 : 0}
-      sx={{
+    <header
+      style={{
+        position: "sticky",
         top: 0,
         zIndex: 1200,
-        bgcolor: trigger
+        background: scrolled
           ? "rgba(255, 255, 255, 0.8)"
           : "rgba(255, 255, 255, 0.35)",
         backdropFilter: "blur(20px) saturate(140%)",
         WebkitBackdropFilter: "blur(20px) saturate(140%)",
         borderBottom: "1px solid rgba(255, 255, 255, 0.25)",
         transition: "all 0.3s ease",
-      }}>
-      <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ py: 0.5 }}>
+        boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.08)" : "none", // elevation 8
+      }}
+    >
+      <div className="container-lg" style={{ padding: "4px 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", width: "100%", height: 56 }}>
           {/* Left: Logo */}
           <Brand />
 
           {/* Desktop Nav */}
-          <Stack
-            direction="row"
-            spacing={1.5}
-            sx={{ display: { xs: "none", md: "flex" }, ml: 4 }}>
+          <div className="desktop-only" style={{ display: "flex", gap: 12, marginLeft: 32 }}>
             {links.map((item) => (
               <NavButton key={item.to} {...item} />
             ))}
-          </Stack>
+          </div>
 
           {/* Spacer */}
-          <Box sx={{ flexGrow: 1 }} />
+          <div style={{ flexGrow: 1 }} />
 
           {/* Search (Desktop only if applicable) */}
           {showSearch && (
-            <Box sx={{ display: { xs: "none", md: "block" }, mr: 2 }}>
+            <div className="desktop-only" style={{ marginRight: 16 }}>
               <SearchBar value={searchValue} onChange={handleSearch} />
-            </Box>
+            </div>
           )}
 
           {/* Dark / Light Toggle */}
-          <Box sx={{ display: { xs: "none", md: "block" }, mr: 1 }}>
+          <div className="desktop-only" style={{ marginRight: 8 }}>
             <ThemeToggle />
-          </Box>
+          </div>
 
           {/* Right: Auth Buttons */}
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              display: { xs: "none", md: "flex" },
-              alignItems: "center",
-            }}>
+          <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {!user ? (
               authLinks.map((item) => (
-                <Button
+                <RouterLink
                   key={item.to}
-                  component={RouterLink}
                   to={item.to}
-                  startIcon={item.icon}
-                  variant={item.label === "Register" ? "contained" : "text"}
-                  sx={{ textTransform: "none" }}>
+                  className={`btn ${item.label === "Register" ? "btn-primary" : "btn-ghost"}`}
+                  style={{ display: "flex", alignItems: "center", gap: 8 }}
+                >
+                  {item.icon}
                   {item.label}
-                </Button>
+                </RouterLink>
               ))
             ) : (
-              <>
-                <Box
-                  sx={{
+              <div style={{ position: "relative" }}>
+                <div
+                  style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 1,
+                    gap: 8,
                     cursor: "pointer",
+                    padding: "4px 8px",
+                    borderRadius: 24,
+                    transition: "background var(--transition-base)",
                   }}
-                  onClick={(e) => setAnchorEl(e.currentTarget)}>
-                  <Avatar
-                    src={user?.avatar}
-                    alt={user?.fullName}
-                    sx={{ width: 36, height: 36 }}
-                  />
-
-                  <Typography
-                    variant="body2"
-                    sx={{
+                  className="user-menu-trigger"
+                  onClick={() => setAnchorEl(!anchorEl)}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      background: "var(--accent)",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 16,
                       fontWeight: 600,
-                      color:
-                        user?.role === "admin"
-                          ? "error.main" // admin styling
-                          : "success.main", // citizen styling
+                    }}
+                  >
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.fullName} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                       user.displayName?.charAt(0)?.toUpperCase() || user.fullName?.charAt(0)?.toUpperCase() || "?"
+                    )}
+                  </div>
+
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      fontSize: "0.875rem",
+                      color: user.role === "admin" ? "var(--status-open)" : "var(--status-done)",
                       textTransform: "capitalize",
                       userSelect: "none",
-                    }}>
-                    {user?.role === "admin" ? "Admin" : "Citizen"}
-                  </Typography>
-                </Box>
-
-                <Menu
-                  anchorEl={anchorEl}
-                  open={openMenu}
-                  onClose={() => setAnchorEl(null)}
-                  PaperProps={{
-                    sx: {
-                      borderRadius: 3,
-                      mt: 1,
-                      backdropFilter: "blur(10px)",
-                      boxShadow: theme.shadows[6],
-                    },
-                  }}>
-                  <MenuItem
-                    component={RouterLink}
-                    to="/profile"
-                    onClick={() => setAnchorEl(null)}>
-                    <ManageAccountsRounded
-                      fontSize="small"
-                      style={{ marginRight: 8 }}
-                    />
-                    Profile
-                  </MenuItem>
-
-                  <MenuItem
-                    onClick={() => {
-                      logout();
-                      setAnchorEl(null);
                     }}
-                    sx={{ color: "error.main" }}>
-                    <LogoutRoundedIcon
-                      fontSize="small"
-                      style={{ marginRight: 8 }}
+                  >
+                    {user.role === "admin" ? "Admin" : "Citizen"}
+                  </span>
+                </div>
+
+                {anchorEl && (
+                  <>
+                    <div 
+                      style={{ position: "fixed", inset: 0, zIndex: 9 }} 
+                      onClick={() => setAnchorEl(false)} 
                     />
-                    Logout
-                  </MenuItem>
-                </Menu>
-              </>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        right: 0,
+                        marginTop: 8,
+                        background: "var(--surface-base)",
+                        borderRadius: "var(--radius-lg)",
+                        boxShadow: "var(--shadow-lg)",
+                        minWidth: 160,
+                        zIndex: 10,
+                        overflow: "hidden",
+                        padding: 8,
+                      }}
+                    >
+                      <RouterLink
+                        to="/profile"
+                        onClick={() => setAnchorEl(false)}
+                        className="menu-item"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          padding: "8px 16px",
+                          color: "var(--ink-primary)",
+                          textDecoration: "none",
+                          fontSize: "0.875rem",
+                          borderRadius: "var(--radius-md)",
+                          transition: "background 0.2s ease",
+                        }}
+                      >
+                        <i className="ti ti-user-cog" style={{ fontSize: "1.25rem" }} />
+                        Profile
+                      </RouterLink>
+
+                      <button
+                        onClick={handleLogout}
+                        className="menu-item"
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          padding: "8px 16px",
+                          color: "var(--status-open)",
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "0.875rem",
+                          borderRadius: "var(--radius-md)",
+                          transition: "background 0.2s ease",
+                        }}
+                      >
+                        <i className="ti ti-logout" style={{ fontSize: "1.25rem" }} />
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
-          </Stack>
+          </div>
 
           {/* Mobile menu icon */}
-          <IconButton
-            edge="end"
-            sx={{ display: { xs: "inline-flex", md: "none" }, ml: 1 }}
-            onClick={() => setOpen(true)}>
-            <MenuRoundedIcon />
-          </IconButton>
-        </Toolbar>
-      </Container>
+          <button
+            className="btn-icon mobile-only"
+            style={{ marginLeft: 8 }}
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+          >
+            <i className="ti ti-menu-2" style={{ fontSize: "1.5rem" }} />
+          </button>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 899.95px) {
+          .desktop-only { display: none !important; }
+        }
+        @media (min-width: 900px) {
+          .mobile-only { display: none !important; }
+        }
+        .user-menu-trigger:hover {
+          background: var(--surface-subtle);
+        }
+        .menu-item:hover {
+          background: var(--surface-subtle);
+        }
+      `}</style>
 
       {/* Mobile Drawer */}
       <MobileDrawer
@@ -274,6 +318,6 @@ export default function Navbar({ setFilters }) {
         searchValue={searchValue}
         onSearchChange={handleSearch}
       />
-    </AppBar>
+    </header>
   );
 }

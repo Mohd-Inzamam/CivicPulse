@@ -1,12 +1,4 @@
 import React from "react";
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
-} from "@mui/material";
-import { motion } from "framer-motion";
 
 const SelectField = ({
   label,
@@ -21,43 +13,54 @@ const SelectField = ({
   disabled = false,
   required = false,
   placeholder = "Select an option",
-  animationDelay = 0,
+  animationDelay = 0, // kept for API compat, no animation
   ...props
 }) => {
+  const fieldId = `field-${name}`;
+  const marginStyle =
+    margin === "normal"
+      ? { marginTop: 16, marginBottom: 8 }
+      : margin === "dense"
+        ? { marginTop: 8, marginBottom: 4 }
+        : {};
+
   return (
-    <motion.div
-      style={{ width: "100%" }}
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: animationDelay }}>
-      <FormControl
-        fullWidth={fullWidth}
-        margin={margin}
-        error={Boolean(error)}
+    <div
+      className="form-group"
+      style={{
+        width: fullWidth ? "100%" : "auto",
+        ...marginStyle,
+      }}
+    >
+      {label && (
+        <label className="form-label" htmlFor={fieldId}>
+          {label}
+          {required && <span style={{ color: "var(--status-open)" }}> *</span>}
+        </label>
+      )}
+      <select
+        id={fieldId}
+        className={`select${error ? " error" : ""}`}
+        name={name}
+        value={value}
+        onChange={onChange}
         disabled={disabled}
-        required={required}>
-        <InputLabel>{label}</InputLabel>
-        <Select
-          name={name}
-          value={value}
-          onChange={onChange}
-          label={label}
-          sx={{
-            borderRadius: 2,
-          }}
-          {...props}>
-          <MenuItem value="" disabled>
-            {placeholder}
-          </MenuItem>
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-        <FormHelperText>{error || helperText}</FormHelperText>
-      </FormControl>
-    </motion.div>
+        required={required}
+        style={{ borderRadius: 16 }} // borderRadius: 2 → 2×8 = 16px
+        {...props}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && <span className="form-error">{error}</span>}
+      {!error && helperText && <span className="form-hint">{helperText}</span>}
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Typography, Alert, Backdrop, Box } from "@mui/material";
 import IssueCard from "../../../components/issues/IssueCard";
 import UpdateIssue from "./UpdateIssue";
 import DeleteIssue from "./DeleteIssue";
@@ -31,29 +30,32 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
 
   return (
     <div>
-      <Typography
-        variant="h4"
-        sx={{
+      <h4
+        style={{
           fontWeight: "bold",
-          // color: "#fff",
-          mb: 3,
-          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+          marginBottom: 24,
+          fontSize: "2.125rem",
+          color: "var(--ink-primary)"
         }}>
         Reported Issues
-      </Typography>
+      </h4>
 
       {issues.length === 0 ? (
-        <Alert severity="info">No issues match your filters.</Alert>
+        <div style={{
+          padding: "16px 24px",
+          borderRadius: 8,
+          background: "var(--surface-subtle)",
+          color: "var(--ink-primary)",
+          border: "1px solid var(--border-subtle)"
+        }}>
+          No issues match your filters.
+        </div>
       ) : (
-        <Box
-          sx={{
+        <div
+          className="issue-list-grid"
+          style={{
             display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "1fr 1fr",
-              md: "1fr 1fr 1fr",
-            },
-            gap: 3,
+            gap: 24,
           }}>
           {issues.map((issue, index) => (
             <IssueCard
@@ -66,18 +68,18 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
               animationDelay={index * 0.08}
             />
           ))}
-        </Box>
+        </div>
       )}
 
       {/* Modals */}
       {editingIssue && (
-        <Backdrop open sx={{ zIndex: 2000 }}>
+        <div className="modal-backdrop" style={{ zIndex: 2000 }}>
           <UpdateIssue
             issue={editingIssue}
             onClose={() => setEditingIssue(null)}
             onUpdate={handleUpdate}
           />
-        </Backdrop>
+        </div>
       )}
 
       {deletingIssue && (
@@ -90,6 +92,22 @@ function IssueList({ issues, onUpvote, onUpdateIssue, onDeleteIssue }) {
           }}
         />
       )}
+      
+      <style>{`
+        .issue-list-grid {
+          grid-template-columns: 1fr;
+        }
+        @media (min-width: 600px) {
+          .issue-list-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (min-width: 900px) {
+          .issue-list-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 }

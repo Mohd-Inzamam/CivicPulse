@@ -1,37 +1,34 @@
-import { Card, Typography, Stack, Box } from "@mui/material";
+import React from "react";
 
-export default function CategoryStatsCard({ stats, glass, sx }) {
+export default function CategoryStatsCard({ stats, sx = {} }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        p: 3,
-        background: glass.background,
-        backdropFilter: `blur(${glass.blur})`,
-        border: glass.border,
-        boxShadow: glass.shadow,
+    <div
+      className="card"
+      style={{
+        borderRadius: "var(--radius-xl)",
+        padding: 24,
         ...sx,
       }}>
-      <Typography variant="h6" fontWeight={700} mb={2}>
+      <h6 style={{ margin: "0 0 16px 0", fontWeight: 700, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
         🏷️ By Category
-      </Typography>
+      </h6>
 
-      <Stack spacing={1.5}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {Object.entries(stats.byCategory).map(([cat, count]) => (
-          <Box
+          <div
             key={cat}
-            sx={{
+            style={{
               display: "flex",
               justifyContent: "space-between",
-              background: "rgba(255,255,255,0.05)",
-              p: 1.5,
-              borderRadius: 2,
+              background: "var(--surface-subtle)",
+              padding: 12,
+              borderRadius: "var(--radius-md)",
             }}>
-            <Typography sx={{ textTransform: "capitalize" }}>{cat}</Typography>
-            <Typography fontWeight={700}>{count}</Typography>
-          </Box>
+            <span style={{ textTransform: "capitalize", color: "var(--ink-primary)" }}>{cat}</span>
+            <span style={{ fontWeight: 700, color: "var(--ink-primary)" }}>{count}</span>
+          </div>
         ))}
-      </Stack>
-    </Card>
+      </div>
+    </div>
   );
 }

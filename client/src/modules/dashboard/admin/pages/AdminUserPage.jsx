@@ -1,39 +1,5 @@
 // AdminUsersPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  IconButton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Chip,
-  Tooltip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Avatar,
-  Button,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Pagination,
-  Drawer,
-  Divider,
-  Stack,
-  useTheme,
-} from "@mui/material";
-import { Search, Block, HowToReg, MoreVert } from "@mui/icons-material";
-import { motion } from "framer-motion";
 import dayjs from "dayjs";
 
 // NOTE: Make sure your usersService exposes these methods:
@@ -46,52 +12,49 @@ import { userServices } from "../../../../../src/services/userServices.js"; // a
 // ----------------------------
 // Helper small UI components
 // ----------------------------
-const SmallStatCard = ({ title, value, color = "primary" }) => {
-  const theme = useTheme();
+const SmallStatCard = ({ title, value, color = "var(--ink-primary)" }) => {
   return (
-    <Card
-      sx={{
-        borderRadius: 2,
-        background: "var(--glass-bg)",
-        backdropFilter: "blur(14px)",
-        boxShadow: "var(--shadow-light)",
+    <div
+      className="card"
+      style={{
+        borderRadius: 16,
+        background: "var(--surface-base)",
+        boxShadow: "var(--shadow-sm)",
         height: "100%",
+        padding: "12px 16px"
       }}>
-      <CardContent sx={{ py: 1.5 }}>
-        <Typography variant="caption" color="text.secondary">
-          {title}
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, mt: 0.5 }}
-          color={color}>
-          {value}
-        </Typography>
-      </CardContent>
-    </Card>
+      <span style={{ fontSize: "0.75rem", color: "var(--ink-secondary)", display: "block" }}>
+        {title}
+      </span>
+      <h6
+        style={{ fontWeight: 700, marginTop: 4, margin: 0, fontSize: "1.25rem", color }}>
+        {value}
+      </h6>
+    </div>
   );
 };
 
 // Status chip
 const StatusChip = ({ isActive }) => (
-  <Chip
-    label={isActive ? "Active" : "Disabled"}
-    size="small"
-    sx={{
-      bgcolor: isActive ? "var(--color-success)" : "var(--color-error)",
+  <span
+    style={{
+      backgroundColor: isActive ? "var(--status-done)" : "var(--status-open)",
       color: "white",
       fontWeight: 700,
-      px: 1,
+      padding: "2px 8px",
+      fontSize: "0.8125rem",
+      borderRadius: 16,
+      display: "inline-block"
     }}
-  />
+  >
+    {isActive ? "Active" : "Disabled"}
+  </span>
 );
 
 // ----------------------------
 // Main Page
 // ----------------------------
 export default function AdminUsersPage() {
-  const theme = useTheme();
-
   // data + UI state
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -189,10 +152,10 @@ export default function AdminUsersPage() {
   // memoized summary array
   const summary = useMemo(
     () => [
-      { label: "Total Users", value: stats.total || 0, color: "primary" },
-      { label: "Active", value: stats.active || 0, color: "success" },
-      { label: "Disabled", value: stats.disabled || 0, color: "error" },
-      { label: "Admins", value: stats.admins || 0, color: "secondary" },
+      { label: "Total Users", value: stats.total || 0, color: "var(--ink-primary)" },
+      { label: "Active", value: stats.active || 0, color: "var(--status-done)" },
+      { label: "Disabled", value: stats.disabled || 0, color: "var(--status-open)" },
+      { label: "Admins", value: stats.admins || 0, color: "var(--accent)" },
     ],
     [stats]
   );
@@ -219,9 +182,9 @@ export default function AdminUsersPage() {
     });
   };
 
-  const onChangePage = async (e, value) => {
-    setPage(value);
-    await fetchUsers({ p: value });
+  const onChangePage = async (pageValue) => {
+    setPage(pageValue);
+    await fetchUsers({ p: pageValue });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -234,7 +197,7 @@ export default function AdminUsersPage() {
           it._id === u._id ? { ...it, isActive: !it.isActive } : it
         )
       );
-      const res = await usersService.toggleUserStatus(u._id);
+      const res = await userServices.toggleUserStatus(u._id);
       const updated = res.data?.user || res.user || res;
       setUsers((prev) =>
         prev.map((it) => (it._id === updated._id ? updated : it))
@@ -266,7 +229,7 @@ export default function AdminUsersPage() {
       setUsers((prev) =>
         prev.map((it) => (it._id === u._id ? { ...it, role: newRole } : it))
       );
-      const res = await usersService.updateUserRole(u._id, newRole);
+      const res = await userServices.updateUserRole(u._id, newRole);
       const updated = res.data?.user || res.user || res;
       setUsers((prev) =>
         prev.map((it) => (it._id === updated._id ? updated : it))
@@ -305,111 +268,107 @@ export default function AdminUsersPage() {
 
   // UI: small compact table rows
   return (
-    <Box sx={{ minHeight: "100vh", py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+    <div style={{ minHeight: "100vh", padding: "32px 0", maxWidth: 1200, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
       {/* Header */}
-      <Box mb={3}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h4 style={{ fontWeight: 700, margin: "0 0 8px 0", fontSize: "2.125rem", color: "var(--ink-primary)" }}>
           User Management
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </h4>
+        <p style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", margin: 0 }}>
           Manage all users — search, filter, enable/disable, and change roles.
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Top summary */}
-      <Grid container spacing={2} mb={3}>
+      <div className="grid-summary" style={{ marginBottom: 24 }}>
         {summary.map((s) => (
-          <Grid item xs={12} sm={6} md={3} key={s.label}>
-            <SmallStatCard title={s.label} value={s.value} color={s.color} />
-          </Grid>
+          <SmallStatCard key={s.label} title={s.label} value={s.value} color={s.color} />
         ))}
-      </Grid>
+      </div>
 
       {/* Filters row */}
-      <Card
-        sx={{
-          mb: 3,
-          borderRadius: 2,
-          background: "var(--glass-bg)",
-          boxShadow: "var(--shadow-light)",
+      <div
+        className="card"
+        style={{
+          marginBottom: 24,
+          borderRadius: 16,
+          background: "var(--surface-base)",
+          boxShadow: "var(--shadow-sm)",
         }}>
-        <CardContent
-          sx={{
+        <div
+          style={{
             display: "flex",
-            gap: 2,
+            gap: 16,
             alignItems: "center",
             flexWrap: "wrap",
+            padding: 24
           }}>
-          <Box
-            component="form"
+          <form
             onSubmit={handleSearchSubmit}
-            sx={{ display: "flex", gap: 1, flex: 1, minWidth: 220 }}>
-            <TextField
-              size="small"
-              placeholder="Search name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <Search sx={{ mr: 1, color: "text.secondary" }} />
-                ),
-              }}
-              sx={{ minWidth: 260 }}
-            />
-            <Button
+            style={{ display: "flex", gap: 8, flex: 1, minWidth: 220 }}>
+            <div style={{ position: "relative", width: "100%", minWidth: 260 }}>
+              <i className="ti ti-search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--ink-tertiary)" }} />
+              <input
+                className="input"
+                style={{ paddingLeft: 36, width: "100%" }}
+                placeholder="Search name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <button
               type="submit"
-              variant="contained"
-              sx={{ whiteSpace: "nowrap" }}>
+              className="btn btn-primary"
+              style={{ whiteSpace: "nowrap" }}>
               Search
-            </Button>
-          </Box>
+            </button>
+          </form>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel>Role</InputLabel>
-            <Select
+          <div style={{ minWidth: 140 }}>
+            <select
+              className="input"
               value={roleFilter}
-              label="Role"
-              onChange={(e) => setRoleFilter(e.target.value)}>
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-            </Select>
-          </FormControl>
+              onChange={(e) => setRoleFilter(e.target.value)}
+              style={{ width: "100%" }}>
+              <option value="all">Role: All</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
+          <div style={{ minWidth: 140 }}>
+            <select
+              className="input"
               value={statusFilter}
-              label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}>
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="disabled">Disabled</MenuItem>
-            </Select>
-          </FormControl>
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ width: "100%" }}>
+              <option value="all">Status: All</option>
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Sort</InputLabel>
-            <Select
+          <div style={{ minWidth: 160 }}>
+            <select
+              className="input"
               value={sortBy}
-              label="Sort"
-              onChange={(e) => setSortBy(e.target.value)}>
-              <MenuItem value="newest">Newest</MenuItem>
-              <MenuItem value="oldest">Oldest</MenuItem>
-              <MenuItem value="name">Name</MenuItem>
-            </Select>
-          </FormControl>
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ width: "100%" }}>
+              <option value="newest">Sort: Newest</option>
+              <option value="oldest">Sort: Oldest</option>
+              <option value="name">Sort: Name</option>
+            </select>
+          </div>
 
-          <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-            <Button
-              variant="outlined"
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button
+              className="btn btn-outline"
               onClick={handleResetFilters}
-              size="small">
+              style={{ padding: "6px 12px" }}>
               Reset
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
+            </button>
+            <button
+              className="btn btn-primary"
               onClick={() =>
                 fetchUsers({
                   p: 1,
@@ -418,263 +377,340 @@ export default function AdminUsersPage() {
                   status: statusFilter,
                   sort: sortBy,
                 })
-              }>
+              }
+              style={{ padding: "6px 16px" }}>
               Apply
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Table */}
-      <Card sx={{ borderRadius: 2, boxShadow: "var(--shadow-medium)" }}>
-        <CardContent sx={{ p: 1.5 }}>
-          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: 56 }}>#</TableCell>
-                  <TableCell>User</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Joined</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                      <Typography color="text.secondary">
-                        No users found
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  users.map((u, idx) => (
-                    <TableRow
-                      key={u._id}
-                      sx={{
-                        "&:hover": { background: theme.palette.action.hover },
-                        height: 56,
-                      }}>
-                      <TableCell>{(page - 1) * limit + idx + 1}</TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <Avatar
-                            src={u.avatar}
-                            sx={{ width: 36, height: 36 }}
-                          />
-                          <Box>
-                            <Typography variant="subtitle2">
-                              {u.fullName}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary">
-                              {u.officialDetails?.designation || ""}
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{u.email}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={u.role}
-                          size="small"
-                          sx={{
-                            background:
-                              u.role === "admin"
-                                ? "var(--color-secondary)"
-                                : "var(--color-primary)",
-                            color: "white",
-                            fontWeight: 700,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <StatusChip isActive={u.isActive} />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {dayjs(u.createdAt).format("DD MMM YYYY")}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          justifyContent="flex-end"
-                          alignItems="center">
-                          <Tooltip
-                            title={u.isActive ? "Disable user" : "Enable user"}>
-                            <IconButton
-                              size="small"
-                              onClick={() => toggleUser(u)}>
-                              {u.isActive ? (
-                                <Block sx={{ color: "var(--color-error)" }} />
-                              ) : (
-                                <HowToReg
-                                  sx={{ color: "var(--color-success)" }}
-                                />
-                              )}
-                            </IconButton>
-                          </Tooltip>
+      <div className="card" style={{ borderRadius: 16, boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table className="user-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                <th style={{ padding: "12px 16px", textAlign: "left", width: 56 }}>#</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>User</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>Email</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>Role</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>Status</th>
+                <th style={{ padding: "12px 16px", textAlign: "left" }}>Joined</th>
+                <th style={{ padding: "12px 16px", textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "48px 0" }}>
+                    <span className="spinner" style={{ "--sz": "30px" }} />
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "48px 0", color: "var(--ink-secondary)" }}>
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                users.map((u, idx) => (
+                  <tr
+                    key={u._id}
+                    className="user-row-hover"
+                    style={{
+                      height: 56,
+                      borderBottom: "1px solid var(--border-subtle)"
+                    }}>
+                    <td style={{ padding: "8px 16px", fontSize: "0.875rem" }}>{(page - 1) * limit + idx + 1}</td>
+                    <td style={{ padding: "8px 16px" }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        {u.avatar ? (
+                          <img src={u.avatar} alt={u.fullName} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--accent)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>
+                            {u.fullName?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--ink-primary)" }}>
+                            {u.fullName}
+                          </div>
+                          <div style={{ fontSize: "0.75rem", color: "var(--ink-secondary)" }}>
+                            {u.officialDetails?.designation || ""}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "8px 16px", fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                      {u.email}
+                    </td>
+                    <td style={{ padding: "8px 16px" }}>
+                      <span
+                        style={{
+                          background:
+                            u.role === "admin"
+                              ? "var(--accent)"
+                              : "var(--accent-muted)",
+                          color: u.role === "admin" ? "white" : "var(--accent-text)",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: 16,
+                          fontSize: "0.75rem"
+                        }}
+                      >
+                        {u.role}
+                      </span>
+                    </td>
+                    <td style={{ padding: "8px 16px" }}>
+                      <StatusChip isActive={u.isActive} />
+                    </td>
+                    <td style={{ padding: "8px 16px", fontSize: "0.75rem", color: "var(--ink-secondary)" }}>
+                      {dayjs(u.createdAt).format("DD MMM YYYY")}
+                    </td>
+                    <td style={{ padding: "8px 16px", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", alignItems: "center" }}>
+                        <button
+                          className="btn-icon"
+                          title={u.isActive ? "Disable user" : "Enable user"}
+                          onClick={() => toggleUser(u)}>
+                          {u.isActive ? (
+                            <i className="ti ti-ban" style={{ color: "var(--status-open)", fontSize: "1.25rem" }} />
+                          ) : (
+                            <i className="ti ti-user-check" style={{ color: "var(--status-done)", fontSize: "1.25rem" }} />
+                          )}
+                        </button>
 
-                          <Tooltip
-                            title={
-                              u.role === "admin"
-                                ? "Demote to user"
-                                : "Promote to admin"
-                            }>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                changeRole(
-                                  u,
-                                  u.role === "admin" ? "user" : "admin"
-                                )
-                              }>
-                              <MoreVert />
-                            </IconButton>
-                          </Tooltip>
+                        <button
+                          className="btn-icon"
+                          title={u.role === "admin" ? "Demote to user" : "Promote to admin"}
+                          onClick={() =>
+                            changeRole(
+                              u,
+                              u.role === "admin" ? "user" : "admin"
+                            )
+                          }>
+                          <i className="ti ti-dots-vertical" style={{ fontSize: "1.25rem" }} />
+                        </button>
 
-                          <Tooltip title="View profile">
-                            <IconButton
-                              size="small"
-                              onClick={() => openProfile(u._id)}>
-                              <Search />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                        <button
+                          className="btn-icon"
+                          title="View profile"
+                          onClick={() => openProfile(u._id)}>
+                          <i className="ti ti-search" style={{ fontSize: "1.25rem" }} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          {/* Pagination */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={onChangePage}
-              color="primary"
-            />
-          </Box>
-        </CardContent>
-      </Card>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div style={{ display: "flex", justifyContent: "flex-end", padding: 16, borderTop: "1px solid var(--border-subtle)" }}>
+            <div style={{ display: "flex", gap: 4 }}>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  className={`btn ${page === i + 1 ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: "4px 12px" }}
+                  onClick={() => onChangePage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Profile Drawer */}
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}>
-        <Box sx={{ width: { xs: 320, sm: 420 }, p: 3 }}>
-          {!selectedUser ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                <Avatar
-                  src={selectedUser.avatar}
-                  sx={{ width: 64, height: 64 }}
-                />
-                <Box>
-                  <Typography variant="h6">{selectedUser.fullName}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {selectedUser.email}
-                  </Typography>
-                </Box>
-              </Stack>
+      <div 
+        className={`drawer-overlay ${drawerOpen ? "open" : ""}`} 
+        onClick={() => setDrawerOpen(false)}
+      >
+        <div 
+          className="drawer" 
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ padding: 24 }}>
+            {!selectedUser ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
+                <span className="spinner" style={{ "--sz": "40px" }} />
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 16 }}>
+                  {selectedUser.avatar ? (
+                    <img src={selectedUser.avatar} alt="avatar" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--accent)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700 }}>
+                      {selectedUser.fullName?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <h6 style={{ margin: 0, fontWeight: 700, fontSize: "1.25rem", color: "var(--ink-primary)" }}>{selectedUser.fullName}</h6>
+                    <span style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
+                      {selectedUser.email}
+                    </span>
+                  </div>
+                </div>
 
-              <Divider sx={{ mb: 2 }} />
+                <div className="divider" style={{ marginBottom: 16 }} />
 
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
-                Official Details
-              </Typography>
-              <Stack spacing={1} mb={2}>
-                <Typography variant="body2">
-                  <strong>Department:</strong>{" "}
-                  {selectedUser.officialDetails?.department || "-"}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Designation:</strong>{" "}
-                  {selectedUser.officialDetails?.designation || "-"}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Employee ID:</strong>{" "}
-                  {selectedUser.officialDetails?.employeeId || "-"}
-                </Typography>
-              </Stack>
+                <h6 style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", marginBottom: 8, marginTop: 0 }}>
+                  Official Details
+                </h6>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Department:</strong>{" "}
+                    {selectedUser.officialDetails?.department || "-"}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Designation:</strong>{" "}
+                    {selectedUser.officialDetails?.designation || "-"}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Employee ID:</strong>{" "}
+                    {selectedUser.officialDetails?.employeeId || "-"}
+                  </div>
+                </div>
 
-              <Divider sx={{ mb: 2 }} />
+                <div className="divider" style={{ marginBottom: 16 }} />
 
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
-                Account
-              </Typography>
-              <Stack spacing={1} mb={2}>
-                <Typography variant="body2">
-                  <strong>Status:</strong>{" "}
-                  {selectedUser.isActive ? "Active" : "Disabled"}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Role:</strong> {selectedUser.role}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Joined:</strong>{" "}
-                  {dayjs(selectedUser.createdAt).format("DD MMM YYYY")}
-                </Typography>
-              </Stack>
+                <h6 style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", marginBottom: 8, marginTop: 0 }}>
+                  Account
+                </h6>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Status:</strong>{" "}
+                    {selectedUser.isActive ? "Active" : "Disabled"}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Role:</strong> {selectedUser.role}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>
+                    <strong>Joined:</strong>{" "}
+                    {dayjs(selectedUser.createdAt).format("DD MMM YYYY")}
+                  </div>
+                </div>
 
-              <Divider sx={{ mb: 2 }} />
+                <div className="divider" style={{ marginBottom: 16 }} />
 
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button
-                  variant={selectedUser.isActive ? "outlined" : "contained"}
-                  color={selectedUser.isActive ? "error" : "success"}
-                  onClick={() => toggleUser(selectedUser)}>
-                  {selectedUser.isActive ? "Disable" : "Enable"}
-                </Button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    className={`btn ${selectedUser.isActive ? "btn-outline" : "btn-primary"}`}
+                    style={selectedUser.isActive ? { color: "var(--status-open)", borderColor: "var(--status-open)" } : { background: "var(--status-done)", borderColor: "var(--status-done)" }}
+                    onClick={() => toggleUser(selectedUser)}>
+                    {selectedUser.isActive ? "Disable" : "Enable"}
+                  </button>
 
-                <Button
-                  variant="outlined"
-                  onClick={() =>
-                    changeRole(
-                      selectedUser,
-                      selectedUser.role === "admin" ? "user" : "admin"
-                    )
-                  }>
-                  {selectedUser.role === "admin"
-                    ? "Demote to User"
-                    : "Promote to Admin"}
-                </Button>
-              </Box>
-            </>
-          )}
-        </Box>
-      </Drawer>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() =>
+                      changeRole(
+                        selectedUser,
+                        selectedUser.role === "admin" ? "user" : "admin"
+                      )
+                    }>
+                    {selectedUser.role === "admin"
+                      ? "Demote to User"
+                      : "Promote to Admin"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Toast */}
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        onClose={() => setToast((t) => ({ ...t, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-        <Alert severity={toast.severity}>{toast.message}</Alert>
-      </Snackbar>
-    </Box>
+      {toast.open && (
+        <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1400 }}>
+          <div style={{ 
+            background: toast.severity === "success" ? "var(--status-done)" : "var(--status-open)", 
+            color: "#fff", 
+            padding: "12px 24px", 
+            borderRadius: 8, 
+            boxShadow: "var(--shadow-md)",
+            fontSize: "0.875rem",
+            fontWeight: 500
+          }}>
+            {toast.message}
+          </div>
+        </div>
+      )}
+      
+      <style>{`
+        .grid-summary {
+          display: grid;
+          gap: 16px;
+          grid-template-columns: 1fr;
+        }
+        @media (min-width: 600px) {
+          .grid-summary {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (min-width: 900px) {
+          .grid-summary {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+          }
+        }
+        
+        .user-table th {
+          font-weight: 600;
+          color: var(--ink-secondary);
+          font-size: 0.875rem;
+        }
+        
+        .user-row-hover:hover {
+          background-color: var(--surface-subtle);
+        }
+        
+        .drawer-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 1300;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+        }
+        
+        .drawer-overlay.open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        
+        .drawer {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 320px;
+          background: var(--surface-base);
+          box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        }
+        
+        @media (min-width: 600px) {
+          .drawer {
+            width: 420px;
+          }
+        }
+        
+        .drawer-overlay.open .drawer {
+          transform: translateX(0);
+        }
+      `}</style>
+    </div>
   );
 }

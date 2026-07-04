@@ -1,49 +1,54 @@
-import { Card, Typography, Stack, Divider, Chip, Box } from "@mui/material";
+import React from "react";
 
-export default function EngagementStatsCard({ stats, glass, sx }) {
+export default function EngagementStatsCard({ stats, sx = {} }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        p: 3,
-        background: glass.background,
-        backdropFilter: `blur(${glass.blur})`,
-        border: glass.border,
-        boxShadow: glass.shadow,
+    <div
+      className="card"
+      style={{
+        borderRadius: "var(--radius-xl)",
+        padding: 24,
         ...sx,
       }}>
-      <Typography variant="h6" fontWeight={700} mb={2}>
+      <h6 style={{ margin: "0 0 16px 0", fontWeight: 700, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
         👍 Engagement
-      </Typography>
+      </h6>
 
-      <Stack spacing={2}>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="body2">Total Upvotes</Typography>
-          <Typography variant="h5" fontWeight={700}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: "0.875rem", color: "var(--ink-primary)" }}>Total Upvotes</span>
+          <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--ink-primary)" }}>
             {stats.totalUpvotes}
-          </Typography>
-        </Box>
+          </span>
+        </div>
 
         {stats.mostUpvoted && (
           <>
-            <Divider sx={{ opacity: 0.3 }} />
-            <Box>
-              <Typography variant="caption" sx={{ opacity: 0.7 }}>
+            <div className="divider" style={{ opacity: 0.3 }} />
+            <div>
+              <span style={{ fontSize: "0.75rem", opacity: 0.7, display: "block", marginBottom: 4, color: "var(--ink-primary)" }}>
                 Most Popular
-              </Typography>
-              <Typography variant="body2" fontWeight={600}>
+              </span>
+              <span style={{ fontSize: "0.875rem", fontWeight: 600, display: "block", marginBottom: 4, color: "var(--ink-primary)" }}>
                 {stats.mostUpvoted.title}
-              </Typography>
+              </span>
 
-              <Chip
-                label={`${stats.mostUpvoted.upvotes || 0} votes`}
-                size="small"
-                sx={{ mt: 0.5 }}
-              />
-            </Box>
+              <span
+                style={{ 
+                  marginTop: 4,
+                  display: "inline-block",
+                  fontSize: "0.8125rem",
+                  background: "var(--surface-subtle)",
+                  padding: "2px 8px",
+                  borderRadius: 16,
+                  color: "var(--ink-primary)"
+                }}
+              >
+                {stats.mostUpvoted.upvotes || 0} votes
+              </span>
+            </div>
           </>
         )}
-      </Stack>
-    </Card>
+      </div>
+    </div>
   );
 }

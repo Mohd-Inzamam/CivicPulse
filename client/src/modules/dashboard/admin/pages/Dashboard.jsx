@@ -1,20 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Grid,
-  Typography,
-  CircularProgress,
-  Alert,
-  Card,
-  CardContent,
-  Divider,
-  Chip,
-  Button,
-  Skeleton,
-} from "@mui/material";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { motion } from "framer-motion";
 import SummaryCards from "../components/SummaryCards.jsx";
 import DashboardCharts from "../components/DashboardCharts.jsx";
 import { issuesService } from "../../../../services/issuesService.js";
@@ -62,67 +46,66 @@ function CivicInsightCard() {
   }, [fetchInsight]);
 
   return (
-    <Card
-      sx={{
-        borderRadius: 3,
+    <div
+      className="card"
+      style={{
+        borderRadius: "var(--radius-xl)",
         border: "1px solid rgba(25,118,210,0.2)",
-        background:
-          "linear-gradient(135deg, rgba(25,118,210,0.05), rgba(66,165,245,0.03))",
+        background: "linear-gradient(135deg, rgba(25,118,210,0.05), rgba(66,165,245,0.03))",
         boxShadow: "0 2px 16px rgba(25,118,210,0.08)",
-        mb: 4,
+        marginBottom: 32,
       }}>
-      <CardContent sx={{ p: 3 }}>
-        <Box
-          sx={{
+      <div style={{ padding: 24 }}>
+        <div
+          style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 2,
+            marginBottom: 16,
           }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <AutoAwesomeIcon sx={{ color: "primary.main", fontSize: 20 }} />
-            <Typography
-              variant="subtitle2"
-              sx={{
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <i className="ti ti-sparkles" style={{ color: "var(--accent)", fontSize: 20 }} />
+            <span
+              style={{
                 textTransform: "uppercase",
                 letterSpacing: "0.07em",
                 fontSize: 11,
-                color: "text.secondary",
+                color: "var(--ink-secondary)",
                 fontWeight: 600,
               }}>
               AI Civic Insight
-            </Typography>
-          </Box>
-          <Button
-            size="small"
-            startIcon={<RefreshIcon sx={{ fontSize: 14 }} />}
+            </span>
+          </div>
+          <button
+            className="btn btn-ghost"
             onClick={fetchInsight}
             disabled={loading}
-            sx={{ fontSize: 12, textTransform: "none", py: 0.25 }}>
+            style={{ fontSize: 12, padding: "2px 8px" }}>
+            <i className="ti ti-refresh" style={{ fontSize: 14, marginRight: 4 }} />
             Refresh
-          </Button>
-        </Box>
+          </button>
+        </div>
 
         {loading ? (
-          <Box>
-            <Skeleton variant="text" width="90%" height={20} />
-            <Skeleton variant="text" width="75%" height={20} />
-            <Skeleton variant="text" width="60%" height={20} />
-          </Box>
+          <div>
+            <div className="skeleton" style={{ width: "90%", height: 20, marginBottom: 8 }} />
+            <div className="skeleton" style={{ width: "75%", height: 20, marginBottom: 8 }} />
+            <div className="skeleton" style={{ width: "60%", height: 20 }} />
+          </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: visible ? 1 : 0 }}
-            transition={{ duration: 0.4 }}>
-            <Typography
-              variant="body2"
-              sx={{ lineHeight: 1.75, color: "text.primary", fontSize: 14 }}>
+          <div
+            style={{
+              opacity: visible ? 1 : 0,
+              transition: "opacity 0.4s ease",
+            }}>
+            <p
+              style={{ lineHeight: 1.75, color: "var(--ink-primary)", fontSize: 14, margin: 0 }}>
               {insight}
-            </Typography>
-          </motion.div>
+            </p>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -162,107 +145,131 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}>
-        <CircularProgress />
-      </Box>
+        <span className="spinner" style={{ "--sz": "40px" }} />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
+        <div style={{ padding: 16, background: "var(--status-open)", color: "white", borderRadius: 8 }}>
+          {error}
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+    <div style={{ minHeight: "100vh", padding: "32px 0", maxWidth: 1200, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
+      <h4 style={{ fontWeight: 700, margin: "0 0 8px 0", fontSize: "2.125rem", color: "var(--ink-primary)" }}>
         Admin Dashboard
-      </Typography>
-      <Typography variant="body1" sx={{ color: "text.secondary", mb: 4 }}>
+      </h4>
+      <p style={{ color: "var(--ink-secondary)", margin: "0 0 32px 0", fontSize: "1rem" }}>
         Quick insight into system activity &amp; ongoing issues.
-      </Typography>
+      </p>
 
       {/* AI Insight Card */}
       <CivicInsightCard />
 
       {/* KPI Cards */}
-      <Grid container spacing={3} mb={4}>
+      <div className="kpi-grid-4" style={{ marginBottom: 32 }}>
         {summary.map((item, i) => (
-          <Grid item xs={12} sm={6} md={3} key={item.label}>
+          <div key={item.label}>
             <SummaryCards item={item} index={i} />
-          </Grid>
+          </div>
         ))}
-      </Grid>
+      </div>
 
       {/* Charts */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} md={6}>
-          <DashboardCharts issues={issues} type="pie" />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <DashboardCharts issues={issues} type="line" />
-        </Grid>
-      </Grid>
+      <DashboardCharts issues={issues} />
 
       {/* Recent Issues */}
-      <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
-        <CardContent>
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+      <div className="card" style={{ borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-md)" }}>
+        <div style={{ padding: 24 }}>
+          <h5 style={{ margin: "0 0 16px 0", fontWeight: 600, fontSize: "1.5rem", color: "var(--ink-primary)" }}>
             Recent Issues
-          </Typography>
+          </h5>
           {recentIssues.length === 0 ? (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ py: 2, textAlign: "center" }}>
+            <div
+              style={{ padding: "16px 0", textAlign: "center", color: "var(--ink-secondary)", fontSize: "0.875rem" }}>
               No issues yet.
-            </Typography>
+            </div>
           ) : (
             recentIssues.map((issue, index) => (
-              <Box key={issue._id || index} sx={{ py: 1.5 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              <div key={issue._id || index} style={{ padding: "12px 0" }}>
+                <div style={{ fontWeight: 600, fontSize: "1rem", color: "var(--ink-primary)" }}>
                   {issue.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
                   Reported by: {issue.createdBy?.fullName || "Unknown"} · 📍{" "}
                   {issue.location}
-                </Typography>
-                <Chip
-                  label={issue.status}
-                  size="small"
-                  color={
-                    issue.status === "Open"
-                      ? "error"
-                      : issue.status === "In Progress"
-                        ? "warning"
-                        : "success"
-                  }
-                  sx={{ mt: 1 }}
-                />
+                </div>
+                <span
+                  className="badge"
+                  style={{ 
+                    marginTop: 8, 
+                    display: "inline-block",
+                    background: issue.status === "Open" ? "var(--status-open)" : issue.status === "In Progress" ? "var(--status-warn)" : "var(--status-done)",
+                    color: "white",
+                    padding: "2px 8px",
+                    borderRadius: 16,
+                    fontSize: "0.75rem",
+                    fontWeight: 600
+                  }}>
+                  {issue.status}
+                </span>
                 {index !== recentIssues.length - 1 && (
-                  <Divider sx={{ mt: 2 }} />
+                  <div className="divider" style={{ marginTop: 16 }} />
                 )}
-              </Box>
+              </div>
             ))
           )}
-        </CardContent>
-      </Card>
-    </Box>
+        </div>
+      </div>
+      
+      <style>{`
+        .kpi-grid-4 {
+          display: grid;
+          gap: 24px;
+          grid-template-columns: 1fr;
+        }
+        @media (min-width: 600px) {
+          .kpi-grid-4 {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (min-width: 900px) {
+          .kpi-grid-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+          }
+        }
+        
+        .skeleton {
+          background: linear-gradient(90deg, var(--surface-subtle) 25%, var(--border-subtle) 50%, var(--surface-subtle) 75%);
+          background-size: 200% 100%;
+          animation: loading 1.5s infinite;
+          border-radius: 4px;
+        }
+        @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+    </div>
   );
 };
 

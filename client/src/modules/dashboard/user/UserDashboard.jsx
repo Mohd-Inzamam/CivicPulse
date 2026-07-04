@@ -1,15 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Box,
-  Typography,
-  Avatar,
-  Card,
-  CardContent,
-  Button,
-  Divider,
-  CircularProgress,
-} from "@mui/material";
 import { issuesService } from "../../../services/issuesService";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +6,6 @@ import StatusBadge from "../../../components/common/StatusBadge";
 import CategoryBadge from "../../../components/common/CategoryBadge";
 
 export default function UserDashboard() {
-  // FIX #3 — only load the logged-in user's own issues
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -26,7 +14,6 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchMyIssues = async () => {
       try {
-        // Pass createdBy=me so the server filters by req.user._id
         const res = await issuesService.getAllIssues({ createdBy: "me" });
         const fetched = res.data?.issues || res.issues || [];
         setIssues(fetched);
@@ -45,40 +32,32 @@ export default function UserDashboard() {
   const inProgress = issues.filter((i) => i.status === "In Progress").length;
   const open = issues.filter((i) => i.status === "Open").length;
 
-  const glass = {
-    background: "rgba(255, 255, 255, 0.25)",
-    backdropFilter: "blur(14px)",
-    WebkitBackdropFilter: "blur(14px)",
-    borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
-    boxShadow: "0 4px 30px rgba(0,0,0,0.06)",
-  };
-
   return (
-    <Box sx={{ px: 3, py: 4, maxWidth: "1100px", mx: "auto" }}>
+    <div style={{ padding: "32px 24px", maxWidth: 1100, margin: "0 auto" }}>
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}>
-        <Box
-          sx={{
-            ...glass,
-            p: 3,
+      <div style={{ animation: "fadeInUp 0.6s ease-out" }}>
+        <div
+          className="card"
+          style={{
+            padding: 24,
             display: "flex",
             alignItems: "center",
-            gap: 2,
+            gap: 16,
+            borderRadius: "var(--radius-xl)",
+            background: "var(--surface-base)",
+            border: "0.5px solid var(--border-subtle)",
+            boxShadow: "var(--shadow-sm)"
           }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 16,
-              marginBottom: 24,
               padding: 20,
               background: "var(--surface-subtle)",
               borderRadius: "var(--radius-lg)",
               border: "0.5px solid var(--border-subtle)",
+              width: "100%"
             }}>
             <div
               style={{
@@ -93,7 +72,7 @@ export default function UserDashboard() {
                 <img
                   src={user.avatar}
                   alt={user.fullName}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
               ) : (
                 <div
@@ -131,46 +110,18 @@ export default function UserDashboard() {
               </p>
             </div>
             <button
-              className="btn btn-ghost btn-sm"
-              style={{ marginLeft: "auto" }}
+              className="btn btn-ghost"
+              style={{ marginLeft: "auto", padding: "6px 12px" }}
               onClick={() => navigate("/update-profile")}>
-              <i className="ti ti-edit" aria-hidden="true" /> Edit
+              <i className="ti ti-edit" style={{ marginRight: 8 }} /> Edit
             </button>
           </div>
-        </Box>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Personal stats */}
-      <Box
-        sx={{
-          mt: 4,
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(4, 1fr)" },
-          gap: 3,
-        }}>
-        {/* {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}>
-            <Card sx={{ ...glass, textAlign: "center", py: 2 }}>
-              <CardContent>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 700 }}
-                  color={`${stat.color}.main`}>
-                  {loading ? "—" : stat.value}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {stat.label}
-                </Typography>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))} */}
-
-        <div className="kpi-row" style={{ marginBottom: 24 }}>
+      <div style={{ marginTop: 32 }}>
+        <div className="kpi-grid">
           {[
             { label: "Reported", value: total, color: "var(--ink-primary)" },
             { label: "Open", value: open, color: "var(--status-open)" },
@@ -181,120 +132,159 @@ export default function UserDashboard() {
             },
             { label: "Resolved", value: resolved, color: "var(--status-done)" },
           ].map((s) => (
-            <div key={s.label} className="kpi-card">
-              <div className="kpi-value" style={{ color: s.color }}>
+            <div 
+              key={s.label} 
+              className="card"
+              style={{
+                padding: "24px 16px",
+                textAlign: "center",
+                background: "var(--surface-base)",
+                borderRadius: "var(--radius-xl)",
+                border: "0.5px solid var(--border-subtle)",
+                boxShadow: "var(--shadow-sm)"
+              }}>
+              <div style={{ fontSize: "2.125rem", fontWeight: 700, color: s.color }}>
                 {s.value}
               </div>
-              <div className="kpi-label">{s.label}</div>
+              <div style={{ fontSize: "0.875rem", color: "var(--ink-primary)", opacity: 0.7 }}>
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
-      </Box>
+      </div>
 
       {/* My issues list */}
-      <motion.div
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.35 }}>
-        <Card sx={{ ...glass, mt: 4, p: 3 }}>
-          <Box
-            sx={{
+      <div style={{ animation: "fadeInUp 0.5s ease-out 0.35s both" }}>
+        <div 
+          className="card"
+          style={{ 
+            marginTop: 32, 
+            padding: 24, 
+            background: "var(--surface-base)",
+            borderRadius: "var(--radius-xl)",
+            border: "0.5px solid var(--border-subtle)",
+            boxShadow: "var(--shadow-sm)"
+          }}>
+          <div
+            style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              mb: 2,
+              marginBottom: 16,
             }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <h6 style={{ margin: 0, fontWeight: 600, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
               My Reported Issues
-            </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              sx={{ borderRadius: "12px", textTransform: "none" }}
+            </h6>
+            <button
+              className="btn btn-primary"
+              style={{ borderRadius: 12, padding: "6px 16px" }}
               onClick={() => navigate("/report-issue")}>
               + Report New
-            </Button>
-          </Box>
+            </button>
+          </div>
 
-          <Divider sx={{ mb: 2 }} />
+          <div className="divider" style={{ marginBottom: 16 }} />
 
           {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
-            </Box>
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+              <span className="spinner" style={{ "--sz": "40px" }} />
+            </div>
           ) : issues.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Typography color="text.secondary" sx={{ mb: 2 }}>
+            <div style={{ textAlign: "center", padding: "32px 0" }}>
+              <p style={{ color: "var(--ink-primary)", opacity: 0.7, marginBottom: 16 }}>
                 You haven't reported any issues yet.
-              </Typography>
-              <Button
-                variant="outlined"
+              </p>
+              <button
+                className="btn btn-outline"
                 onClick={() => navigate("/report-issue")}
-                sx={{ borderRadius: "12px", textTransform: "none" }}>
+                style={{ borderRadius: 12 }}>
                 Report your first issue
-              </Button>
-            </Box>
+              </button>
+            </div>
           ) : (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                  md: "1fr 1fr 1fr",
-                },
-                gap: 2,
-              }}>
+            <div className="issue-grid">
               {issues.map((issue) => (
-                <Box
+                <div
                   key={issue._id}
-                  sx={{
-                    p: 2,
-                    borderRadius: "16px",
-                    background: "rgba(255,255,255,0.25)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
+                  className="issue-card-hover"
+                  style={{
+                    padding: 16,
+                    borderRadius: 16,
+                    background: "var(--surface-subtle)",
+                    border: "1px solid var(--border-subtle)",
                     cursor: "pointer",
-                    transition: "0.2s",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                    },
+                    transition: "all 0.2s ease"
                   }}
                   onClick={() => navigate(`/issues/${issue._id}`)}>
-                  <Typography sx={{ fontWeight: 600, mb: 1, fontSize: 14 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 14, color: "var(--ink-primary)" }}>
                     {issue.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}>
+                  </div>
+                  <div
+                    style={{ fontSize: "0.875rem", color: "var(--ink-primary)", opacity: 0.7, marginBottom: 8 }}>
                     {issue.description?.slice(0, 80)}
                     {issue.description?.length > 80 ? "…" : ""}
-                  </Typography>
-                  <Box
-                    sx={{
+                  </div>
+                  <div
+                    style={{
                       display: "flex",
-                      gap: 0.75,
+                      gap: 6,
                       flexWrap: "wrap",
-                      mt: 1,
+                      marginTop: 8,
                     }}>
                     <CategoryBadge category={issue.category} />
                     <StatusBadge status={issue.status} />
-                  </Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ mt: 1, display: "block" }}>
+                  </div>
+                  <span
+                    style={{ fontSize: "0.75rem", color: "var(--ink-primary)", opacity: 0.7, marginTop: 8, display: "block" }}>
                     📍 {issue.location} · 👍 {issue.upvotes} · 💬{" "}
                     {issue.comments?.length ?? 0}
-                  </Typography>
-                </Box>
+                  </span>
+                </div>
               ))}
-            </Box>
+            </div>
           )}
-        </Card>
-      </motion.div>
-    </Box>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(-15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .kpi-grid {
+          display: grid;
+          gap: 24px;
+          grid-template-columns: 1fr 1fr;
+        }
+        @media (min-width: 600px) {
+          .kpi-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+        
+        .issue-grid {
+          display: grid;
+          gap: 16px;
+          grid-template-columns: 1fr;
+        }
+        @media (min-width: 600px) {
+          .issue-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (min-width: 900px) {
+          .issue-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+          }
+        }
+        
+        .issue-card-hover:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--shadow-md);
+        }
+      `}</style>
+    </div>
   );
 }

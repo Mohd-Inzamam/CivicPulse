@@ -1,6 +1,4 @@
 import React from "react";
-import { TextField } from "@mui/material";
-import { motion } from "framer-motion";
 
 const FormField = ({
   label,
@@ -19,40 +17,67 @@ const FormField = ({
   disabled = false,
   required = false,
   autoComplete,
-  animationDelay = 0,
+  animationDelay = 0, // kept for API compat, no animation
   ...props
 }) => {
+  const fieldId = `field-${name}`;
+  const marginStyle =
+    margin === "normal"
+      ? { marginTop: 16, marginBottom: 8 }
+      : margin === "dense"
+        ? { marginTop: 8, marginBottom: 4 }
+        : {};
+
   return (
-    <motion.div
-      style={{ width: "100%" }}
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: animationDelay }}>
-      <TextField
-        label={label}
-        name={name}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        type={type}
-        fullWidth={fullWidth}
-        margin={margin}
-        multiline={multiline}
-        rows={rows}
-        placeholder={placeholder}
-        disabled={disabled}
-        required={required}
-        autoComplete={autoComplete}
-        error={Boolean(error)}
-        helperText={error || helperText}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 2,
-          },
-        }}
-        {...props}
-      />
-    </motion.div>
+    <div
+      className="form-group"
+      style={{
+        width: fullWidth ? "100%" : "auto",
+        ...marginStyle,
+      }}
+    >
+      {label && (
+        <label className="form-label" htmlFor={fieldId}>
+          {label}
+          {required && <span style={{ color: "var(--status-open)" }}> *</span>}
+        </label>
+      )}
+      {multiline ? (
+        <textarea
+          id={fieldId}
+          className={`textarea${error ? " error" : ""}`}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          rows={rows}
+          placeholder={placeholder}
+          disabled={disabled}
+          required={required}
+          autoComplete={autoComplete}
+          style={{ borderRadius: 16 }} // borderRadius: 2 → 2×8 = 16px
+          {...props}
+        />
+      ) : (
+        <input
+          id={fieldId}
+          className={`input${error ? " error" : ""}`}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          disabled={disabled}
+          required={required}
+          autoComplete={autoComplete}
+          style={{ borderRadius: 16 }} // borderRadius: 2 → 2×8 = 16px
+          {...props}
+        />
+      )}
+      {error && <span className="form-error">{error}</span>}
+      {!error && helperText && <span className="form-hint">{helperText}</span>}
+    </div>
   );
 };
 

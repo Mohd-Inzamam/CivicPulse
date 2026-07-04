@@ -1,22 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Typography,
-  CircularProgress,
-  Avatar,
-  Box,
-  Stack,
-} from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
 import { issuesService } from "../../../services/issuesService";
-import { useTheme } from "@mui/material/styles";
+
+// Components
+import FormField from "../../../components/common/FormField";
 
 const UpdateIssue = ({ issue, onClose, onUpdate }) => {
-  const theme = useTheme();
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -82,143 +70,138 @@ const UpdateIssue = ({ issue, onClose, onUpdate }) => {
     }
   };
 
+  if (!issue) return null;
+
   return (
-    <AnimatePresence>
-      {issue && (
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 25 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}>
-          <Card
-            sx={{
-              maxWidth: { xs: "90%", sm: 500, md: 600 },
-              mx: "auto",
-              mt: 4,
-              borderRadius: theme.shape.borderRadius * 0.2,
-              p: 0,
-              background: theme.palette.background.glass,
-              backdropFilter: "blur(22px) saturate(180%)",
-              border: `1px solid ${theme.palette.divider}`,
-              boxShadow: theme.shadows[4],
+    <div
+      style={{
+        maxWidth: 600,
+        margin: "32px auto 0",
+        borderRadius: "var(--radius-lg)",
+        background: "var(--surface-base)",
+        border: "1px solid var(--border-subtle)",
+        boxShadow: "var(--shadow-md)",
+      }}>
+      <div style={{ padding: 24 }}>
+        <h5
+          style={{
+            margin: "0 0 24px 0",
+            fontWeight: 700,
+            textAlign: "center",
+            letterSpacing: "0.4px",
+            fontSize: "1.5rem",
+          }}>
+          Update Issue
+        </h5>
+
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}>
+          <FormField
+            label="Title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+          />
+
+          <FormField
+            label="Description"
+            name="description"
+            multiline
+            rows={4}
+            value={formData.description}
+            onChange={handleChange}
+          />
+
+          <FormField
+            label="Category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+          />
+
+          <FormField
+            label="Location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+          />
+
+          {/* Image Upload */}
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{
+                  width: 90,
+                  height: 90,
+                  borderRadius: 18,
+                  border: "2px solid var(--border-subtle)",
+                  boxShadow: "var(--shadow-sm)",
+                  objectFit: "cover"
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 90,
+                  height: 90,
+                  borderRadius: 18,
+                  border: "2px solid var(--border-subtle)",
+                  boxShadow: "var(--shadow-sm)",
+                  background: "var(--surface-subtle)",
+                }}
+              />
+            )}
+
+            <label className="btn btn-primary" style={{ borderRadius: 14, padding: "9.6px 24px", cursor: "pointer" }}>
+              Change Image
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </label>
+          </div>
+
+          {/* Action Buttons */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 12,
+              marginTop: 8,
             }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  textAlign: "center",
-                  letterSpacing: "0.4px",
-                }}>
-                Update Issue
-              </Typography>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={onClose}
+              disabled={loading}
+              style={{ borderRadius: 14, padding: "8px 24px" }}>
+              Cancel
+            </button>
 
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: theme.spacing(2.5),
-                }}>
-                <TextField
-                  label="Title"
-                  name="title"
-                  fullWidth
-                  variant="outlined"
-                  value={formData.title}
-                  onChange={handleChange}
-                />
-
-                <TextField
-                  label="Description"
-                  name="description"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  variant="outlined"
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-
-                <TextField
-                  label="Category"
-                  name="category"
-                  fullWidth
-                  variant="outlined"
-                  value={formData.category}
-                  onChange={handleChange}
-                />
-
-                <TextField
-                  label="Location"
-                  name="location"
-                  fullWidth
-                  variant="outlined"
-                  value={formData.location}
-                  onChange={handleChange}
-                />
-
-                {/* Image Upload */}
-                <Stack direction="row" alignItems="center" spacing={2.5}>
-                  <Avatar
-                    src={imagePreview}
-                    sx={{
-                      width: 90,
-                      height: 90,
-                      borderRadius: "18px",
-                      border: `2px solid ${theme.palette.divider}`,
-                      boxShadow: theme.shadows[2],
-                    }}
-                  />
-
-                  <Button
-                    variant="contained"
-                    component="label"
-                    sx={{ borderRadius: "14px", py: 1.2, px: 3 }}>
-                    Change Image
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </Button>
-                </Stack>
-
-                {/* Action Buttons */}
-                <Stack
-                  direction="row"
-                  justifyContent="flex-end"
-                  spacing={1.5}
-                  sx={{ mt: 1 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={onClose}
-                    disabled={loading}
-                    sx={{ borderRadius: "14px", py: 1, px: 3 }}>
-                    Cancel
-                  </Button>
-
-                  <Button
-                    variant="contained"
-                    type="submit"
-                    disabled={loading}
-                    sx={{ borderRadius: "14px", py: 1, px: 3 }}>
-                    {loading ? (
-                      <CircularProgress size={22} color="inherit" />
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                </Stack>
-              </Box>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+              style={{ borderRadius: 14, padding: "8px 24px" }}>
+              {loading ? (
+                <span className="spinner" style={{ "--sz": "22px" }} />
+              ) : (
+                "Save"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

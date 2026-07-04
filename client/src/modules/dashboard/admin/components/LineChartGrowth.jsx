@@ -1,4 +1,3 @@
-//// LineChartGrowth.jsx
 import {
   LineChart,
   Line,
@@ -9,8 +8,6 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { motion } from "framer-motion";
-import { Card, CardContent, Typography, Box } from "@mui/material";
 import dayjs from "dayjs";
 
 export default function LineChartGrowth({ issues = [] }) {
@@ -45,56 +42,43 @@ export default function LineChartGrowth({ issues = [] }) {
 
   if (data.length === 0) {
     return (
-      <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Issues Over Time
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: 250,
-              }}>
-              <Typography variant="body2" color="text.secondary">
-                No data available
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 250 }}>
+        <span style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
+          No data available
+        </span>
+      </div>
     );
   }
 
   return (
-    <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
-      <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Issues Over Time
-          </Typography>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="issues"
-                stroke="#1976d2"
-                strokeWidth={2}
-                dot={{ r: 5 }}
-                activeDot={{ r: 8 }}
-                animationDuration={800}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <div style={{ width: "100%", height: 250 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" vertical={false} />
+          <XAxis dataKey="date" stroke="var(--ink-tertiary)" fontSize={12} tickLine={false} axisLine={false} />
+          <YAxis stroke="var(--ink-tertiary)" fontSize={12} tickLine={false} axisLine={false} />
+          <Tooltip 
+            contentStyle={{
+              borderRadius: "8px",
+              boxShadow: "var(--shadow-md)",
+              backgroundColor: "var(--surface-base)",
+              border: "1px solid var(--border-subtle)",
+              padding: "8px 12px",
+            }}
+            itemStyle={{ color: "var(--ink-primary)", fontWeight: "bold" }}
+          />
+          <Legend wrapperStyle={{ fontSize: "0.9rem", color: "var(--ink-secondary)" }} />
+          <Line
+            type="monotone"
+            dataKey="issues"
+            stroke="var(--accent)"
+            strokeWidth={3}
+            dot={{ r: 4, fill: "var(--accent)", strokeWidth: 0 }}
+            activeDot={{ r: 6, fill: "var(--accent)" }}
+            animationDuration={800}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

@@ -1,12 +1,4 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-} from "@mui/material";
 import { issuesService } from "../../../services/issuesService";
 
 const DeleteIssue = ({ issue, onClose, onDeleteSuccess }) => {
@@ -25,40 +17,50 @@ const DeleteIssue = ({ issue, onClose, onDeleteSuccess }) => {
   };
 
   return (
-    <Dialog
-      open={true}
-      onClose={onClose}
-      PaperProps={{
-        sx: { borderRadius: 3, p: 1 },
-      }}>
-      <DialogTitle sx={{ fontWeight: "bold" }}>Delete Issue</DialogTitle>
+    <div className="modal-backdrop">
+      <div className="modal" style={{ maxWidth: 400, width: "100%" }}>
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-subtle)" }}>
+          <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 700 }}>
+            Delete Issue
+          </h2>
+        </div>
+        
+        <div style={{ padding: 24 }}>
+          <p style={{ margin: "0 0 8px 0", color: "var(--ink-primary)" }}>
+            Are you sure you want to delete the issue:
+          </p>
+          <p style={{ margin: 0, fontWeight: 700, color: "var(--ink-primary)" }}>
+            "{issue.title}"
+          </p>
+          <p style={{ marginTop: 16, marginBottom: 0, color: "var(--status-open)", fontWeight: 700 }}>
+            ⚠️ This action cannot be undone.
+          </p>
+        </div>
 
-      <DialogContent>
-        <Typography>Are you sure you want to delete the issue:</Typography>
-        <Typography sx={{ mt: 1, fontWeight: "bold" }}>
-          "{issue.title}"
-        </Typography>
+        <div style={{ padding: "16px 24px", display: "flex", justifyContent: "flex-end", gap: 12, borderTop: "1px solid var(--border-subtle)" }}>
+          <button
+            className="btn btn-outline"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
 
-        <Typography sx={{ mt: 2, color: "error.main", fontWeight: "bold" }}>
-          ⚠️ This action cannot be undone.
-        </Typography>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} disabled={loading}>
-          Cancel
-        </Button>
-
-        <Button
-          variant="contained"
-          color="error"
-          onClick={handleDelete}
-          disabled={loading}
-          sx={{ borderRadius: 2 }}>
-          {loading ? "Deleting..." : "Delete"}
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <button
+            className="btn btn-primary"
+            onClick={handleDelete}
+            disabled={loading}
+            style={{
+              background: "var(--status-open)",
+              borderColor: "var(--status-open)",
+              color: "white"
+            }}
+          >
+            {loading ? <span className="spinner" style={{ "--sz": "16px" }} /> : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

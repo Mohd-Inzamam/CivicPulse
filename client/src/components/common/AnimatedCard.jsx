@@ -1,35 +1,26 @@
-import React from 'react';
-import { Card, CardContent } from '@mui/material';
-import { motion } from 'framer-motion';
+import React from "react";
 
 const AnimatedCard = ({
   children,
-  hoverScale = 1.02,
-  animationDelay = 0,
+  hoverScale = 1.02, // kept in signature for API compat, ignored (CSS handles hover)
+  animationDelay = 0, // kept in signature for API compat, ignored (no animation)
   sx = {},
   ...props
 }) => {
   return (
-    <motion.div
-      whileHover={{ scale: hoverScale }}
-      transition={{ duration: 0.3 }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: animationDelay }}
+    <div
+      className="card"
+      style={{
+        borderRadius: 24, // borderRadius: 3 → 3×8 = 24px
+        boxShadow: "var(--shadow-sm)", // boxShadow: 3 → var(--shadow-sm)
+        ...sx,
+      }}
+      {...props}
     >
-      <Card
-        sx={{
-          borderRadius: 3,
-          boxShadow: 3,
-          ...sx,
-        }}
-        {...props}
-      >
-        <CardContent>
-          {children}
-        </CardContent>
-      </Card>
-    </motion.div>
+      <div className="card-body">
+        {children}
+      </div>
+    </div>
   );
 };
 

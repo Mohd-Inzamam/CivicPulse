@@ -1,15 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  LinearProgress,
-} from "@mui/material";
 
 const SessionTimeout = () => {
   const { user, logout } = useAuth();
@@ -133,41 +124,48 @@ const SessionTimeout = () => {
   }
 
   return (
-    <Dialog open={showWarning} disableEscapeKeyDown maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Typography variant="h6" color="warning.main">
-          Session Timeout Warning
-        </Typography>
-      </DialogTitle>
-      <DialogContent>
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          Your session will expire in <strong>{formatTime(timeLeft)}</strong>{" "}
-          due to inactivity.
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Click "Stay Logged In" to continue your session, or you will be
-          automatically logged out.
-        </Typography>
-        <LinearProgress
-          variant="determinate"
-          value={(timeLeft / (WARNING_TIME / 1000)) * 100}
-          color="warning"
-          sx={{ height: 8, borderRadius: 4 }}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleLogout} color="error" variant="outlined">
-          Logout Now
-        </Button>
-        <Button
-          onClick={handleStayLoggedIn}
-          color="primary"
-          variant="contained"
-          autoFocus>
-          Stay Logged In
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      {showWarning && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: 600, width: "100%" }} role="dialog" aria-modal="true">
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-subtle)" }}>
+              <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--status-warn)", fontWeight: 500 }}>
+                Session Timeout Warning
+              </h2>
+            </div>
+            
+            <div style={{ padding: 24 }}>
+              <p style={{ margin: "0 0 16px 0", fontSize: "1rem", color: "var(--ink-primary)" }}>
+                Your session will expire in <strong>{formatTime(timeLeft)}</strong> due to inactivity.
+              </p>
+              <p style={{ margin: "0 0 16px 0", fontSize: "0.875rem", color: "var(--ink-tertiary)" }}>
+                Click "Stay Logged In" to continue your session, or you will be automatically logged out.
+              </p>
+              
+              <div className="quality-track" style={{ height: 8, borderRadius: 4 }}>
+                <div 
+                  className="quality-fill fair" 
+                  style={{ 
+                    width: `${(timeLeft / (WARNING_TIME / 1000)) * 100}%`,
+                    backgroundColor: "var(--status-warn)",
+                    borderRadius: 4
+                  }} 
+                />
+              </div>
+            </div>
+            
+            <div style={{ padding: 16, display: "flex", justifyContent: "flex-end", gap: 8, borderTop: "1px solid var(--border-subtle)" }}>
+              <button className="btn btn-outline" style={{ color: "var(--status-open)", borderColor: "var(--status-open)" }} onClick={handleLogout}>
+                Logout Now
+              </button>
+              <button className="btn btn-primary" onClick={handleStayLoggedIn}>
+                Stay Logged In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

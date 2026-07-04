@@ -1,6 +1,4 @@
-import React from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
-import { motion } from 'framer-motion';
+import React from "react";
 
 const PasswordStrengthIndicator = ({ password }) => {
   const getPasswordStrength = (password) => {
@@ -13,17 +11,17 @@ const PasswordStrengthIndicator = ({ password }) => {
       special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
     };
 
-    Object.values(checks).forEach(check => {
+    Object.values(checks).forEach((check) => {
       if (check) score++;
     });
 
     const levels = {
-      0: { label: 'Very Weak', color: 'error', value: 0 },
-      1: { label: 'Weak', color: 'error', value: 20 },
-      2: { label: 'Fair', color: 'warning', value: 40 },
-      3: { label: 'Good', color: 'info', value: 60 },
-      4: { label: 'Strong', color: 'success', value: 80 },
-      5: { label: 'Very Strong', color: 'success', value: 100 },
+      0: { label: "Very Weak", colorClass: "poor", colorVar: "var(--status-open)", value: 0 },
+      1: { label: "Weak", colorClass: "poor", colorVar: "var(--status-open)", value: 20 },
+      2: { label: "Fair", colorClass: "fair", colorVar: "var(--status-prog)", value: 40 },
+      3: { label: "Good", colorClass: "fair", colorVar: "var(--accent)", value: 60 },
+      4: { label: "Strong", colorClass: "good", colorVar: "var(--status-done)", value: 80 },
+      5: { label: "Very Strong", colorClass: "good", colorVar: "var(--status-done)", value: 100 },
     };
 
     return {
@@ -38,48 +36,56 @@ const PasswordStrengthIndicator = ({ password }) => {
   if (!password) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Box sx={{ mt: 1, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="caption" color="text.secondary">
+    <div>
+      {/* mt: 1 → 8px, mb: 2 → 16px */}
+      <div style={{ marginTop: 8, marginBottom: 16 }}>
+        {/* mb: 1 → 8px */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}>
+          <span style={{ fontSize: 11, color: "var(--ink-tertiary)" }}>
             Password Strength
-          </Typography>
-          <Typography variant="caption" color={`${strength.color}.main`} sx={{ fontWeight: 'bold' }}>
+          </span>
+          <span style={{
+            fontSize: 11,
+            color: strength.colorVar,
+            fontWeight: "bold",
+          }}>
             {strength.label}
-          </Typography>
-        </Box>
-        
-        <LinearProgress
-          variant="determinate"
-          value={strength.value}
-          color={strength.color}
-          sx={{ height: 6, borderRadius: 3, mb: 1 }}
-        />
+          </span>
+        </div>
 
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        {/* LinearProgress → quality-track/quality-fill */}
+        {/* height: 6, borderRadius: 3 → 24px, mb: 1 → 8px */}
+        <div className="quality-track" style={{ height: 6, marginBottom: 8, borderRadius: 24 }}>
+          <div
+            className={`quality-fill ${strength.colorClass}`}
+            style={{ width: `${strength.value}%`, borderRadius: 24 }}
+          />
+        </div>
+
+        {/* gap: 1 → 8px */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {Object.entries(strength.checks).map(([key, passed]) => (
-            <Typography
+            <span
               key={key}
-              variant="caption"
-              sx={{
-                color: passed ? 'success.main' : 'text.disabled',
-                fontSize: '0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
+              style={{
+                color: passed ? "var(--status-done)" : "var(--ink-disabled)",
+                fontSize: "0.75rem",
+                display: "flex",
+                alignItems: "center",
+                gap: 4, // gap: 0.5 → 0.5×8 = 4px
               }}
             >
-              {passed ? '✓' : '○'} {key.charAt(0).toUpperCase() + key.slice(1)}
-            </Typography>
+              {passed ? "✓" : "○"} {key.charAt(0).toUpperCase() + key.slice(1)}
+            </span>
           ))}
-        </Box>
-      </Box>
-    </motion.div>
+        </div>
+      </div>
+    </div>
   );
 };
 

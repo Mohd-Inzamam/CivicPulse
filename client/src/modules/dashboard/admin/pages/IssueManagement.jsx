@@ -1,36 +1,6 @@
 // IssueManagement.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Chip,
-  IconButton,
-  Button,
-  Stack,
-  Drawer,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Modal,
-  Divider,
-} from "@mui/material";
-import { Edit, Delete, Search, MoreHoriz } from "@mui/icons-material";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import { motion } from "framer-motion";
 import dayjs from "dayjs";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 
 // Adjust this import path to match your project
 import { issuesService } from "../../../../services/issuesService";
@@ -38,13 +8,12 @@ import { API_BASE_URL } from "../../../../config/api.js";
 
 // Helper: status color mapping (colors use theme tokens where possible)
 const statusColor = (status) => {
-  if (status === "Open") return "error";
-  if (status === "In Progress") return "warning";
-  if (status === "Resolved") return "success";
-  return "default";
+  if (status === "Open") return "var(--status-open)";
+  if (status === "In Progress") return "var(--status-warn)";
+  if (status === "Resolved") return "var(--status-done)";
+  return "var(--ink-secondary)";
 };
 
-const issueRowMinHeight = 64;
 const PAGE_LIMIT = 12; // items per page on infinite scroll
 
 export default function IssueManagement() {
@@ -373,162 +342,174 @@ export default function IssueManagement() {
   // render compact issue list item
   const IssueRow = ({ issue, index }) => {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: index * 0.03 }}>
-        <Card
-          sx={{
-            mb: 1.25,
-            borderRadius: 2,
-            background: "var(--glass-bg)",
-            boxShadow: "var(--shadow-light)",
+      <div
+        style={{
+          animation: `fadeInUp 0.35s ease-out ${index * 0.03}s both`,
+        }}>
+        <div
+          className="card"
+          style={{
+            marginBottom: 10,
+            borderRadius: 16,
+            background: "var(--surface-base)",
+            boxShadow: "var(--shadow-sm)",
           }}>
-          <CardContent
-            sx={{
+          <div
+            className="card-body"
+            style={{
               display: "flex",
-              gap: 2,
+              gap: 16,
               alignItems: "center",
-              minHeight: issueRowMinHeight,
+              padding: "16px 24px",
             }}>
             {/* Left: basic info */}
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: "1rem", color: "var(--ink-primary)" }}>
                 {issue.title}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: "block" }}>
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "var(--ink-secondary)", display: "block" }}>
                 {issue.category || "—"} • {issue.location || "Unknown location"}{" "}
                 • {dayjs(issue.createdAt).format("DD MMM YYYY")}
-              </Typography>
-            </Box>
+              </div>
+            </div>
 
             {/* Middle: upvotes + reporter */}
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{ mr: 2 }}>
-              <Chip label={`👍 ${issue.upvotes || 0}`} size="small" />
-              <Typography variant="body2" color="text.secondary">
+            <div
+              style={{ display: "flex", gap: 16, alignItems: "center", marginRight: 16 }}>
+              <span
+                style={{
+                  background: "var(--surface-subtle)",
+                  padding: "4px 8px",
+                  borderRadius: 16,
+                  fontSize: "0.8125rem",
+                  color: "var(--ink-primary)"
+                }}
+              >
+                👍 {issue.upvotes || 0}
+              </span>
+              <span style={{ fontSize: "0.875rem", color: "var(--ink-secondary)" }}>
                 {issue.createdBy?.fullName || "Anonymous"}
-              </Typography>
-            </Stack>
+              </span>
+            </div>
 
             {/* Right: status + actions */}
-            <Stack direction="row" spacing={1} alignItems="center">
-              <FormControl size="small" sx={{ minWidth: 140 }}>
-                <Select
-                  value={issue.status}
-                  onChange={(e) =>
-                    changeStatusQuick(issue._id || issue.id, e.target.value)
-                  }>
-                  <MenuItem value="Open">Open</MenuItem>
-                  <MenuItem value="In Progress">In Progress</MenuItem>
-                  <MenuItem value="Resolved">Resolved</MenuItem>
-                </Select>
-              </FormControl>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <select
+                className="input"
+                style={{ padding: "4px 8px", width: 140, height: 32 }}
+                value={issue.status}
+                onChange={(e) =>
+                  changeStatusQuick(issue._id || issue.id, e.target.value)
+                }>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
 
-              <IconButton onClick={() => handleViewIssue(issue)}>
-                <VisibilityIcon fontSize="small" />
-              </IconButton>
+              <button className="btn-icon" onClick={() => handleViewIssue(issue)}>
+                <i className="ti ti-eye" style={{ fontSize: "1.25rem" }} />
+              </button>
 
-              <IconButton
+              <button
+                className="btn-icon"
                 onClick={() => openEditDrawer(issue)}
-                size="small"
-                aria-label="edit">
-                <Edit />
-              </IconButton>
+                title="Edit">
+                <i className="ti ti-edit" style={{ fontSize: "1.25rem" }} />
+              </button>
 
-              <IconButton
+              <button
+                className="btn-icon"
                 onClick={() => confirmDelete(issue)}
-                size="small"
-                aria-label="delete">
-                <Delete />
-              </IconButton>
-            </Stack>
-          </CardContent>
-        </Card>
-      </motion.div>
+                title="Delete">
+                <i className="ti ti-trash" style={{ fontSize: "1.25rem", color: "var(--status-open)" }} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+    <div style={{ minHeight: "100vh", padding: "32px 0", maxWidth: 1200, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
       {/* Header */}
-      <Box mb={3}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h4 style={{ fontWeight: 700, margin: "0 0 8px 0", fontSize: "2.125rem", color: "var(--ink-primary)" }}>
           Issue Management
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </h4>
+        <p style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", margin: 0 }}>
           Review, filter and moderate reported issues. Scroll to load more.
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Filters */}
-      <Card
-        sx={{
-          mb: 3,
-          borderRadius: 2,
-          background: "var(--glass-bg)",
-          boxShadow: "var(--shadow-light)",
+      <div
+        className="card"
+        style={{
+          marginBottom: 24,
+          borderRadius: 16,
+          background: "var(--surface-base)",
+          boxShadow: "var(--shadow-sm)",
         }}>
-        <CardContent
-          sx={{
+        <div
+          style={{
             display: "flex",
-            gap: 2,
+            gap: 16,
             flexWrap: "wrap",
             alignItems: "center",
+            padding: 24,
           }}>
-          <TextField
-            size="small"
-            placeholder="Search by title..."
-            startAdornment={<Search />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ minWidth: 240 }}
-          />
+          <div style={{ position: "relative", minWidth: 240 }}>
+            <i className="ti ti-search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--ink-tertiary)" }} />
+            <input
+              className="input"
+              style={{ paddingLeft: 36, width: "100%" }}
+              placeholder="Search by title..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
+          <div style={{ minWidth: 160 }}>
+            <select
+              className="input"
               value={statusFilter}
-              label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}>
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="Open">Open</MenuItem>
-              <MenuItem value="In Progress">In Progress</MenuItem>
-              <MenuItem value="Resolved">Resolved</MenuItem>
-            </Select>
-          </FormControl>
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ width: "100%" }}>
+              <option value="all">Status: All</option>
+              <option value="Open">Status: Open</option>
+              <option value="In Progress">Status: In Progress</option>
+              <option value="Resolved">Status: Resolved</option>
+            </select>
+          </div>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Category</InputLabel>
-            <Select
+          <div style={{ minWidth: 160 }}>
+            <select
+              className="input"
               value={categoryFilter}
-              label="Category"
-              onChange={(e) => setCategoryFilter(e.target.value)}>
-              <MenuItem value="all">All</MenuItem>
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{ width: "100%" }}>
+              <option value="all">Category: All</option>
               {categories.map((c) => (
-                <MenuItem key={c} value={c}>
+                <option key={c} value={c}>
                   {c}
-                </MenuItem>
+                </option>
               ))}
-            </Select>
-          </FormControl>
+            </select>
+          </div>
 
-          <TextField
-            size="small"
+          <input
+            className="input"
+            style={{ minWidth: 160 }}
             placeholder="City / Area"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
-            sx={{ minWidth: 160 }}
           />
 
-          <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-            <Button
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button
+              className="btn btn-outline"
+              style={{ padding: "6px 12px" }}
               onClick={() => {
                 setSearch("");
                 setStatusFilter("all");
@@ -537,26 +518,30 @@ export default function IssueManagement() {
                 loadFirstPage();
               }}>
               Reset
-            </Button>
-            <Button variant="contained" onClick={() => loadFirstPage()}>
+            </button>
+            <button 
+              className="btn btn-primary" 
+              style={{ padding: "6px 16px" }}
+              onClick={() => loadFirstPage()}
+            >
               Apply
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* List */}
-      <Box>
+      <div>
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress />
-          </Box>
+          <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
+            <span className="spinner" style={{ "--sz": "40px" }} />
+          </div>
         ) : issues.length === 0 ? (
-          <Card sx={{ borderRadius: 2 }}>
-            <CardContent>
-              <Typography color="text.secondary">No issues found.</Typography>
-            </CardContent>
-          </Card>
+          <div className="card" style={{ borderRadius: 16 }}>
+            <div style={{ padding: 24 }}>
+              <p style={{ color: "var(--ink-secondary)", margin: 0 }}>No issues found.</p>
+            </div>
+          </div>
         ) : (
           issues.map((issue, idx) => (
             <IssueRow
@@ -569,261 +554,331 @@ export default function IssueManagement() {
 
         {/* loading more indicator */}
         {loadingMore && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress size={20} />
-          </Box>
+          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}>
+            <span className="spinner" style={{ "--sz": "20px" }} />
+          </div>
         )}
 
         {/* sentinel for infinite scroll */}
         <div ref={sentinelRef} style={{ height: 1 }} />
-      </Box>
+      </div>
 
       {/* Edit Drawer */}
-      <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
-        <Box sx={{ width: { xs: 320, sm: 520 }, p: 3 }}>
-          {!editingIssue ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                Edit Issue
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                ID: {editingIssue._id || editingIssue.id}
-              </Typography>
+      <div 
+        className={`drawer-overlay ${drawerOpen ? "open" : ""}`} 
+        onClick={closeDrawer}
+      >
+        <div 
+          className="drawer" 
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ padding: 24, display: "flex", flexDirection: "column", height: "100%" }}>
+            {!editingIssue ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
+                <span className="spinner" style={{ "--sz": "40px" }} />
+              </div>
+            ) : (
+              <>
+                <h6 style={{ fontWeight: 700, margin: "0 0 8px 0", fontSize: "1.25rem", color: "var(--ink-primary)" }}>
+                  Edit Issue
+                </h6>
+                <p style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", margin: "0 0 16px 0" }}>
+                  ID: {editingIssue._id || editingIssue.id}
+                </p>
 
-              <TextField
-                label="Title"
-                value={editingIssue.title || ""}
-                onChange={(e) =>
-                  setEditingIssue((s) => ({ ...s, title: e.target.value }))
-                }
-                fullWidth
-                size="small"
-                sx={{ mb: 2 }}
-              />
+                <div className="form-group">
+                  <label>Title</label>
+                  <input
+                    className="input"
+                    value={editingIssue.title || ""}
+                    onChange={(e) =>
+                      setEditingIssue((s) => ({ ...s, title: e.target.value }))
+                    }
+                  />
+                </div>
 
-              <TextField
-                label="Description"
-                value={editingIssue.description || ""}
-                onChange={(e) =>
-                  setEditingIssue((s) => ({
-                    ...s,
-                    description: e.target.value,
-                  }))
-                }
-                fullWidth
-                multiline
-                minRows={4}
-                size="small"
-                sx={{ mb: 2 }}
-              />
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    className="input"
+                    value={editingIssue.description || ""}
+                    onChange={(e) =>
+                      setEditingIssue((s) => ({
+                        ...s,
+                        description: e.target.value,
+                      }))
+                    }
+                    rows={4}
+                  />
+                </div>
 
-              <FormControl size="small" fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  value={editingIssue.category || ""}
-                  label="Category"
-                  onChange={(e) =>
-                    setEditingIssue((s) => ({ ...s, category: e.target.value }))
-                  }>
-                  {categories.length ? (
-                    categories.map((c) => (
-                      <MenuItem key={c} value={c}>
-                        {c}
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <>
-                      <MenuItem value="Road">Road</MenuItem>
-                      <MenuItem value="Water">Water</MenuItem>
-                      <MenuItem value="Electricity">Electricity</MenuItem>
-                      <MenuItem value="Garbage">Garbage</MenuItem>
-                    </>
-                  )}
-                </Select>
-              </FormControl>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    className="input"
+                    value={editingIssue.category || ""}
+                    onChange={(e) =>
+                      setEditingIssue((s) => ({ ...s, category: e.target.value }))
+                    }>
+                    {categories.length ? (
+                      categories.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="Road">Road</option>
+                        <option value="Water">Water</option>
+                        <option value="Electricity">Electricity</option>
+                        <option value="Garbage">Garbage</option>
+                      </>
+                    )}
+                  </select>
+                </div>
 
-              <TextField
-                label="Location"
-                value={editingIssue.location || ""}
-                onChange={(e) =>
-                  setEditingIssue((s) => ({ ...s, location: e.target.value }))
-                }
-                fullWidth
-                size="small"
-                sx={{ mb: 2 }}
-              />
+                <div className="form-group">
+                  <label>Location</label>
+                  <input
+                    className="input"
+                    value={editingIssue.location || ""}
+                    onChange={(e) =>
+                      setEditingIssue((s) => ({ ...s, location: e.target.value }))
+                    }
+                  />
+                </div>
 
-              <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                <Button
-                  variant="outlined"
-                  onClick={closeDrawer}
-                  disabled={editLoading}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={saveEdits}
-                  disabled={editLoading}>
-                  {editLoading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </Box>
-            </>
-          )}
-        </Box>
-      </Drawer>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button
+                    className="btn btn-outline"
+                    onClick={closeDrawer}
+                    disabled={editLoading}>
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={saveEdits}
+                    disabled={editLoading}>
+                    {editLoading ? (
+                      <span className="spinner" style={{ "--sz": "16px" }} />
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Delete Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete this issue? This action cannot be
-            undone.
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-            {deletingIssue?.title}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            disabled={deleteLoading}>
-            Cancel
-          </Button>
-          <Button
-            color="error"
-            onClick={performDelete}
-            disabled={deleteLoading}
-            variant="contained">
-            {deleteLoading ? <CircularProgress size={16} /> : "Delete"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {deleteDialogOpen && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: 400, width: "100%" }}>
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-subtle)" }}>
+              <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 500 }}>
+                Confirm Delete
+              </h2>
+            </div>
+            <div style={{ padding: 24 }}>
+              <p style={{ margin: 0, color: "var(--ink-primary)" }}>
+                Are you sure you want to delete this issue? This action cannot be undone.
+              </p>
+              <p style={{ fontSize: "0.75rem", color: "var(--ink-secondary)", marginTop: 8 }}>
+                {deletingIssue?.title}
+              </p>
+            </div>
+            <div style={{ padding: 16, display: "flex", justifyContent: "flex-end", gap: 8, borderTop: "1px solid var(--border-subtle)" }}>
+              <button 
+                className="btn btn-outline" 
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                style={{ background: "var(--status-open)", borderColor: "var(--status-open)" }}
+                onClick={performDelete} 
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? <span className="spinner" style={{ "--sz": "16px" }} /> : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* view dialog */}
-      <Modal open={viewModalOpen} onClose={handleCloseViewModal}>
-        <Box
-          sx={{
-            width: 500,
-            bgcolor: "background.paper",
-            p: 3,
-            borderRadius: 2,
-            mx: "auto",
-            mt: "10vh",
-          }}>
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            Issue Details
-          </Typography>
+      {viewModalOpen && (
+        <div className="modal-backdrop" onClick={handleCloseViewModal}>
+          <div 
+            className="modal" 
+            style={{ maxWidth: 500, width: "100%", margin: "10vh auto", maxHeight: "80vh", overflowY: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ padding: 24 }}>
+              <h6 style={{ margin: "0 0 16px 0", fontWeight: 600, fontSize: "1.25rem", color: "var(--ink-primary)" }}>
+                Issue Details
+              </h6>
 
-          {selectedIssue && (
-            <>
-              <Typography>
-                <strong>Title:</strong> {selectedIssue.title}
-              </Typography>
-              <Typography>
-                <strong>Category:</strong> {selectedIssue.category}
-              </Typography>
-              <Typography>
-                <strong>Status:</strong> {selectedIssue.status}
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                <strong>Description:</strong>
-                <br />
-                {selectedIssue.description}
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                <strong>Reported By:</strong> {selectedIssue.reportedBy?.name}
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
-                <strong>Created At:</strong>{" "}
-                {new Date(selectedIssue.createdAt).toLocaleString()}
-              </Typography>
-            </>
-          )}
+              {selectedIssue && (
+                <>
+                  <p style={{ margin: "0 0 8px 0", color: "var(--ink-primary)" }}>
+                    <strong>Title:</strong> {selectedIssue.title}
+                  </p>
+                  <p style={{ margin: "0 0 8px 0", color: "var(--ink-primary)" }}>
+                    <strong>Category:</strong> {selectedIssue.category}
+                  </p>
+                  <p style={{ margin: "0 0 8px 0", color: "var(--ink-primary)" }}>
+                    <strong>Status:</strong> {selectedIssue.status}
+                  </p>
+                  <p style={{ margin: "8px 0", color: "var(--ink-primary)" }}>
+                    <strong>Description:</strong>
+                    <br />
+                    {selectedIssue.description}
+                  </p>
+                  <p style={{ margin: "8px 0 0 0", color: "var(--ink-primary)" }}>
+                    <strong>Reported By:</strong> {selectedIssue.reportedBy?.name}
+                  </p>
+                  <p style={{ margin: "8px 0 0 0", color: "var(--ink-primary)" }}>
+                    <strong>Created At:</strong>{" "}
+                    {new Date(selectedIssue.createdAt).toLocaleString()}
+                  </p>
+                </>
+              )}
 
-          <Box textAlign="right" mt={3}>
-            <Button variant="contained" onClick={handleCloseViewModal}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+              <div style={{ textAlign: "right", marginTop: 24 }}>
+                <button className="btn btn-primary" onClick={handleCloseViewModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        onClose={() => setToast((t) => ({ ...t, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-        <Alert severity={toast.severity}>{toast.message}</Alert>
-      </Snackbar>
+      {toast.open && (
+        <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1400 }}>
+          <div style={{ 
+            background: toast.severity === "success" ? "var(--status-done)" : "var(--status-open)", 
+            color: "#fff", 
+            padding: "12px 24px", 
+            borderRadius: 8, 
+            boxShadow: "var(--shadow-md)",
+            fontSize: "0.875rem",
+            fontWeight: 500
+          }}>
+            {toast.message}
+          </div>
+        </div>
+      )}
 
       {/* AI Response Suggestion Dialog */}
-      <Dialog
-        open={aiResponseDialog.open}
-        onClose={() => setAiResponseDialog((p) => ({ ...p, open: false }))}
-        maxWidth="sm"
-        fullWidth>
-        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <AutoAwesomeIcon sx={{ color: "primary.main", fontSize: 20 }} />
-          AI Response Suggestion
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Status changed to <strong>{aiResponseDialog.newStatus}</strong>.
-            Here's a suggested public response you can use:
-          </Typography>
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              background: "rgba(25,118,210,0.05)",
-              border: "1px solid rgba(25,118,210,0.15)",
-              fontStyle: "italic",
-              fontSize: 14,
-              lineHeight: 1.7,
-            }}>
-            {aiResponseDialog.suggestion}
-          </Box>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 1.5, display: "block" }}>
-            You can copy this and post it as a comment on the issue.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              navigator.clipboard?.writeText(aiResponseDialog.suggestion);
-              setToast({
-                open: true,
-                message: "Copied to clipboard",
-                severity: "success",
-              });
-            }}>
-            Copy
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => setAiResponseDialog((p) => ({ ...p, open: false }))}>
-            Done
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {aiResponseDialog.open && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: 600, width: "100%" }}>
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", gap: 8 }}>
+              <i className="ti ti-sparkles" style={{ color: "var(--accent)", fontSize: 20 }} />
+              <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 500 }}>
+                AI Response Suggestion
+              </h2>
+            </div>
+            
+            <div style={{ padding: 24 }}>
+              <p style={{ fontSize: "0.875rem", color: "var(--ink-secondary)", marginBottom: 16 }}>
+                Status changed to <strong>{aiResponseDialog.newStatus}</strong>.
+                Here's a suggested public response you can use:
+              </p>
+              <div
+                style={{
+                  padding: 16,
+                  borderRadius: 8,
+                  background: "var(--surface-subtle)",
+                  border: "1px solid var(--border-subtle)",
+                  fontStyle: "italic",
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  color: "var(--ink-primary)"
+                }}>
+                {aiResponseDialog.suggestion}
+              </div>
+              <p
+                style={{ fontSize: "0.75rem", color: "var(--ink-secondary)", marginTop: 16, display: "block" }}>
+                You can copy this and paste it as a comment on the issue.
+              </p>
+            </div>
+            
+            <div style={{ padding: 16, display: "flex", justifyContent: "flex-end", gap: 8, borderTop: "1px solid var(--border-subtle)" }}>
+              <button 
+                className="btn btn-outline" 
+                onClick={() => setAiResponseDialog((p) => ({ ...p, open: false }))}
+              >
+                Close
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={() => {
+                  navigator.clipboard.writeText(aiResponseDialog.suggestion);
+                  setToast({ open: true, message: "Copied to clipboard!", severity: "success" });
+                  setAiResponseDialog((p) => ({ ...p, open: false }));
+                }} 
+              >
+                Copy to Clipboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .drawer-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 1300;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+        }
+        
+        .drawer-overlay.open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        
+        .drawer {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 320px;
+          background: var(--surface-base);
+          box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        }
+        
+        @media (min-width: 600px) {
+          .drawer {
+            width: 520px;
+          }
+        }
+        
+        .drawer-overlay.open .drawer {
+          transform: translateX(0);
+        }
+      `}</style>
+    </div>
   );
 }

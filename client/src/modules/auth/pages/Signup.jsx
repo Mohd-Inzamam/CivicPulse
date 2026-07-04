@@ -1,16 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Grid,
-  Typography,
-  Alert,
-  Divider,
-  Button,
-  Avatar,
-} from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
 import FormField from "../../../components/common/FormField";
 import PasswordField from "../../../components/common/PasswordField";
 import SelectField from "../../../components/common/SelectField";
@@ -18,7 +7,6 @@ import SubmitButton from "../../../components/common/SubmitButton";
 import RoleToggle from "../../../components/common/RoleToggle";
 import PageCard from "../../../components/common/PageCard";
 import PasswordStrengthIndicator from "../../../components/common/PasswordStrengthIndicator";
-
 import { API_ENDPOINTS } from "../../../config/api";
 
 const ROLES = [
@@ -208,31 +196,15 @@ export default function Signup() {
   const roleOptions = ROLES.map((role) => ({ value: role, label: role }));
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 5 }}>
-      <Grid item xs={12} sm={10} md={6} lg={5}>
-        <PageCard title="Sign Up" sx={{ maxWidth: 450, margin: "0 auto" }}>
-          <div style={{ marginBottom: "20px" }}>
+    <div style={{ display: "flex", justifyContent: "center", padding: "40px 16px" }}>
+      <div style={{ width: "100%", maxWidth: 500 }}>
+        <PageCard title="Sign Up" subtitle="Create your CivicPulse account">
+          <div style={{ marginBottom: 24 }}>
             <RoleToggle value={role} onChange={setRole} />
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginBottom: 24,
-            }}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 24,
-              }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24, animation: "fadeInUp 0.3s ease-out" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
               <div
                 style={{
                   width: 80,
@@ -249,24 +221,15 @@ export default function Signup() {
                   <img
                     src={avatarPreview}
                     alt="Avatar preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 ) : (
-                  <i
-                    className="ti ti-user"
-                    style={{ fontSize: 32, color: "var(--ink-disabled)" }}
-                    aria-hidden="true"
-                  />
+                  <i className="ti ti-user" style={{ fontSize: 32, color: "var(--ink-disabled)" }} />
                 )}
               </div>
-              <label
-                className="btn btn-ghost btn-sm"
-                style={{ cursor: "pointer" }}>
-                <i className="ti ti-upload" aria-hidden="true" /> Upload photo
+              
+              <label className="btn btn-outline" style={{ cursor: "pointer", borderRadius: 20, padding: "4px 12px", fontSize: "0.875rem" }}>
+                <i className="ti ti-upload" style={{ marginRight: 6 }} /> Upload photo
                 <input
                   type="file"
                   hidden
@@ -275,21 +238,18 @@ export default function Signup() {
                 />
               </label>
             </div>
-          </motion.div>
+          </div>
 
-          <AnimatePresence>
-            {error && (
-              <div className="alert alert-error" style={{ marginBottom: 16 }}>
-                <i className="ti ti-alert-circle" aria-hidden="true" /> {error}
-              </div>
-            )}
-            {success && (
-              <div className="alert alert-success" style={{ marginBottom: 16 }}>
-                <i className="ti ti-circle-check" aria-hidden="true" />{" "}
-                {success}
-              </div>
-            )}
-          </AnimatePresence>
+          {error && (
+            <div className="alert alert-error" style={{ marginBottom: 16 }}>
+              <i className="ti ti-alert-circle" /> {error}
+            </div>
+          )}
+          {success && (
+            <div className="alert alert-success" style={{ marginBottom: 16 }}>
+              <i className="ti ti-circle-check" /> {success}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <FormField
@@ -299,7 +259,6 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               error={fieldErrors.fullName}
-              animationDelay={0.1}
             />
             <FormField
               label="Email"
@@ -309,14 +268,12 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               error={fieldErrors.email}
-              animationDelay={0.2}
             />
             <PasswordField
               value={form.password}
               onChange={handleChange}
               onBlur={handleBlur}
               error={fieldErrors.password}
-              animationDelay={0.3}
             />
             <PasswordStrengthIndicator password={form.password} />
             <PasswordField
@@ -326,25 +283,18 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               error={fieldErrors.confirmPassword}
-              animationDelay={0.4}
             />
 
             {role === "user" ? (
-              <div>
-                <FormField
-                  label="Phone (optional)"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="+91 98765 43210"
-                />
-              </div>
+              <FormField
+                label="Phone (optional)"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="+91 98765 43210"
+              />
             ) : (
-              <div
-                style={{
-                  borderTop: "0.5px solid var(--border-subtle)",
-                  paddingTop: 16,
-                }}>
+              <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 16, marginTop: 16, animation: "fadeInUp 0.3s ease-out" }}>
                 <FormField
                   label="Department No"
                   name="department"
@@ -394,32 +344,34 @@ export default function Signup() {
               </div>
             )}
 
-            <SubmitButton
-              loading={loading}
-              animationDelay={role === "admin" ? 1.2 : 0.6}>
+            <SubmitButton loading={loading}>
               Sign Up
             </SubmitButton>
 
-            <div className="divider-labeled" style={{ margin: "16px 0" }}>
+            <div className="divider-labeled" style={{ margin: "24px 0 16px" }}>
               or
             </div>
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: 13,
-                color: "var(--ink-tertiary)",
-              }}>
+            
+            <p style={{ textAlign: "center", fontSize: 13, color: "var(--ink-tertiary)", margin: 0 }}>
               Already have an account?{" "}
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
+                className="btn btn-ghost"
+                style={{ padding: "4px 8px", fontSize: "0.875rem" }}
                 onClick={() => navigate("/login")}>
                 Login
               </button>
             </p>
           </form>
         </PageCard>
-      </Grid>
-    </Grid>
+      </div>
+      
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
   );
 }
